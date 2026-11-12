@@ -7,7 +7,7 @@ Executadas em 12/11/2026 no ambiente descrito no fim deste documento. Os relató
 | Tipagem (estrita) | `npm run typecheck` | ✅ sem erros |
 | Lint | `npm run lint` | ✅ sem erros |
 | Testes de cena, editor, desenho, API e presença | `npm test` | ✅ **70/70** (cena 8 · operações do editor 12 · desenho livre 6 · API 32 · presença e avatares 12) |
-| Aceite no navegador real | `npm run e2e` | ✅ **20/20**, 0 erros de página (Chromium 157) |
+| Aceite no navegador real | `npm run e2e` | ⚠️ **instável**: passou 20/20 antes dos avatares e **18/20 nas duas rodadas depois deles**, com falhas diferentes em cada uma (ver [continuar.md](continuar.md#pendências-em-ordem)). 0 erros de página |
 | glTF Validator (Khronos) | `npm run assets:validate` | ✅ 52 modelos, **0 erros**, 4 avisos (espaço tangente gerado) |
 | Construir a estrutura do zero | `npm run e2e:draw` | ✅ **7/7** (plano vazio → piso arrastado → 4 paredes ponto a ponto → janela e porta → esticar parede → publicar) |
 | Build de produção | `npm run build` | ✅ (blocos: app 231 KB, r3f 387 KB, three 684 KB; gzip 71 + 125 + 176 KB) |
@@ -78,6 +78,26 @@ Os testes de aceite rodam com renderização por software (SwiftShader). Por iss
 ## Construção livre da estrutura (`npm run e2e:draw`)
 
 No navegador real, com o mouse: esvazia o rascunho, arrasta um piso de 8 × 6 m (madeira), desenha 4 paredes clicando nos cantos e fecha o contorno no primeiro ponto, clica uma janela e uma porta nas paredes, estica a parede norte de 8 para 10 m pelo puxador da ponta, desfaz e refaz, salva, publica e confere a estrutura na sessão do operador.
+
+## Avatares ao vivo com duas pessoas (`npm run e2e:avatars`)
+
+Duas sessões de navegador separadas, pelos fluxos normais da interface: **A** é o operador Otávio (Mesa 05) e **B** é a administradora observando a cena. Tolerância de offline reduzida para 3 s e validade da digitação para 4 s, só para o teste.
+
+1. **Offline:** sem avatar; a Mesa 05 continua visível e atribuída ao Otávio.
+2. **Online:** o avatar aparece na sessão B, sem recarregar, exatamente no assento da Mesa 05.
+3. **Troca de roupa:** a edição não salva fica só na pré-visualização de A. Depois de salvar, o terno aparece em B sem recarregar.
+4. **Digitação no chat interno:** a pose de digitação aparece em B. Ao sair do campo, volta ao trabalho, sem enviar mensagem.
+5. **Atendimento:** headset equipado e balão "Em atendimento", que vira "•••" com o sinal de fala.
+6. **Prioridade:** digitar durante a chamada continua "em atendimento". Ao encerrar, o estado é recalculado.
+7. **Duas sessões do mesmo colaborador:** fechar uma mantém o avatar. Fechar a última remove o avatar depois da tolerância, e não antes.
+8. **Reconexão:** A volta com a aparência salva. B recarrega e vê um único avatar, sem duplicata.
+9. **Autorização:** a administradora tenta salvar o avatar do Otávio pela API e recebe 403.
+
+**Defeitos encontrados por este roteiro e corrigidos:**
+
+- **O diálogo roubava o foco a cada evento de presença.** O componente `Dialog` refazia o foco inicial sempre que o pai renderizava de novo, e isso tirava o cursor do campo enquanto a pessoa digitava. Também mandava "parou de digitar" 60 ms depois de "começou". Agora o foco só é ajustado ao abrir.
+- **Corrida no servidor de presença:** duas leituras simultâneas podiam criar dois estados para a mesma pessoa e perder a conexão dela.
+- **Versão que regredia:** depois de um `resync`, a versão voltava a 0 e o cliente descartava os eventos novos como atrasados. Agora a versão parte do contador global e nunca regride. Há teste em `tests/live.test.ts`.
 
 ## Correção: paredes piscando nos cantos
 

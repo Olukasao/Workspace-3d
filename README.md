@@ -144,6 +144,7 @@ docs/            reaproveitamento do FigureBox, integrações, assets, decisões
 - [docs/decisions.md](docs/decisions.md): decisões técnicas
 - [docs/verification.md](docs/verification.md): resultado das verificações e da medição de desempenho
 - [docs/production-gaps.md](docs/production-gaps.md): o que falta para produção
+- [docs/continuar.md](docs/continuar.md): onde paramos, decisões, pendências e como continuar de outro computador
 - [docs/avatars.md](docs/avatars.md): avatares (catálogo, persistência, pipeline, licenças, clipping, desempenho com 25 avatares, lacunas)
 - [docs/characters-roadmap.md](docs/characters-roadmap.md): roteiro antigo de personagens, substituído pelos avatares
 

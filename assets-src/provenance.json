@@ -1,0 +1,972 @@
+{
+  "generatedAt": "2026-11-12T12:34:34.256Z",
+  "items": [
+    {
+      "slug": "cadeira-escritorio",
+      "sourceType": "polypizza",
+      "title": "Office Chair",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/UfKvrZBK6C",
+      "downloadUrl": "https://static.poly.pizza/ac2301f3-af86-435a-885a-d8f1a32f9f76.glb",
+      "originalFile": "polypizza/cadeira-escritorio.glb",
+      "originalFormat": "glb",
+      "originalSha256": "0f1a9180dbe0dc4116fa17b9b03e6002f75110e2a0f4ed0ff20a40b384240a76",
+      "originalBytes": 115760,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 2116,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "cadeira-executiva",
+      "sourceType": "polypizza",
+      "title": "Office Chair",
+      "author": "CMHT Oculus",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/dCEsSsJJ1Md",
+      "downloadUrl": "https://static.poly.pizza/839cb27a-f920-48d4-805c-6b8c02ca9fcf.glb",
+      "originalFile": "polypizza/cadeira-executiva.glb",
+      "originalFormat": "glb",
+      "originalSha256": "570b48f61b0d02a8acfd43027b2b2015dce26df28620be5f823164c3e98c339a",
+      "originalBytes": 61668,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 2222,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "sofa-recepcao",
+      "sourceType": "polypizza",
+      "title": "Couch Medium",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/mWgQ94zhDZ",
+      "downloadUrl": "https://static.poly.pizza/92a2404e-10d5-4c6a-a188-18b556474f8f.glb",
+      "originalFile": "polypizza/sofa-recepcao.glb",
+      "originalFormat": "glb",
+      "originalSha256": "7003e8c52669c171090231f8589aa23090d53eb9a4bb8d4b3adecef93561c30d",
+      "originalBytes": 22940,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 1012,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "copiadora",
+      "sourceType": "polypizza",
+      "title": "Office Printer / Copier",
+      "author": "Bruno Oliveira",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/bgNnmejxBa-",
+      "downloadUrl": "https://static.poly.pizza/835d34c6-999a-4b91-b737-4545ede05eca.glb",
+      "originalFile": "polypizza/copiadora.glb",
+      "originalFormat": "glb",
+      "originalSha256": "ecb1a4ce3b4c89737ef59460b0673638cbf4992d3550609e703cd3c840ddb225",
+      "originalBytes": 53388,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 916,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "impressora-mesa",
+      "sourceType": "polypizza",
+      "title": "Printer",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/77K2TCL5Lz",
+      "downloadUrl": "https://static.poly.pizza/d113dfe6-cda8-4153-b95e-e33bb54e6171.glb",
+      "originalFile": "polypizza/impressora-mesa.glb",
+      "originalFormat": "glb",
+      "originalSha256": "57339092a6c88504ef4e2874700206419ba552606d0f7cfc39ee55178fad37c5",
+      "originalBytes": 22692,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 182,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "monitor",
+      "sourceType": "polypizza",
+      "title": "Monitor",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/PvSjEbz11k",
+      "downloadUrl": "https://static.poly.pizza/9f6ea5f4-d71c-4217-a8d4-6768ad0f4f47.glb",
+      "originalFile": "polypizza/monitor.glb",
+      "originalFormat": "glb",
+      "originalSha256": "52e01381d65cbcab7d8c8551f594d6fe1a46f6737a6174c7714bda7700c7c729",
+      "originalBytes": 15288,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 84,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "desktop-torre",
+      "sourceType": "polypizza",
+      "title": "Computer",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/7KNoiQlSxi",
+      "downloadUrl": "https://static.poly.pizza/ec47fb93-0286-4dc1-b434-9292c6a7eb77.glb",
+      "originalFile": "polypizza/desktop-torre.glb",
+      "originalFormat": "glb",
+      "originalSha256": "7bee55993761bb47caf1f395584a11a2a1d5f6c1915bfd382a488151561e9748",
+      "originalBytes": 27420,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 324,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "notebook",
+      "sourceType": "polypizza",
+      "title": "Laptop",
+      "author": "Poly by Google",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/bxB1L0m8LzZ",
+      "downloadUrl": "https://static.poly.pizza/af6774b2-c748-47e6-9454-119e9e34c976.glb",
+      "originalFile": "polypizza/notebook.glb",
+      "originalFormat": "glb",
+      "originalSha256": "d81ed000ef56b285f8595cd5d7576a89219e9c08985c99cdc59c1ef48fe7e23a",
+      "originalBytes": 1450296,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 1240,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "teclado",
+      "sourceType": "polypizza",
+      "title": "Keyboard",
+      "author": "Poly by Google",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/aPwr5p1dluw",
+      "downloadUrl": "https://static.poly.pizza/b924dfb3-e914-4b88-bd2e-84860a9aad86.glb",
+      "originalFile": "polypizza/teclado.glb",
+      "originalFormat": "glb",
+      "originalSha256": "aa90bcb631d5fe37761f67b5ec2d9f98e5da21bc19aa5e410fe8b30c72407070",
+      "originalBytes": 44712,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 2224,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "mouse",
+      "sourceType": "polypizza",
+      "title": "Computer Mouse",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/V2Ebx3pvo4",
+      "downloadUrl": "https://static.poly.pizza/c0123ed1-38d1-4532-a711-3fccdc42fe25.glb",
+      "originalFile": "polypizza/mouse.glb",
+      "originalFormat": "glb",
+      "originalSha256": "75ed200f645b00c86ab4580aecf9d8c72af924e306c4c987bb8426e6d043b8ed",
+      "originalBytes": 16280,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 100,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "telefone",
+      "sourceType": "polypizza",
+      "title": "Office Phone",
+      "author": "dook",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/YxfMuchpUF",
+      "downloadUrl": "https://static.poly.pizza/3ef2f771-ded7-47ee-9fb1-4586890c72c7.glb",
+      "originalFile": "polypizza/telefone.glb",
+      "originalFormat": "glb",
+      "originalSha256": "3f6991e0b463de5391ef44963e6d0a504dbe5092af0ba8a39028344b7cf76107",
+      "originalBytes": 362728,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 5216,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "tv-parede",
+      "sourceType": "polypizza",
+      "title": "Flat Screen TV",
+      "author": "Alex Safayan",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/cQ6pt8VHR7G",
+      "downloadUrl": "https://static.poly.pizza/c79a9308-e9f8-46c1-9a39-7c8375a23992.glb",
+      "originalFile": "polypizza/tv-parede.glb",
+      "originalFormat": "glb",
+      "originalSha256": "492d711fbba303dd9bb5e46882e39fa5c47cd3a499d541afcaf96a478fbdc505",
+      "originalBytes": 31692,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 148,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "tv-pedestal",
+      "sourceType": "polypizza",
+      "title": "Flat-screen TV",
+      "author": "J-Toastie",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/KmT5q0N2AH",
+      "downloadUrl": "https://static.poly.pizza/729fbdf0-6bf1-478c-800b-649a458822ac.glb",
+      "originalFile": "polypizza/tv-pedestal.glb",
+      "originalFormat": "glb",
+      "originalSha256": "3cfacd123ac3acde4a441e1d3b08c65cbb134dfcfe5a484ac0b0de21cd8c8798",
+      "originalBytes": 27688,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 356,
+        "uploadedAs": "OBJ"
+      }
+    },
+    {
+      "slug": "rack-servidor",
+      "sourceType": "polypizza",
+      "title": "server rack",
+      "author": "Jeremy Eyring",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/6ijQclm8jxw",
+      "downloadUrl": "https://static.poly.pizza/a9b585dc-68f4-4a3b-a6b2-ec729cb92aa3.glb",
+      "originalFile": "polypizza/rack-servidor.glb",
+      "originalFormat": "glb",
+      "originalSha256": "95f6f779dcbf40c05ee29670545634deff2f04c64829e7bb90303304dbf93d78",
+      "originalBytes": 1822516,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 760,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "gaveteiro",
+      "sourceType": "polypizza",
+      "title": "File Cabinet",
+      "author": "J-Toastie",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/9732ObD3OY",
+      "downloadUrl": "https://static.poly.pizza/f3276cac-07d4-4924-a3a2-62fec8e315b9.glb",
+      "originalFile": "polypizza/gaveteiro.glb",
+      "originalFormat": "glb",
+      "originalSha256": "9b25bfce1f389c4f8eb3222fd4d1a360343608d914b65453893ba22785d2ff97",
+      "originalBytes": 66464,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 552,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "armario-baixo",
+      "sourceType": "polypizza",
+      "title": "Cabinet",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/wOiMrnUuhe",
+      "downloadUrl": "https://static.poly.pizza/57d9a5e8-3130-42eb-b436-28e1586facc0.glb",
+      "originalFile": "polypizza/armario-baixo.glb",
+      "originalFormat": "glb",
+      "originalSha256": "e5226312183a51c5027f6e6c2e46873c0b0a7b3c9b4ff334c02cb03954b1b944",
+      "originalBytes": 30936,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 324,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "estante-baixa",
+      "sourceType": "polypizza",
+      "title": "Shelf Small",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/TfdgUV2RYe",
+      "downloadUrl": "https://static.poly.pizza/78fd31ee-3daf-44e0-89fb-590fe4a3b717.glb",
+      "originalFile": "polypizza/estante-baixa.glb",
+      "originalFormat": "glb",
+      "originalSha256": "785e674399bf18dd39567004660496e6e617a0a6053e57031a98eef2281f3d46",
+      "originalBytes": 6668,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 92,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "estante-livros",
+      "sourceType": "polypizza",
+      "title": "Medium Book Shelf",
+      "author": "Zsky",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/FeK5BNlpBf",
+      "downloadUrl": "https://static.poly.pizza/4536d31e-44a8-42f7-883e-ea337a6ae4a7.glb",
+      "originalFile": "polypizza/estante-livros.glb",
+      "originalFormat": "glb",
+      "originalSha256": "39858bb5e0873c75e906b68d1ef9d0a752979ac1cd9c0c140e0682d0d399c7ec",
+      "originalBytes": 42876,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 572,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "mesa-redonda",
+      "sourceType": "polypizza",
+      "title": "Table Large Circular",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/aG6qYcqcI0",
+      "downloadUrl": "https://static.poly.pizza/20df77c1-e59c-4b42-ad8f-25868b3a8fdb.glb",
+      "originalFile": "polypizza/mesa-redonda.glb",
+      "originalFormat": "glb",
+      "originalSha256": "bec63961d0f5f3a17e36961b95867e6128b91a7d77036234aa7e97ca598e69cb",
+      "originalBytes": 19444,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 298,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "mesa-madeira",
+      "sourceType": "polypizza",
+      "title": "Table",
+      "author": "Darwin Yamamoto",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/2UW71XCeyGh",
+      "downloadUrl": "https://static.poly.pizza/fbd19537-5e27-4268-94ed-2fbde36b93a7.glb",
+      "originalFile": "polypizza/mesa-madeira.glb",
+      "originalFormat": "glb",
+      "originalSha256": "c5745dd76a7ef3c38f1eb93d96c7901626105313c171d9827ab05b3e133a4fd6",
+      "originalBytes": 10180,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 160,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "mesa-centro",
+      "sourceType": "polypizza",
+      "title": "Coffee Table",
+      "author": "Francisco Hui",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/dP74Xz2DlMe",
+      "downloadUrl": "https://static.poly.pizza/e1efc2b6-cece-40ae-953a-effe688f2dfc.glb",
+      "originalFile": "polypizza/mesa-centro.glb",
+      "originalFormat": "glb",
+      "originalSha256": "4c0c996daa56555205155fbb6a4962197a0662055d2fa9cd2be8906cd3f2ee84",
+      "originalBytes": 18976,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 312,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "planta-vaso-vermelho",
+      "sourceType": "polypizza",
+      "title": "Potted Plant",
+      "author": "CreativeTrio",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/GJ3Bm5FDE4",
+      "downloadUrl": "https://static.poly.pizza/05ba8d9a-adb7-403d-a60c-e2f685bdc250.glb",
+      "originalFile": "polypizza/planta-vaso-vermelho.glb",
+      "originalFormat": "glb",
+      "originalSha256": "38b6daec8d4f0b5cf01edcc8d118c391e376f775e771ac6f8279128ad23d9def",
+      "originalBytes": 37208,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 390,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "planta-folhagem",
+      "sourceType": "polypizza",
+      "title": "Houseplant",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/bfLOqIV5uP",
+      "downloadUrl": "https://static.poly.pizza/1683c0b1-4dd9-4d45-910e-cf3e46f163f5.glb",
+      "originalFile": "polypizza/planta-folhagem.glb",
+      "originalFormat": "glb",
+      "originalSha256": "0de1daa8be12b908fb8d1bf6bd9261e2a50061783e2ebe204bfb434768ca7c53",
+      "originalBytes": 16636,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 449,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "luminaria-piso",
+      "sourceType": "polypizza",
+      "title": "Light Floor",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/eBQtooeh43",
+      "downloadUrl": "https://static.poly.pizza/19259c43-99cb-43c6-aaee-dcf8d1d36fdb.glb",
+      "originalFile": "polypizza/luminaria-piso.glb",
+      "originalFormat": "glb",
+      "originalSha256": "72d57153e3f1f57e9d920cba1b83fbcd3882cc81769d5ccac64010c04a95b5e8",
+      "originalBytes": 10112,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 166,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "luminaria-mesa",
+      "sourceType": "polypizza",
+      "title": "Light Desk",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/uJDWrSJGVH",
+      "downloadUrl": "https://static.poly.pizza/2e1ab34a-eab6-4751-930f-6e3b4f5319a8.glb",
+      "originalFile": "polypizza/luminaria-mesa.glb",
+      "originalFormat": "glb",
+      "originalSha256": "5ea86e46a2fc36f86500fa6a97dc529dc3464189dc34e586375bae3ee5f68075",
+      "originalBytes": 12832,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 356,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "lixeira",
+      "sourceType": "polypizza",
+      "title": "Trashcan Small",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/i7HDuYDLkx",
+      "downloadUrl": "https://static.poly.pizza/2e578103-ce2b-4b31-af0b-af507a52ebc2.glb",
+      "originalFile": "polypizza/lixeira.glb",
+      "originalFormat": "glb",
+      "originalSha256": "6ca0c87eb00f4be690a235287f8469efa1f33200eb882efd3b2202545ccb9af4",
+      "originalBytes": 11796,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 260,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "quadro-arte",
+      "sourceType": "polypizza",
+      "title": "Wall Art 06",
+      "author": "Jarlan Perez",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/2YYlC15J9SZ",
+      "downloadUrl": "https://static.poly.pizza/d5f64760-e583-48b8-86f1-b6da185ad4f7.glb",
+      "originalFile": "polypizza/quadro-arte.glb",
+      "originalFormat": "glb",
+      "originalSha256": "ca56c1153589a2f036c920940f1b1bacfe76a71230a049e5684331041349981e",
+      "originalBytes": 7588,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 73,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "porta-retrato",
+      "sourceType": "polypizza",
+      "title": "Blank Picture Frame",
+      "author": "Jarlan Perez",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/89xZIizrRZ0",
+      "downloadUrl": "https://static.poly.pizza/8151a5c8-952f-46b6-95b9-8b73bc4ab3f4.glb",
+      "originalFile": "polypizza/porta-retrato.glb",
+      "originalFormat": "glb",
+      "originalSha256": "82d372c557c28927e0a651c253c81d90548c067d317cea8a228c438c082543b8",
+      "originalBytes": 9420,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 102,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "relogio-parede",
+      "sourceType": "polypizza",
+      "title": "Analog clock",
+      "author": "Poly by Google",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/5gAoMR2YHs3",
+      "downloadUrl": "https://static.poly.pizza/83ac02a5-b467-464a-b874-17317b9e5dac.glb",
+      "originalFile": "polypizza/relogio-parede.glb",
+      "originalFormat": "glb",
+      "originalSha256": "0eb1148843fc9fb9a564dccaf1f892026ce01d24c4256701e8943f0539394822",
+      "originalBytes": 13656,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 588,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "quadro-branco",
+      "sourceType": "polypizza",
+      "title": "Whiteboard",
+      "author": "jeremy",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/cYQOKE7Wd7D",
+      "downloadUrl": "https://static.poly.pizza/a65757b0-e254-483c-8d31-a6174ada8cf1.glb",
+      "originalFile": "polypizza/quadro-branco.glb",
+      "originalFormat": "glb",
+      "originalSha256": "292f246df0285a56dbd65b9f09a2e20e381a61155e074e63d2157f27207ec352",
+      "originalBytes": 10072,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 28,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "placa-saida",
+      "sourceType": "polypizza",
+      "title": "Fire Exit Sign",
+      "author": "J-Toastie",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/gpft2tHZv4",
+      "downloadUrl": "https://static.poly.pizza/0eb025ce-cee5-4747-a980-21db9a21932b.glb",
+      "originalFile": "polypizza/placa-saida.glb",
+      "originalFormat": "glb",
+      "originalSha256": "cd6b30f49e6585c8a88d734d5f64f8fcf55bf0656c9caec86138f1888b11eff4",
+      "originalBytes": 62376,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 643,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "livros",
+      "sourceType": "polypizza",
+      "title": "Book Stack",
+      "author": "Danni Bittman",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/1WggoIFq8tx",
+      "downloadUrl": "https://static.poly.pizza/b8d88c42-85c7-4b58-8758-09561f47edd0.glb",
+      "originalFile": "polypizza/livros.glb",
+      "originalFormat": "glb",
+      "originalSha256": "8ab619c2453c876699bc3d776a3328cd24e6abfa8bc0cc3cb8b0cfc253916d06",
+      "originalBytes": 45152,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 640,
+        "uploadedAs": "obj"
+      }
+    },
+    {
+      "slug": "caixas",
+      "sourceType": "polypizza",
+      "title": "Cardboard Boxes",
+      "author": "Quaternius",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://poly.pizza/m/V9KbWC8Vd6",
+      "downloadUrl": "https://static.poly.pizza/0ecf2159-df40-4397-ad80-b832b3b82b19.glb",
+      "originalFile": "polypizza/caixas.glb",
+      "originalFormat": "glb",
+      "originalSha256": "e716bfdcff06b26eb365b69aa771b3fa36a13ea0784e00c40f7be58121e68d79",
+      "originalBytes": 25280,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 432,
+        "uploadedAs": "FBX"
+      }
+    },
+    {
+      "slug": "bebedouro",
+      "sourceType": "polypizza",
+      "title": "Water Cooler",
+      "author": "J-Toastie",
+      "license": "CC-BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://poly.pizza/m/zWi9p5FSxD",
+      "downloadUrl": "https://static.poly.pizza/a410e1d9-246d-4613-89a3-90001853c6a2.glb",
+      "originalFile": "polypizza/bebedouro.glb",
+      "originalFormat": "glb",
+      "originalSha256": "6825ad350f0a4ee4604a2d5ca8c30cd1ae65b7fb9be6c0280410824a7b77889e",
+      "originalBytes": 70396,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "triangles": 854,
+        "uploadedAs": "OBJ"
+      }
+    },
+    {
+      "slug": "kn-mesa",
+      "sourceType": "kenney",
+      "title": "desk",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/desk.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "fff1cb3b8ad7460c17eb0106a61f0fc42c5cc95719f7fc9ea5edddff66e1ccd2",
+      "originalBytes": 12885,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/desk.obj"
+      }
+    },
+    {
+      "slug": "kn-mesa-canto",
+      "sourceType": "kenney",
+      "title": "deskCorner",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/deskCorner.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "ab9934c5abd235d86b4a46236eed33c1c64d633cd9e67474506ae0989fdf50e4",
+      "originalBytes": 17087,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/deskCorner.obj"
+      }
+    },
+    {
+      "slug": "kn-cadeira",
+      "sourceType": "kenney",
+      "title": "chairDesk",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/chairDesk.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "7c2f8d1dcc10149a231e87d695b28cec6673a9c05bf590d4cbb03b7093a38869",
+      "originalBytes": 46476,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/chairDesk.obj"
+      }
+    },
+    {
+      "slug": "kn-poltrona",
+      "sourceType": "kenney",
+      "title": "loungeChair",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/loungeChair.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "7c38f348efe44ddb318fa09783254e21dccea3031f71e296ed4a587fde4733c1",
+      "originalBytes": 8411,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/loungeChair.obj"
+      }
+    },
+    {
+      "slug": "kn-estante-aberta",
+      "sourceType": "kenney",
+      "title": "bookcaseOpen",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/bookcaseOpen.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "31beea66f34e64660c870e39c52ed2e81984939c88f4bd763c7dce56e9ef76a9",
+      "originalBytes": 15629,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/bookcaseOpen.obj"
+      }
+    },
+    {
+      "slug": "kn-criado-gavetas",
+      "sourceType": "kenney",
+      "title": "sideTableDrawers",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/sideTableDrawers.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "58567c7f8717ea1207c14cd237f376d935f3f0dc8be0d61af72a1834b10ce020",
+      "originalBytes": 14280,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/sideTableDrawers.obj"
+      }
+    },
+    {
+      "slug": "kn-cafeteira",
+      "sourceType": "kenney",
+      "title": "kitchenCoffeeMachine",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/kitchenCoffeeMachine.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "dba4ce8c5575858f6618e10b1e984dc58dd43fbe51a0207bf5b69f773f6046d3",
+      "originalBytes": 13136,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/kitchenCoffeeMachine.obj"
+      }
+    },
+    {
+      "slug": "kn-luminaria",
+      "sourceType": "kenney",
+      "title": "lampSquareFloor",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/lampSquareFloor.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "c4b35656f587cacf2ccf57d1c0216541923890e878cec0d0f58ff71cd4a71bfc",
+      "originalBytes": 3408,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/lampSquareFloor.obj"
+      }
+    },
+    {
+      "slug": "kn-tapete",
+      "sourceType": "kenney",
+      "title": "rugRectangle",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/rugRectangle.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "0cdd8cea357bc267c9f121b4e7d32513c08f1b179522d95c6632bf2306d38f79",
+      "originalBytes": 1895,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/rugRectangle.obj"
+      }
+    },
+    {
+      "slug": "kn-mesa-centro",
+      "sourceType": "kenney",
+      "title": "tableCoffee",
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://opengameart.org/content/furniture-kit",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_furniturePack.zip",
+      "originalFile": "kenney/tableCoffee.obj",
+      "originalFormat": "obj+mtl",
+      "originalSha256": "8c81c31a74aadc1e89e334eb1ac43380f41c14f47e5dd9a6b029ebf74850adda",
+      "originalBytes": 7036,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "pack": "Furniture Pack (1.0)",
+        "packSha256": "68afa4e6dc8a53942379fb47f1e84ec735d46b77bb1c1ceb968e245693dde067",
+        "packLicenseText": "Furniture Pack (1.0) Exclusive · Created/distributed by Kenney (www.kenney.nl) · ------------------------------ · License: (Creative Commons Zero, CC0)",
+        "fileInPack": "Models/tableCoffee.obj"
+      }
+    },
+    {
+      "slug": "ph-planta",
+      "sourceType": "polyhaven",
+      "title": "Potted Plant 04",
+      "author": "James Ray Cock",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "sourceUrl": "https://polyhaven.com/a/potted_plant_04",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/potted_plant_04/potted_plant_04_1k.gltf",
+      "originalFile": "polyhaven/potted_plant_04/potted_plant_04.gltf",
+      "originalFormat": "gltf+bin+jpg (1k)",
+      "originalSha256": "b3a3bc3e97da75844999c4da07b7104b6c023f729a7c045979929b9504184339",
+      "originalBytes": 2122625,
+      "consultedAt": "2026-11-12"
+    },
+    {
+      "slug": "piso-madeira",
+      "sourceType": "ambientcg",
+      "title": "Wood Floor 051",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sourceUrl": "https://ambientcg.com/a/WoodFloor051",
+      "downloadUrl": "https://ambientcg.com/get?file=WoodFloor051_1K-JPG.zip",
+      "originalFile": "ambientcg/WoodFloor051_Color.jpg",
+      "originalFormat": "jpg 1K (mapa de cor extraído do zip PBR)",
+      "originalSha256": "ffbe4de8765619f278c5f819cd751e003808fa671eb99603abdf82b94ca85e9a",
+      "originalBytes": 1047153,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "zipSha256": "3f493484eab1ec5e1c466b90e515003b286fc6d7f84ff8ff6485900bfc26cef5",
+        "zipBytes": 5104319
+      }
+    },
+    {
+      "slug": "piso-carpete",
+      "sourceType": "ambientcg",
+      "title": "Carpet 016",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sourceUrl": "https://ambientcg.com/a/Carpet016",
+      "downloadUrl": "https://ambientcg.com/get?file=Carpet016_1K-JPG.zip",
+      "originalFile": "ambientcg/Carpet016_Color.jpg",
+      "originalFormat": "jpg 1K (mapa de cor extraído do zip PBR)",
+      "originalSha256": "c6fca66d1d570d27a921d7cb35b1963e83844e2b8ceec70f0193db5e99e04123",
+      "originalBytes": 1207660,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "zipSha256": "b9e67b5d42cb47cead082dedae3767ae228175c857b6b3af6fe7bd4e69237b81",
+        "zipBytes": 9371762
+      }
+    },
+    {
+      "slug": "piso-concreto",
+      "sourceType": "ambientcg",
+      "title": "Concrete 034",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sourceUrl": "https://ambientcg.com/a/Concrete034",
+      "downloadUrl": "https://ambientcg.com/get?file=Concrete034_1K-JPG.zip",
+      "originalFile": "ambientcg/Concrete034_Color.jpg",
+      "originalFormat": "jpg 1K (mapa de cor extraído do zip PBR)",
+      "originalSha256": "8ceb9186d990b31fce785e06fdc6974c160f1d27c43f6160266f164deba713aa",
+      "originalBytes": 269501,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "zipSha256": "5839d284d94ffb8d2a56df742ec522b13dd311c52dbd42b8fd33f0409ceedb81",
+        "zipBytes": 3657575
+      }
+    },
+    {
+      "slug": "piso-ceramica",
+      "sourceType": "ambientcg",
+      "title": "Tiles 141",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sourceUrl": "https://ambientcg.com/a/Tiles141",
+      "downloadUrl": "https://ambientcg.com/get?file=Tiles141_1K-JPG.zip",
+      "originalFile": "ambientcg/Tiles141_Color.jpg",
+      "originalFormat": "jpg 1K (mapa de cor extraído do zip PBR)",
+      "originalSha256": "5ad047e2b23efe633ed4654d7dc5856988e7d643ca66a7b1e7aaa97093dc3294",
+      "originalBytes": 1135438,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "zipSha256": "6ee56eba21592b9c02c6ee78dd93c6b585b62a2558d143d53e19457c82379d52",
+        "zipBytes": 4974199
+      }
+    },
+    {
+      "slug": "metal-escovado",
+      "sourceType": "ambientcg",
+      "title": "Metal 009",
+      "author": "ambientCG (Lennart Demes)",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "sourceUrl": "https://ambientcg.com/a/Metal009",
+      "downloadUrl": "https://ambientcg.com/get?file=Metal009_1K-JPG.zip",
+      "originalFile": "ambientcg/Metal009_Color.jpg",
+      "originalFormat": "jpg 1K (mapa de cor extraído do zip PBR)",
+      "originalSha256": "e066e240ad0eaab6a73fb0f40fa7caa94365160770331babc91de2e8ce6a986f",
+      "originalBytes": 616678,
+      "consultedAt": "2026-11-12",
+      "extra": {
+        "zipSha256": "1b1970219b40fe707e7194b28702f1a65b0d227bbea56da69dfbc8d8b5cfcb5e",
+        "zipBytes": 4767000
+      }
+    }
+  ],
+  "failures": []
+}

@@ -1,0 +1,856 @@
+{
+  "_comment": "Seleção curada de assets. 'fit' escala o modelo (uniforme) para a medida em metros; 'rotY' (graus) deixa a frente em +Z; 'surface' = altura do tampo onde outros objetos apoiam (true = altura total).",
+  "models": [
+    {
+      "slug": "cadeira-escritorio",
+      "name": "Cadeira de escritório",
+      "category": "Assentos",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "UfKvrZBK6C"
+      },
+      "fit": {
+        "h": 1.05
+      }
+    },
+    {
+      "slug": "cadeira-executiva",
+      "name": "Cadeira executiva",
+      "category": "Assentos",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "dCEsSsJJ1Md"
+      },
+      "fit": {
+        "h": 1.2
+      }
+    },
+    {
+      "slug": "sofa-recepcao",
+      "name": "Sofá de recepção",
+      "category": "Assentos",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "mWgQ94zhDZ"
+      },
+      "fit": {
+        "w": 1.9
+      }
+    },
+    {
+      "slug": "copiadora",
+      "name": "Impressora / copiadora",
+      "category": "Equipamentos",
+      "kind": "printer",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "bgNnmejxBa-"
+      },
+      "fit": {
+        "h": 1.1
+      }
+    },
+    {
+      "slug": "impressora-mesa",
+      "name": "Impressora de mesa",
+      "category": "Equipamentos",
+      "kind": "printer",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "77K2TCL5Lz"
+      },
+      "fit": {
+        "w": 0.45
+      }
+    },
+    {
+      "slug": "monitor",
+      "name": "Monitor",
+      "category": "Equipamentos",
+      "kind": "workstation",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "PvSjEbz11k"
+      },
+      "fit": {
+        "w": 0.6
+      }
+    },
+    {
+      "slug": "desktop-torre",
+      "name": "Desktop (torre)",
+      "category": "Equipamentos",
+      "kind": "workstation",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "7KNoiQlSxi"
+      },
+      "fit": {
+        "h": 0.42
+      }
+    },
+    {
+      "slug": "notebook",
+      "name": "Notebook",
+      "category": "Equipamentos",
+      "kind": "workstation",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "bxB1L0m8LzZ"
+      },
+      "fit": {
+        "w": 0.36
+      }
+    },
+    {
+      "slug": "teclado",
+      "name": "Teclado",
+      "category": "Equipamentos",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "aPwr5p1dluw"
+      },
+      "fit": {
+        "w": 0.44
+      }
+    },
+    {
+      "slug": "mouse",
+      "name": "Mouse",
+      "category": "Equipamentos",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "V2Ebx3pvo4"
+      },
+      "fit": {
+        "d": 0.11
+      }
+    },
+    {
+      "slug": "telefone",
+      "name": "Telefone de mesa",
+      "category": "Equipamentos",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "YxfMuchpUF"
+      },
+      "fit": {
+        "w": 0.24
+      }
+    },
+    {
+      "slug": "tv-parede",
+      "name": "TV plana de parede",
+      "category": "Equipamentos",
+      "kind": "tv",
+      "mount": "wall",
+      "source": {
+        "type": "polypizza",
+        "id": "cQ6pt8VHR7G"
+      },
+      "fit": {
+        "w": 1.45
+      }
+    },
+    {
+      "slug": "tv-pedestal",
+      "name": "TV plana com base",
+      "category": "Equipamentos",
+      "kind": "tv",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "KmT5q0N2AH"
+      },
+      "fit": {
+        "w": 1.25
+      },
+      "rotY": -90
+    },
+    {
+      "slug": "rack-servidor",
+      "name": "Rack de servidores",
+      "category": "Equipamentos",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "6ijQclm8jxw"
+      },
+      "fit": {
+        "h": 2
+      },
+      "rotY": -90
+    },
+    {
+      "slug": "gaveteiro",
+      "name": "Gaveteiro de arquivo",
+      "category": "Armazenamento",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "9732ObD3OY"
+      },
+      "fit": {
+        "h": 1.32
+      },
+      "surface": true,
+      "rotY": -90
+    },
+    {
+      "slug": "armario-baixo",
+      "name": "Armário baixo",
+      "category": "Armazenamento",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "wOiMrnUuhe"
+      },
+      "fit": {
+        "h": 0.9
+      },
+      "surface": true
+    },
+    {
+      "slug": "estante-baixa",
+      "name": "Estante baixa",
+      "category": "Armazenamento",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "TfdgUV2RYe"
+      },
+      "fit": {
+        "w": 1.2
+      },
+      "surface": true
+    },
+    {
+      "slug": "estante-livros",
+      "name": "Estante de livros",
+      "category": "Armazenamento",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "FeK5BNlpBf"
+      },
+      "fit": {
+        "h": 1.5
+      }
+    },
+    {
+      "slug": "mesa-redonda",
+      "name": "Mesa de reunião redonda",
+      "category": "Mesas",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "aG6qYcqcI0"
+      },
+      "fit": {
+        "h": 0.72
+      },
+      "surface": true
+    },
+    {
+      "slug": "mesa-madeira",
+      "name": "Mesa de madeira",
+      "category": "Mesas",
+      "kind": "desk",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "2UW71XCeyGh"
+      },
+      "fit": {
+        "h": 0.75
+      },
+      "surface": true
+    },
+    {
+      "slug": "mesa-centro",
+      "name": "Mesa de centro",
+      "category": "Mesas",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "dP74Xz2DlMe"
+      },
+      "fit": {
+        "h": 0.42
+      },
+      "surface": true
+    },
+    {
+      "slug": "planta-vaso-vermelho",
+      "name": "Planta em vaso",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "GJ3Bm5FDE4"
+      },
+      "fit": {
+        "h": 0.9
+      }
+    },
+    {
+      "slug": "planta-folhagem",
+      "name": "Folhagem em vaso",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "bfLOqIV5uP"
+      },
+      "fit": {
+        "h": 0.7
+      }
+    },
+    {
+      "slug": "luminaria-piso",
+      "name": "Luminária de piso",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "eBQtooeh43"
+      },
+      "fit": {
+        "h": 1.65
+      }
+    },
+    {
+      "slug": "luminaria-mesa",
+      "name": "Luminária de mesa",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "uJDWrSJGVH"
+      },
+      "fit": {
+        "h": 0.45
+      }
+    },
+    {
+      "slug": "lixeira",
+      "name": "Lixeira",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "i7HDuYDLkx"
+      },
+      "fit": {
+        "h": 0.38
+      }
+    },
+    {
+      "slug": "quadro-arte",
+      "name": "Quadro decorativo",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "wall",
+      "source": {
+        "type": "polypizza",
+        "id": "2YYlC15J9SZ"
+      },
+      "fit": {
+        "h": 0.9
+      },
+      "rotY": 180
+    },
+    {
+      "slug": "porta-retrato",
+      "name": "Porta-retrato",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "89xZIizrRZ0"
+      },
+      "fit": {
+        "h": 0.24
+      },
+      "rotY": 180
+    },
+    {
+      "slug": "relogio-parede",
+      "name": "Relógio de parede",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "wall",
+      "source": {
+        "type": "polypizza",
+        "id": "5gAoMR2YHs3"
+      },
+      "fit": {
+        "h": 0.36
+      },
+      "rotY": -90
+    },
+    {
+      "slug": "quadro-branco",
+      "name": "Quadro branco",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "wall",
+      "source": {
+        "type": "polypizza",
+        "id": "cYQOKE7Wd7D"
+      },
+      "fit": {
+        "w": 1.8
+      }
+    },
+    {
+      "slug": "placa-saida",
+      "name": "Placa de saída",
+      "category": "Sinalização",
+      "kind": "decor",
+      "mount": "wall",
+      "source": {
+        "type": "polypizza",
+        "id": "gpft2tHZv4"
+      },
+      "fit": {
+        "w": 0.5
+      },
+      "rotY": -90
+    },
+    {
+      "slug": "livros",
+      "name": "Pilha de livros",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "polypizza",
+        "id": "1WggoIFq8tx"
+      },
+      "fit": {
+        "w": 0.26
+      }
+    },
+    {
+      "slug": "caixas",
+      "name": "Caixas de papelão",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "V9KbWC8Vd6"
+      },
+      "fit": {
+        "h": 0.8
+      }
+    },
+    {
+      "slug": "bebedouro",
+      "name": "Bebedouro",
+      "category": "Equipamentos",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polypizza",
+        "id": "zWi9p5FSxD"
+      },
+      "fit": {
+        "h": 1.15
+      }
+    },
+    {
+      "slug": "kn-mesa",
+      "name": "Mesa simples (Kenney)",
+      "category": "Mesas",
+      "kind": "desk",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "desk"
+      },
+      "fit": {
+        "h": 0.74
+      },
+      "surface": true
+    },
+    {
+      "slug": "kn-mesa-canto",
+      "name": "Mesa de canto (Kenney)",
+      "category": "Mesas",
+      "kind": "desk",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "deskCorner"
+      },
+      "fit": {
+        "h": 0.74
+      },
+      "surface": true
+    },
+    {
+      "slug": "kn-cadeira",
+      "name": "Cadeira de mesa (Kenney)",
+      "category": "Assentos",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "chairDesk"
+      },
+      "fit": {
+        "h": 0.95
+      },
+      "rotY": 180
+    },
+    {
+      "slug": "kn-poltrona",
+      "name": "Poltrona (Kenney)",
+      "category": "Assentos",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "loungeChair"
+      },
+      "fit": {
+        "h": 0.8
+      },
+      "rotY": 180
+    },
+    {
+      "slug": "kn-estante-aberta",
+      "name": "Estante aberta (Kenney)",
+      "category": "Armazenamento",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "bookcaseOpen"
+      },
+      "fit": {
+        "h": 1.76
+      }
+    },
+    {
+      "slug": "kn-criado-gavetas",
+      "name": "Aparador com gavetas (Kenney)",
+      "category": "Armazenamento",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "sideTableDrawers"
+      },
+      "fit": {
+        "h": 0.77
+      },
+      "surface": true
+    },
+    {
+      "slug": "kn-cafeteira",
+      "name": "Cafeteira (Kenney)",
+      "category": "Equipamentos",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "kenney",
+        "file": "kitchenCoffeeMachine"
+      },
+      "fit": {
+        "h": 0.36
+      }
+    },
+    {
+      "slug": "kn-luminaria",
+      "name": "Luminária quadrada (Kenney)",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "lampSquareFloor"
+      },
+      "fit": {
+        "h": 1.7
+      }
+    },
+    {
+      "slug": "kn-tapete",
+      "name": "Tapete retangular (Kenney)",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "rugRectangle"
+      },
+      "fit": {
+        "w": 2.4
+      }
+    },
+    {
+      "slug": "kn-mesa-centro",
+      "name": "Mesa de centro (Kenney)",
+      "category": "Mesas",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "kenney",
+        "file": "tableCoffee"
+      },
+      "fit": {
+        "h": 0.42
+      },
+      "surface": true
+    },
+    {
+      "slug": "ph-planta",
+      "name": "Planta em vaso (Poly Haven)",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "floor",
+      "source": {
+        "type": "polyhaven",
+        "id": "potted_plant_04",
+        "author": "James Ray Cock"
+      },
+      "fit": {
+        "h": 0.75
+      },
+      "maxTexture": 512
+    },
+    {
+      "slug": "mesa-reta",
+      "name": "Mesa reta 1,40 m",
+      "category": "Mesas",
+      "kind": "desk",
+      "mount": "floor",
+      "source": {
+        "type": "procedural",
+        "builder": "deskStraight"
+      },
+      "surface": true
+    },
+    {
+      "slug": "mesa-reuniao",
+      "name": "Mesa de reunião 2,40 m",
+      "category": "Mesas",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "procedural",
+        "builder": "meetingTable"
+      },
+      "surface": true
+    },
+    {
+      "slug": "bancada-recepcao",
+      "name": "Bancada de recepção",
+      "category": "Mesas",
+      "kind": "desk",
+      "mount": "floor",
+      "source": {
+        "type": "procedural",
+        "builder": "receptionCounter"
+      },
+      "surface": 0.75
+    },
+    {
+      "slug": "tv-painel",
+      "name": "TV painel 55\" (parede)",
+      "category": "Equipamentos",
+      "kind": "tv",
+      "mount": "wall",
+      "source": {
+        "type": "procedural",
+        "builder": "tvWall"
+      }
+    },
+    {
+      "slug": "divisoria-baixa",
+      "name": "Divisória baixa de estação",
+      "category": "Estrutura",
+      "kind": "furniture",
+      "mount": "floor",
+      "source": {
+        "type": "procedural",
+        "builder": "lowPartition"
+      }
+    },
+    {
+      "slug": "placa-sala",
+      "name": "Placa de identificação",
+      "category": "Sinalização",
+      "kind": "decor",
+      "mount": "wall",
+      "source": {
+        "type": "procedural",
+        "builder": "roomSign"
+      }
+    },
+    {
+      "slug": "caixa-organizadora",
+      "name": "Caixa organizadora",
+      "category": "Decoração",
+      "kind": "decor",
+      "mount": "surface",
+      "source": {
+        "type": "procedural",
+        "builder": "storageBox"
+      },
+      "surface": true
+    }
+  ],
+  "textures": [
+    {
+      "slug": "piso-madeira",
+      "name": "Piso de madeira",
+      "use": "wood",
+      "source": {
+        "type": "ambientcg",
+        "id": "WoodFloor051"
+      }
+    },
+    {
+      "slug": "piso-carpete",
+      "name": "Carpete",
+      "use": "carpet",
+      "source": {
+        "type": "ambientcg",
+        "id": "Carpet016"
+      }
+    },
+    {
+      "slug": "piso-concreto",
+      "name": "Concreto",
+      "use": "concrete",
+      "source": {
+        "type": "ambientcg",
+        "id": "Concrete034"
+      }
+    },
+    {
+      "slug": "piso-ceramica",
+      "name": "Cerâmica",
+      "use": "tile",
+      "source": {
+        "type": "ambientcg",
+        "id": "Tiles141"
+      }
+    },
+    {
+      "slug": "metal-escovado",
+      "name": "Metal escovado",
+      "use": "metal",
+      "source": {
+        "type": "ambientcg",
+        "id": "Metal009"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Desk (dook)",
+      "url": "https://poly.pizza/m/EtJlOllzbf",
+      "license": "CC-BY 3.0",
+      "reason": "Conjunto fundido (mesa + cadeira + computador + acessórios em um só modelo): não serve como peça modular nem para o computador acompanhar a mesa por parentesco. Usado como referência de estilo."
+    },
+    {
+      "name": "Standing Desk (dook)",
+      "url": "https://poly.pizza/m/uxIo5ge0pw",
+      "license": "CC-BY 3.0",
+      "reason": "Mesmo motivo: conjunto fundido com monitores e acessórios."
+    },
+    {
+      "name": "Desk (dook, variação)",
+      "url": "https://poly.pizza/m/ISpMh81QGq",
+      "license": "CC-BY 3.0",
+      "reason": "Mesmo motivo: conjunto fundido com planta e cadeira."
+    },
+    {
+      "name": "Monitor CRT (Poly by Google)",
+      "url": "https://poly.pizza/m/2D221SHzAER",
+      "license": "CC-BY 3.0",
+      "reason": "Referência CRT indicada no briefing; o escritório usa monitor moderno (Monitor, CreativeTrio, CC0)."
+    },
+    {
+      "name": "Monitor estilo all-in-one (Poly by Google)",
+      "url": "https://poly.pizza/m/5qZ5IaClHHw",
+      "license": "CC-BY 3.0",
+      "reason": "Aparência próxima de um produto de marca; preferido o monitor genérico CC0."
+    },
+    {
+      "name": "Laptop / MacBook Pro (Alex Safayan)",
+      "url": "https://poly.pizza/m/27hcX_w47Jb",
+      "license": "CC-BY 3.0",
+      "reason": "Reproduz produto de marca registrada; usado o notebook genérico (Poly by Google)."
+    },
+    {
+      "name": "Kenney Furniture Kit — demais 109 modelos",
+      "url": "https://opengameart.org/content/furniture-kit",
+      "license": "CC0 1.0",
+      "reason": "Fora do escopo de escritório (cozinha, banheiro, quarto). Só o subconjunto listado foi convertido."
+    },
+    {
+      "name": "Poly Haven — potted_plant_01 / potted_plant_02",
+      "url": "https://polyhaven.com/models/plants",
+      "license": "CC0 1.0",
+      "reason": "70–96 mil polígonos cada: pesados para a cena isométrica. Adotada a potted_plant_04 (≈6 mil)."
+    }
+  ],
+  "pending": [
+    {
+      "name": "Quaternius — Stylized Nature MegaKit",
+      "url": "https://quaternius.com/packs/stylizednaturemegakit.html",
+      "reason": "Distribuído como pacote único; o briefing pede para não baixar coleções inteiras. Plantas avulsas do mesmo autor (CC0) vieram pelo Poly Pizza. Confirmar a licença no pack antes de usar."
+    },
+    {
+      "name": "Quaternius — Universal Base Characters",
+      "url": "https://quaternius.com/packs/universalbasecharacters.html",
+      "reason": "Avaliação futura de personagens (ver docs/characters-roadmap.md). Sem download nesta fase."
+    },
+    {
+      "name": "Adobe Mixamo",
+      "url": "https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html",
+      "reason": "Avaliação futura de rig e animação (ver docs/characters-roadmap.md). Sem download nesta fase."
+    },
+    {
+      "name": "Poly Haven — HDRI de escritório",
+      "url": "https://polyhaven.com/hdris/indoor",
+      "reason": "Não adotado no MVP: a iluminação usa ambiente procedural (sem download inicial). Um HDRI de 1K acrescentaria ~1,5 MB ao carregamento."
+    }
+  ]
+}

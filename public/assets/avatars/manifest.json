@@ -1,0 +1,3562 @@
+{
+ "schema": 1,
+ "generatedAt": "2026-11-12T18:56:09.013Z",
+ "units": "m",
+ "upAxis": "Y",
+ "front": "+Z",
+ "rig": "game_engine (MPFB2)",
+ "bits": {
+  "top.male_casualsuit02": 0,
+  "bottom.male_casualsuit02": 1,
+  "top.male_casualsuit03": 2,
+  "bottom.male_casualsuit03": 3,
+  "top.male_casualsuit04": 4,
+  "bottom.male_casualsuit04": 5,
+  "top.male_casualsuit05": 6,
+  "bottom.male_casualsuit05": 7,
+  "top.male_casualsuit06": 8,
+  "bottom.male_casualsuit06": 9,
+  "top.male_elegantsuit01": 10,
+  "bottom.male_elegantsuit01": 11,
+  "top.female_casualsuit01": 12,
+  "bottom.female_casualsuit01": 13,
+  "top.female_casualsuit02": 14,
+  "bottom.female_casualsuit02": 15,
+  "top.female_elegantsuit01": 16,
+  "bottom.female_elegantsuit01": 17,
+  "top.female_sportsuit01": 18,
+  "bottom.female_sportsuit01": 19,
+  "top.toigo_male_suit_tie_and_jacket": 20,
+  "bottom.toigo_male_suit_tie_and_jacket": 21,
+  "top.toigo_male_suit_3": 22,
+  "bottom.toigo_male_suit_3": 23,
+  "top.toigo_female_suit": 24,
+  "bottom.toigo_female_suit": 25,
+  "top.toigo_female_suit_2": 26,
+  "bottom.toigo_female_suit_2": 27,
+  "shoes.shoes01": 28,
+  "shoes.shoes02": 29,
+  "shoes.shoes03": 30,
+  "shoes.shoes04": 31,
+  "shoes.shoes05": 32,
+  "shoes.shoes06": 33
+ },
+ "faces": [
+  {
+   "id": "rosto-1",
+   "name": "Rosto 1",
+   "targets": {}
+  },
+  {
+   "id": "rosto-2",
+   "name": "Rosto 2",
+   "targets": {
+    "head/head-round": 0.45,
+    "chin/chin-prominent-decr": 0.35,
+    "nose/nose-scale-horiz-incr": 0.25,
+    "mouth/mouth-lowerlip-volume-incr": 0.35
+   }
+  },
+  {
+   "id": "rosto-3",
+   "name": "Rosto 3",
+   "targets": {
+    "head/head-square": 0.55,
+    "chin/chin-width-incr": 0.4,
+    "chin/chin-prominent-incr": 0.3,
+    "nose/nose-hump-incr": 0.35,
+    "cheek/l-cheek-bones-incr": 0.4,
+    "cheek/r-cheek-bones-incr": 0.4
+   }
+  },
+  {
+   "id": "rosto-4",
+   "name": "Rosto 4",
+   "targets": {
+    "head/head-oval": 0.55,
+    "nose/nose-scale-vert-incr": 0.3,
+    "chin/chin-height-incr": 0.3,
+    "mouth/mouth-scale-horiz-decr": 0.25
+   }
+  }
+ ],
+ "visemes": [
+  "aa_ah_ax_01",
+  "ao_03",
+  "y_iy_ih_ix_06"
+ ],
+ "bases": {
+  "male": {
+   "base": "male",
+   "headTop": 1.7787,
+   "bodyVerts": 13380,
+   "bodyTris": 26756,
+   "bones": [
+    "Root",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "clavicle_l",
+    "upperarm_l",
+    "lowerarm_l",
+    "hand_l",
+    "index_01_l",
+    "index_02_l",
+    "index_03_l",
+    "middle_01_l",
+    "middle_02_l",
+    "middle_03_l",
+    "pinky_01_l",
+    "pinky_02_l",
+    "pinky_03_l",
+    "ring_01_l",
+    "ring_02_l",
+    "ring_03_l",
+    "thumb_01_l",
+    "thumb_02_l",
+    "thumb_03_l",
+    "clavicle_r",
+    "upperarm_r",
+    "lowerarm_r",
+    "hand_r",
+    "index_01_r",
+    "index_02_r",
+    "index_03_r",
+    "middle_01_r",
+    "middle_02_r",
+    "middle_03_r",
+    "pinky_01_r",
+    "pinky_02_r",
+    "pinky_03_r",
+    "ring_01_r",
+    "ring_02_r",
+    "ring_03_r",
+    "thumb_01_r",
+    "thumb_02_r",
+    "thumb_03_r",
+    "neck_01",
+    "head",
+    "thigh_l",
+    "calf_l",
+    "foot_l",
+    "ball_l",
+    "thigh_r",
+    "calf_r",
+    "foot_r",
+    "ball_r"
+   ],
+   "shapeKeys": [
+    "viseme_aa_ah_ax_01",
+    "viseme_ao_03",
+    "viseme_y_iy_ih_ix_06",
+    "face_rosto-2",
+    "face_rosto-3",
+    "face_rosto-4"
+   ],
+   "body": "male/body.glb",
+   "bodyLod1": "male/lod1/body.glb",
+   "items": [
+    {
+     "id": "bottom.male_casualsuit02",
+     "slot": "bottom",
+     "base": "male",
+     "source": "male_casualsuit02",
+     "file": "male/bottom.male_casualsuit02.glb",
+     "lod1": "male/lod1/bottom.male_casualsuit02.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 1,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.male_casualsuit03",
+     "slot": "top",
+     "base": "male",
+     "source": "male_casualsuit03",
+     "file": "male/top.male_casualsuit03.glb",
+     "lod1": "male/lod1/top.male_casualsuit03.glb",
+     "trisOriginal": 3088,
+     "tris": 3088,
+     "tint": true,
+     "hideBit": 2,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.male_casualsuit03",
+     "slot": "bottom",
+     "base": "male",
+     "source": "male_casualsuit03",
+     "file": "male/bottom.male_casualsuit03.glb",
+     "lod1": "male/lod1/bottom.male_casualsuit03.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 3,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.male_casualsuit04",
+     "slot": "bottom",
+     "base": "male",
+     "source": "male_casualsuit04",
+     "file": "male/bottom.male_casualsuit04.glb",
+     "lod1": "male/lod1/bottom.male_casualsuit04.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 5,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.male_casualsuit05",
+     "slot": "top",
+     "base": "male",
+     "source": "male_casualsuit05",
+     "file": "male/top.male_casualsuit05.glb",
+     "lod1": "male/lod1/top.male_casualsuit05.glb",
+     "trisOriginal": 4284,
+     "tris": 4284,
+     "tint": true,
+     "hideBit": 6,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.male_casualsuit05",
+     "slot": "bottom",
+     "base": "male",
+     "source": "male_casualsuit05",
+     "file": "male/bottom.male_casualsuit05.glb",
+     "lod1": "male/lod1/bottom.male_casualsuit05.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 7,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.male_casualsuit06",
+     "slot": "bottom",
+     "base": "male",
+     "source": "male_casualsuit06",
+     "file": "male/bottom.male_casualsuit06.glb",
+     "lod1": "male/lod1/bottom.male_casualsuit06.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 9,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.male_elegantsuit01",
+     "slot": "top",
+     "base": "male",
+     "source": "male_elegantsuit01",
+     "file": "male/top.male_elegantsuit01.glb",
+     "lod1": "male/lod1/top.male_elegantsuit01.glb",
+     "trisOriginal": 12330,
+     "tris": 7000,
+     "tint": true,
+     "hideBit": 10,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.male_elegantsuit01",
+     "slot": "bottom",
+     "base": "male",
+     "source": "male_elegantsuit01",
+     "file": "male/bottom.male_elegantsuit01.glb",
+     "lod1": "male/lod1/bottom.male_elegantsuit01.glb",
+     "trisOriginal": 2626,
+     "tris": 2626,
+     "tint": true,
+     "hideBit": 11,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.toigo_male_suit_tie_and_jacket",
+     "slot": "top",
+     "base": "male",
+     "source": "toigo_male_suit_tie_and_jacket",
+     "file": "male/top.toigo_male_suit_tie_and_jacket.glb",
+     "lod1": "male/lod1/top.toigo_male_suit_tie_and_jacket.glb",
+     "trisOriginal": 16462,
+     "tris": 7000,
+     "tint": true,
+     "hideBit": 20,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1265",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.toigo_male_suit_tie_and_jacket",
+     "slot": "bottom",
+     "base": "male",
+     "source": "toigo_male_suit_tie_and_jacket",
+     "file": "male/bottom.toigo_male_suit_tie_and_jacket.glb",
+     "lod1": "male/lod1/bottom.toigo_male_suit_tie_and_jacket.glb",
+     "trisOriginal": 2740,
+     "tris": 2740,
+     "tint": true,
+     "hideBit": 21,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1265",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.toigo_male_suit_3",
+     "slot": "top",
+     "base": "male",
+     "source": "toigo_male_suit_3",
+     "file": "male/top.toigo_male_suit_3.glb",
+     "lod1": "male/lod1/top.toigo_male_suit_3.glb",
+     "trisOriginal": 11874,
+     "tris": 7000,
+     "tint": true,
+     "hideBit": 22,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1733",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.toigo_male_suit_3",
+     "slot": "bottom",
+     "base": "male",
+     "source": "toigo_male_suit_3",
+     "file": "male/bottom.toigo_male_suit_3.glb",
+     "lod1": "male/lod1/bottom.toigo_male_suit_3.glb",
+     "trisOriginal": 4376,
+     "tris": 4376,
+     "tint": true,
+     "hideBit": 23,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1733",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes01",
+     "slot": "shoes",
+     "base": "male",
+     "source": "shoes01",
+     "file": "male/shoes.shoes01.glb",
+     "lod1": null,
+     "trisOriginal": 3320,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 28,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes02",
+     "slot": "shoes",
+     "base": "male",
+     "source": "shoes02",
+     "file": "male/shoes.shoes02.glb",
+     "lod1": null,
+     "trisOriginal": 3064,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 29,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes03",
+     "slot": "shoes",
+     "base": "male",
+     "source": "shoes03",
+     "file": "male/shoes.shoes03.glb",
+     "lod1": null,
+     "trisOriginal": 4128,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 30,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes04",
+     "slot": "shoes",
+     "base": "male",
+     "source": "shoes04",
+     "file": "male/shoes.shoes04.glb",
+     "lod1": null,
+     "trisOriginal": 3320,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 31,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes05",
+     "slot": "shoes",
+     "base": "male",
+     "source": "shoes05",
+     "file": "male/shoes.shoes05.glb",
+     "lod1": null,
+     "trisOriginal": 3064,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 32,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes06",
+     "slot": "shoes",
+     "base": "male",
+     "source": "shoes06",
+     "file": "male/shoes.shoes06.glb",
+     "lod1": null,
+     "trisOriginal": 3064,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 33,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "hair.short01",
+     "slot": "hair",
+     "base": "male",
+     "source": "short01",
+     "file": "male/hair.short01.glb",
+     "lod1": "male/lod1/hair.short01.glb",
+     "trisOriginal": 3678,
+     "tris": 3678,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.short02",
+     "slot": "hair",
+     "base": "male",
+     "source": "short02",
+     "file": "male/hair.short02.glb",
+     "lod1": "male/lod1/hair.short02.glb",
+     "trisOriginal": 3344,
+     "tris": 3344,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.short03",
+     "slot": "hair",
+     "base": "male",
+     "source": "short03",
+     "file": "male/hair.short03.glb",
+     "lod1": "male/lod1/hair.short03.glb",
+     "trisOriginal": 1922,
+     "tris": 1922,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.short04",
+     "slot": "hair",
+     "base": "male",
+     "source": "short04",
+     "file": "male/hair.short04.glb",
+     "lod1": "male/lod1/hair.short04.glb",
+     "trisOriginal": 1050,
+     "tris": 1050,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.bob01",
+     "slot": "hair",
+     "base": "male",
+     "source": "bob01",
+     "file": "male/hair.bob01.glb",
+     "lod1": "male/lod1/hair.bob01.glb",
+     "trisOriginal": 8474,
+     "tris": 5000,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.bob02",
+     "slot": "hair",
+     "base": "male",
+     "source": "bob02",
+     "file": "male/hair.bob02.glb",
+     "lod1": "male/lod1/hair.bob02.glb",
+     "trisOriginal": 2248,
+     "tris": 2248,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.ponytail01",
+     "slot": "hair",
+     "base": "male",
+     "source": "ponytail01",
+     "file": "male/hair.ponytail01.glb",
+     "lod1": "male/lod1/hair.ponytail01.glb",
+     "trisOriginal": 5352,
+     "tris": 5000,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.long01",
+     "slot": "hair",
+     "base": "male",
+     "source": "long01",
+     "file": "male/hair.long01.glb",
+     "lod1": "male/lod1/hair.long01.glb",
+     "trisOriginal": 4108,
+     "tris": 4108,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.braid01",
+     "slot": "hair",
+     "base": "male",
+     "source": "braid01",
+     "file": "male/hair.braid01.glb",
+     "lod1": "male/lod1/hair.braid01.glb",
+     "trisOriginal": 5518,
+     "tris": 4999,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.afro01",
+     "slot": "hair",
+     "base": "male",
+     "source": "afro01",
+     "file": "male/hair.afro01.glb",
+     "lod1": "male/lod1/hair.afro01.glb",
+     "trisOriginal": 2192,
+     "tris": 2192,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "glasses.spamrakuen_tbm_glasses_frames_01",
+     "slot": "glasses",
+     "base": "male",
+     "source": "spamrakuen_tbm_glasses_frames_01",
+     "file": "male/glasses.spamrakuen_tbm_glasses_frames_01.glb",
+     "lod1": null,
+     "trisOriginal": 808,
+     "tris": 808,
+     "tint": false,
+     "hideBit": null,
+     "meta": {
+      "pack": "glasses01",
+      "author": "spamrakuen",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/3330",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "glasses.kwnet_at_optical_glasses",
+     "slot": "glasses",
+     "base": "male",
+     "source": "kwnet_at_optical_glasses",
+     "file": "male/glasses.kwnet_at_optical_glasses.glb",
+     "lod1": null,
+     "trisOriginal": 6196,
+     "tris": 1999,
+     "tint": false,
+     "hideBit": null,
+     "meta": {
+      "pack": "glasses01",
+      "author": "kwnet_at",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/928",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "glasses.spamrakuen_sagerfrogs_glasses_01",
+     "slot": "glasses",
+     "base": "male",
+     "source": "spamrakuen_sagerfrogs_glasses_01",
+     "file": "male/glasses.spamrakuen_sagerfrogs_glasses_01.glb",
+     "lod1": null,
+     "trisOriginal": 1284,
+     "tris": 1284,
+     "tint": false,
+     "hideBit": null,
+     "meta": {
+      "pack": "glasses01",
+      "author": "spamrakuen",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/3331",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "beard.wdg_scruffy_beard",
+     "slot": "beard",
+     "base": "male",
+     "source": "wdg_scruffy_beard",
+     "file": "male/beard.wdg_scruffy_beard.glb",
+     "lod1": null,
+     "trisOriginal": 2760,
+     "tris": 2760,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "bodyparts05",
+      "author": "WDG",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1769",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "beard.grinsegold_beard_sigmund_wip",
+     "slot": "beard",
+     "base": "male",
+     "source": "grinsegold_beard_sigmund_wip",
+     "file": "male/beard.grinsegold_beard_sigmund_wip.glb",
+     "lod1": null,
+     "trisOriginal": 878,
+     "tris": 878,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "bodyparts05",
+      "author": "grinsegold",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/877",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "headset.office",
+     "slot": "headset",
+     "base": "male",
+     "source": "office3d-procedural",
+     "file": "male/headset.office.glb",
+     "lod1": null,
+     "tris": 1384,
+     "trisOriginal": 1384,
+     "tint": false,
+     "hideBit": null,
+     "attach": "head",
+     "meta": {
+      "pack": "office3d",
+      "author": "Office 3D (geometria original)",
+      "license": "Original do projeto",
+      "source": "tools/avatars/build.py"
+     }
+    }
+   ],
+   "skins": [
+    {
+     "id": "pele-1",
+     "file": "skins/male/pele-1.png",
+     "source": "young_caucasian_male",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-2",
+     "file": "skins/male/pele-2.png",
+     "source": "young_asian_male",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-3",
+     "file": "skins/male/pele-3.png",
+     "source": "middleage_caucasian_male",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-4",
+     "file": "skins/male/pele-4.png",
+     "source": "young_african_male",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-5",
+     "file": "skins/male/pele-5.png",
+     "source": "middleage_african_male",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    }
+   ],
+   "parts": {
+    "eyes": {
+     "source": "high-poly",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "eyes"
+     }
+    },
+    "eyebrows": {
+     "source": "eyebrow001",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "eyebrows"
+     }
+    },
+    "eyelashes": {
+     "source": "eyelashes01",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "eyelashes"
+     }
+    },
+    "teeth": {
+     "source": "teeth_base",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "teeth"
+     }
+    }
+   },
+   "skinDefault": "young_caucasian_male",
+   "skinDefaultMeta": {
+    "pack": "makehuman_system_assets",
+    "author": "makehuman_system",
+    "license": "CC0",
+    "source": "http://www.makehumancommunity.org",
+    "original_author": "",
+    "original_source": "",
+    "type": "skins"
+   }
+  },
+  "female": {
+   "base": "female",
+   "headTop": 1.593,
+   "bodyVerts": 13380,
+   "bodyTris": 26756,
+   "bones": [
+    "Root",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "clavicle_l",
+    "upperarm_l",
+    "lowerarm_l",
+    "hand_l",
+    "index_01_l",
+    "index_02_l",
+    "index_03_l",
+    "middle_01_l",
+    "middle_02_l",
+    "middle_03_l",
+    "pinky_01_l",
+    "pinky_02_l",
+    "pinky_03_l",
+    "ring_01_l",
+    "ring_02_l",
+    "ring_03_l",
+    "thumb_01_l",
+    "thumb_02_l",
+    "thumb_03_l",
+    "clavicle_r",
+    "upperarm_r",
+    "lowerarm_r",
+    "hand_r",
+    "index_01_r",
+    "index_02_r",
+    "index_03_r",
+    "middle_01_r",
+    "middle_02_r",
+    "middle_03_r",
+    "pinky_01_r",
+    "pinky_02_r",
+    "pinky_03_r",
+    "ring_01_r",
+    "ring_02_r",
+    "ring_03_r",
+    "thumb_01_r",
+    "thumb_02_r",
+    "thumb_03_r",
+    "neck_01",
+    "head",
+    "thigh_l",
+    "calf_l",
+    "foot_l",
+    "ball_l",
+    "thigh_r",
+    "calf_r",
+    "foot_r",
+    "ball_r"
+   ],
+   "shapeKeys": [
+    "viseme_aa_ah_ax_01",
+    "viseme_ao_03",
+    "viseme_y_iy_ih_ix_06",
+    "face_rosto-2",
+    "face_rosto-3",
+    "face_rosto-4"
+   ],
+   "body": "female/body.glb",
+   "bodyLod1": "female/lod1/body.glb",
+   "items": [
+    {
+     "id": "bottom.male_casualsuit02",
+     "slot": "bottom",
+     "base": "female",
+     "source": "male_casualsuit02",
+     "file": "female/bottom.male_casualsuit02.glb",
+     "lod1": "female/lod1/bottom.male_casualsuit02.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 1,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.male_casualsuit03",
+     "slot": "top",
+     "base": "female",
+     "source": "male_casualsuit03",
+     "file": "female/top.male_casualsuit03.glb",
+     "lod1": "female/lod1/top.male_casualsuit03.glb",
+     "trisOriginal": 3088,
+     "tris": 3088,
+     "tint": true,
+     "hideBit": 2,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.male_casualsuit05",
+     "slot": "top",
+     "base": "female",
+     "source": "male_casualsuit05",
+     "file": "female/top.male_casualsuit05.glb",
+     "lod1": "female/lod1/top.male_casualsuit05.glb",
+     "trisOriginal": 4284,
+     "tris": 4284,
+     "tint": true,
+     "hideBit": 6,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.female_casualsuit01",
+     "slot": "bottom",
+     "base": "female",
+     "source": "female_casualsuit01",
+     "file": "female/bottom.female_casualsuit01.glb",
+     "lod1": "female/lod1/bottom.female_casualsuit01.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 13,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.female_elegantsuit01",
+     "slot": "top",
+     "base": "female",
+     "source": "female_elegantsuit01",
+     "file": "female/top.female_elegantsuit01.glb",
+     "lod1": "female/lod1/top.female_elegantsuit01.glb",
+     "trisOriginal": 3464,
+     "tris": 3464,
+     "tint": true,
+     "hideBit": 16,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.female_elegantsuit01",
+     "slot": "bottom",
+     "base": "female",
+     "source": "female_elegantsuit01",
+     "file": "female/bottom.female_elegantsuit01.glb",
+     "lod1": "female/lod1/bottom.female_elegantsuit01.glb",
+     "trisOriginal": 728,
+     "tris": 728,
+     "tint": true,
+     "hideBit": 17,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.female_sportsuit01",
+     "slot": "bottom",
+     "base": "female",
+     "source": "female_sportsuit01",
+     "file": "female/bottom.female_sportsuit01.glb",
+     "lod1": "female/lod1/bottom.female_sportsuit01.glb",
+     "trisOriginal": 1712,
+     "tris": 1712,
+     "tint": true,
+     "hideBit": 19,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.toigo_female_suit",
+     "slot": "top",
+     "base": "female",
+     "source": "toigo_female_suit",
+     "file": "female/top.toigo_female_suit.glb",
+     "lod1": "female/lod1/top.toigo_female_suit.glb",
+     "trisOriginal": 25442,
+     "tris": 7000,
+     "tint": true,
+     "hideBit": 24,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1324",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.toigo_female_suit",
+     "slot": "bottom",
+     "base": "female",
+     "source": "toigo_female_suit",
+     "file": "female/bottom.toigo_female_suit.glb",
+     "lod1": "female/lod1/bottom.toigo_female_suit.glb",
+     "trisOriginal": 2496,
+     "tris": 2496,
+     "tint": true,
+     "hideBit": 25,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1324",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "top.toigo_female_suit_2",
+     "slot": "top",
+     "base": "female",
+     "source": "toigo_female_suit_2",
+     "file": "female/top.toigo_female_suit_2.glb",
+     "lod1": "female/lod1/top.toigo_female_suit_2.glb",
+     "trisOriginal": 11838,
+     "tris": 6999,
+     "tint": true,
+     "hideBit": 26,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1739",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "bottom.toigo_female_suit_2",
+     "slot": "bottom",
+     "base": "female",
+     "source": "toigo_female_suit_2",
+     "file": "female/bottom.toigo_female_suit_2.glb",
+     "lod1": "female/lod1/bottom.toigo_female_suit_2.glb",
+     "trisOriginal": 4376,
+     "tris": 4376,
+     "tint": true,
+     "hideBit": 27,
+     "meta": {
+      "pack": "suits01",
+      "author": "MargaretToigo",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/1739",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes01",
+     "slot": "shoes",
+     "base": "female",
+     "source": "shoes01",
+     "file": "female/shoes.shoes01.glb",
+     "lod1": null,
+     "trisOriginal": 3320,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 28,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes02",
+     "slot": "shoes",
+     "base": "female",
+     "source": "shoes02",
+     "file": "female/shoes.shoes02.glb",
+     "lod1": null,
+     "trisOriginal": 3064,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 29,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes03",
+     "slot": "shoes",
+     "base": "female",
+     "source": "shoes03",
+     "file": "female/shoes.shoes03.glb",
+     "lod1": null,
+     "trisOriginal": 4128,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 30,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes04",
+     "slot": "shoes",
+     "base": "female",
+     "source": "shoes04",
+     "file": "female/shoes.shoes04.glb",
+     "lod1": null,
+     "trisOriginal": 3320,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 31,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes05",
+     "slot": "shoes",
+     "base": "female",
+     "source": "shoes05",
+     "file": "female/shoes.shoes05.glb",
+     "lod1": null,
+     "trisOriginal": 3064,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 32,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "shoes.shoes06",
+     "slot": "shoes",
+     "base": "female",
+     "source": "shoes06",
+     "file": "female/shoes.shoes06.glb",
+     "lod1": null,
+     "trisOriginal": 3064,
+     "tris": 2600,
+     "tint": true,
+     "hideBit": 33,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "hair.short01",
+     "slot": "hair",
+     "base": "female",
+     "source": "short01",
+     "file": "female/hair.short01.glb",
+     "lod1": "female/lod1/hair.short01.glb",
+     "trisOriginal": 3678,
+     "tris": 3678,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.short02",
+     "slot": "hair",
+     "base": "female",
+     "source": "short02",
+     "file": "female/hair.short02.glb",
+     "lod1": "female/lod1/hair.short02.glb",
+     "trisOriginal": 3344,
+     "tris": 3344,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.short03",
+     "slot": "hair",
+     "base": "female",
+     "source": "short03",
+     "file": "female/hair.short03.glb",
+     "lod1": "female/lod1/hair.short03.glb",
+     "trisOriginal": 1922,
+     "tris": 1922,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.short04",
+     "slot": "hair",
+     "base": "female",
+     "source": "short04",
+     "file": "female/hair.short04.glb",
+     "lod1": "female/lod1/hair.short04.glb",
+     "trisOriginal": 1050,
+     "tris": 1050,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.bob01",
+     "slot": "hair",
+     "base": "female",
+     "source": "bob01",
+     "file": "female/hair.bob01.glb",
+     "lod1": "female/lod1/hair.bob01.glb",
+     "trisOriginal": 8474,
+     "tris": 5000,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.bob02",
+     "slot": "hair",
+     "base": "female",
+     "source": "bob02",
+     "file": "female/hair.bob02.glb",
+     "lod1": "female/lod1/hair.bob02.glb",
+     "trisOriginal": 2248,
+     "tris": 2248,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.ponytail01",
+     "slot": "hair",
+     "base": "female",
+     "source": "ponytail01",
+     "file": "female/hair.ponytail01.glb",
+     "lod1": "female/lod1/hair.ponytail01.glb",
+     "trisOriginal": 5352,
+     "tris": 5000,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.long01",
+     "slot": "hair",
+     "base": "female",
+     "source": "long01",
+     "file": "female/hair.long01.glb",
+     "lod1": "female/lod1/hair.long01.glb",
+     "trisOriginal": 4108,
+     "tris": 4108,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.braid01",
+     "slot": "hair",
+     "base": "female",
+     "source": "braid01",
+     "file": "female/hair.braid01.glb",
+     "lod1": "female/lod1/hair.braid01.glb",
+     "trisOriginal": 5518,
+     "tris": 4999,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "hair.afro01",
+     "slot": "hair",
+     "base": "female",
+     "source": "afro01",
+     "file": "female/hair.afro01.glb",
+     "lod1": "female/lod1/hair.afro01.glb",
+     "trisOriginal": 2192,
+     "tris": 2192,
+     "tint": true,
+     "hideBit": null,
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "hair"
+     }
+    },
+    {
+     "id": "glasses.spamrakuen_tbm_glasses_frames_01",
+     "slot": "glasses",
+     "base": "female",
+     "source": "spamrakuen_tbm_glasses_frames_01",
+     "file": "female/glasses.spamrakuen_tbm_glasses_frames_01.glb",
+     "lod1": null,
+     "trisOriginal": 808,
+     "tris": 808,
+     "tint": false,
+     "hideBit": null,
+     "meta": {
+      "pack": "glasses01",
+      "author": "spamrakuen",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/3330",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "glasses.kwnet_at_optical_glasses",
+     "slot": "glasses",
+     "base": "female",
+     "source": "kwnet_at_optical_glasses",
+     "file": "female/glasses.kwnet_at_optical_glasses.glb",
+     "lod1": null,
+     "trisOriginal": 6196,
+     "tris": 1999,
+     "tint": false,
+     "hideBit": null,
+     "meta": {
+      "pack": "glasses01",
+      "author": "kwnet_at",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/928",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "glasses.spamrakuen_sagerfrogs_glasses_01",
+     "slot": "glasses",
+     "base": "female",
+     "source": "spamrakuen_sagerfrogs_glasses_01",
+     "file": "female/glasses.spamrakuen_sagerfrogs_glasses_01.glb",
+     "lod1": null,
+     "trisOriginal": 1284,
+     "tris": 1284,
+     "tint": false,
+     "hideBit": null,
+     "meta": {
+      "pack": "glasses01",
+      "author": "spamrakuen",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org/node/3331",
+      "original_author": "",
+      "original_source": "",
+      "type": "clothes"
+     }
+    },
+    {
+     "id": "headset.office",
+     "slot": "headset",
+     "base": "female",
+     "source": "office3d-procedural",
+     "file": "female/headset.office.glb",
+     "lod1": null,
+     "tris": 1384,
+     "trisOriginal": 1384,
+     "tint": false,
+     "hideBit": null,
+     "attach": "head",
+     "meta": {
+      "pack": "office3d",
+      "author": "Office 3D (geometria original)",
+      "license": "Original do projeto",
+      "source": "tools/avatars/build.py"
+     }
+    }
+   ],
+   "skins": [
+    {
+     "id": "pele-1",
+     "file": "skins/female/pele-1.png",
+     "source": "young_caucasian_female",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-2",
+     "file": "skins/female/pele-2.png",
+     "source": "young_asian_female",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-3",
+     "file": "skins/female/pele-3.png",
+     "source": "middleage_caucasian_female",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-4",
+     "file": "skins/female/pele-4.png",
+     "source": "young_african_female",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    },
+    {
+     "id": "pele-5",
+     "file": "skins/female/pele-5.png",
+     "source": "middleage_african_female",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "skins"
+     }
+    }
+   ],
+   "parts": {
+    "eyes": {
+     "source": "high-poly",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "eyes"
+     }
+    },
+    "eyebrows": {
+     "source": "eyebrow006",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "eyebrows"
+     }
+    },
+    "eyelashes": {
+     "source": "eyelashes02",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "eyelashes"
+     }
+    },
+    "teeth": {
+     "source": "teeth_base",
+     "meta": {
+      "pack": "makehuman_system_assets",
+      "author": "makehuman_system",
+      "license": "CC0",
+      "source": "http://www.makehumancommunity.org",
+      "original_author": "",
+      "original_source": "",
+      "type": "teeth"
+     }
+    }
+   },
+   "skinDefault": "young_caucasian_female",
+   "skinDefaultMeta": {
+    "pack": "makehuman_system_assets",
+    "author": "makehuman_system",
+    "license": "CC0",
+    "source": "http://www.makehumancommunity.org",
+    "original_author": "",
+    "original_source": "",
+    "type": "skins"
+   }
+  }
+ },
+ "files": {
+  "male/body.glb": {
+   "bytes": 1798700,
+   "sha256": "f92cfe887238af6be3916111b8566bcd79061c2c26520224119c804167c4bb16",
+   "tris": 36476,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0",
+    "_HIDEA",
+    "_HIDEB"
+   ],
+   "morphTargets": 6,
+   "joints": 53
+  },
+  "male/lod1/body.glb": {
+   "bytes": 502272,
+   "sha256": "0dcaff19626b4c7583aa8316610c0ca8899300a925b2a3236cbdacca3f67cfa2",
+   "tris": 10868,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0",
+    "_HIDEA",
+    "_HIDEB"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.male_casualsuit02.glb": {
+   "bytes": 103060,
+   "sha256": "4ffc51cf2dcf6004c10cbcf28cfd9c5bb3d1086888a567b3f7eeeb449e239083",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.male_casualsuit02.glb": {
+   "bytes": 64404,
+   "sha256": "d06b2a5b77df37c10d41b0ae073798838c4618331a1babc04be6aae2c47585e3",
+   "tris": 563,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/top.male_casualsuit03.glb": {
+   "bytes": 221680,
+   "sha256": "c21666ff638912a9068cec336ee12a58eacecec4a09d7942df35f10689f35ad8",
+   "tris": 3088,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/top.male_casualsuit03.glb": {
+   "bytes": 150500,
+   "sha256": "9101b95e46c2554e2da67f638bb767c2ceff553088d6b0fb11e7e2e81dc6577f",
+   "tris": 1019,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.male_casualsuit03.glb": {
+   "bytes": 168028,
+   "sha256": "c006ceea37846e099c025bdf8d454e714531e7403f8740372c98f6171e4ab9cc",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.male_casualsuit03.glb": {
+   "bytes": 129420,
+   "sha256": "48403225f029725c564c8e527e0a84b2f4ff3df4d947f6af600fecc8c0a24f23",
+   "tris": 564,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.male_casualsuit04.glb": {
+   "bytes": 101496,
+   "sha256": "10830acf8380036da60962b2cb84de9c0319d908b7479274038e8acb21af2e90",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.male_casualsuit04.glb": {
+   "bytes": 62888,
+   "sha256": "91452b046527b329f243fe001898084b188b006aaf90dbae79e54144938540ee",
+   "tris": 563,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/top.male_casualsuit05.glb": {
+   "bytes": 227392,
+   "sha256": "c462b07516237e3128915615fe52e1f9bc31a7ea7de570aa73b441f75a17a220",
+   "tris": 4284,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/top.male_casualsuit05.glb": {
+   "bytes": 129296,
+   "sha256": "eba827d1eac5168206e45adc0d5fb473bd60ebbb1d780907e949341f201ed7d0",
+   "tris": 1413,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.male_casualsuit05.glb": {
+   "bytes": 109856,
+   "sha256": "d0e34fa2e34cdbe37b8fd7bb75866a9d1aaf415382960776402880e11b341414",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.male_casualsuit05.glb": {
+   "bytes": 71248,
+   "sha256": "1e45c33d695430d7043882b5d1726bbe0cc9fb4fe9feee6a7ba78f81c142c567",
+   "tris": 564,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.male_casualsuit06.glb": {
+   "bytes": 96248,
+   "sha256": "e43018795e87a2af59d6def6d724e9e62f05b4014dd11c7d4831c9597995318f",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.male_casualsuit06.glb": {
+   "bytes": 57640,
+   "sha256": "c86293815827a6bf657a556a4f73410282dec3171e20c01d74dd26d90ac21ffd",
+   "tris": 564,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/top.male_elegantsuit01.glb": {
+   "bytes": 274808,
+   "sha256": "dcbbecc3a756aa8131e924e8a836b0448a1f8941a6416c09c6faf9549891589e",
+   "tris": 7000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/top.male_elegantsuit01.glb": {
+   "bytes": 114896,
+   "sha256": "b5693a9bf868584a37183ade576a9b2359079944d7b70137eac056e30ed708aa",
+   "tris": 2309,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.male_elegantsuit01.glb": {
+   "bytes": 115540,
+   "sha256": "d1aa2e981d3b7c0452ab7e7d606acde5ff3719005f58691443eddafe57827727",
+   "tris": 2626,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.male_elegantsuit01.glb": {
+   "bytes": 56512,
+   "sha256": "5434267d218d74f31c70ee0a295485295e1b1c6bb3ec24866dcf5f5200aa11ab",
+   "tris": 864,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/top.toigo_male_suit_tie_and_jacket.glb": {
+   "bytes": 284392,
+   "sha256": "9bb163db06d7169525ebdccebc6e899b968e0088079249f7852ca92694ea8159",
+   "tris": 7000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/top.toigo_male_suit_tie_and_jacket.glb": {
+   "bytes": 122972,
+   "sha256": "a2b4af06656b1da341ded29efa83331d4b128447fd067de990c04b84d26eb45c",
+   "tris": 2310,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.toigo_male_suit_tie_and_jacket.glb": {
+   "bytes": 128672,
+   "sha256": "5bfa42b7d877a183464b693ba7feebcd85ad2892b78ff3cb6071d9656badca42",
+   "tris": 2740,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.toigo_male_suit_tie_and_jacket.glb": {
+   "bytes": 64028,
+   "sha256": "d3e39a7fc312ba8f174e3da03323ab2c895536ae89d134002d745fd6c9c87f6b",
+   "tris": 903,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/top.toigo_male_suit_3.glb": {
+   "bytes": 329736,
+   "sha256": "053b8e6837888ddcbcafb0573ecdf210cd1a1c5f16f5b8bf9bbece4d0e957377",
+   "tris": 7000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/top.toigo_male_suit_3.glb": {
+   "bytes": 165972,
+   "sha256": "31c7c56d92467896f56747c6092ed5c39ebcc2b6400cbeb4628044f981802a57",
+   "tris": 2309,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/bottom.toigo_male_suit_3.glb": {
+   "bytes": 223764,
+   "sha256": "c538b1bed6408555dbdf93cfe7951a8a9b308bb1349ba70d3f8b7988931eda04",
+   "tris": 4376,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/bottom.toigo_male_suit_3.glb": {
+   "bytes": 124044,
+   "sha256": "92866075611bdfb2bcebd4eb664639ed996ada18f239c0f998def166488a75cf",
+   "tris": 1443,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/shoes.shoes01.glb": {
+   "bytes": 158980,
+   "sha256": "5b14d2c9aaf15cbe6dae6f2ab59e7aee16b5141f954ef8cd0e00d6b714454278",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/shoes.shoes02.glb": {
+   "bytes": 136928,
+   "sha256": "e649bb961b438100e10b4a8ca05600a10486e5903cb960909e87912499239895",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/shoes.shoes03.glb": {
+   "bytes": 135424,
+   "sha256": "5ce8c010b91a945eda3fd034ce711cedafd556391f70fbcf886c331e7a887060",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/shoes.shoes04.glb": {
+   "bytes": 165460,
+   "sha256": "2cbfc5b757a056decd902036b36a663cabd75073014c55cc056bde042225afb3",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/shoes.shoes05.glb": {
+   "bytes": 143736,
+   "sha256": "399849d3e350b2c3fcafdb276520a389316f08f7916214faa10df6d77df388b4",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/shoes.shoes06.glb": {
+   "bytes": 152528,
+   "sha256": "bf9ef0419abef045a673a3a01b5d315cad63c8bd1cdb452676d4f32ef38d7b2e",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.short01.glb": {
+   "bytes": 338032,
+   "sha256": "95858dd8f9588a0c4730ad2315f622f5403c3879adef953b83b12cd306e6f99a",
+   "tris": 3678,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.short01.glb": {
+   "bytes": 240608,
+   "sha256": "bdb951acbc68411664f4deac3d86b98e00224a0b463693df664c6177c0c9e7a0",
+   "tris": 1212,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.short02.glb": {
+   "bytes": 180452,
+   "sha256": "6501732d3f2037ca18e086c398cde64b6c2c5e4ebcd7b7d2356b121fa22048c0",
+   "tris": 3344,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.short02.glb": {
+   "bytes": 107052,
+   "sha256": "bb5da91e58398b9535438b6733001cf4096d66d046359952d1ceca151afd35cc",
+   "tris": 1103,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.short03.glb": {
+   "bytes": 122572,
+   "sha256": "0d12f0e972d24fc6a4ce85efee282eb4ded175e4b05141c2307e8eb08df09ea3",
+   "tris": 1922,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.short03.glb": {
+   "bytes": 80268,
+   "sha256": "6845209826d1b6243f74c84b22edf8c8abb165c769c109c62fe64f1e0233aaa2",
+   "tris": 634,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.short04.glb": {
+   "bytes": 162620,
+   "sha256": "9a9119fa665d2da18c6aaee5fce207b288c839723945849776852262251ea2b7",
+   "tris": 1050,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.short04.glb": {
+   "bytes": 130380,
+   "sha256": "e98cb10d7d09d0811398d3e5fa6e3caf1c440f4a7ff4fed96963221c4dc72a24",
+   "tris": 346,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.bob01.glb": {
+   "bytes": 299856,
+   "sha256": "04a65f93373c3b444b0bb62ea6bf58dd1cfa2e77ed31ff6ac7aafdcabb192110",
+   "tris": 5000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.bob01.glb": {
+   "bytes": 169832,
+   "sha256": "95a7a029079e9aa9118e5430b77b8a7e60a12e24a2193ba9b7fb580c4e4e6b48",
+   "tris": 1650,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.bob02.glb": {
+   "bytes": 172752,
+   "sha256": "9e52b78fc784d56736cee0fa34c1cad03dc262bd9164613856b65a2775e480bc",
+   "tris": 2248,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.bob02.glb": {
+   "bytes": 112956,
+   "sha256": "b64b1faf5fbad51ee586aacd230bbcf2acef9a463681956bada983d30bd4cf47",
+   "tris": 741,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.ponytail01.glb": {
+   "bytes": 343024,
+   "sha256": "ce3c778d7712c680be80972feabc82f469f20310b52a514053b0ede3ef681e4d",
+   "tris": 5000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.ponytail01.glb": {
+   "bytes": 211696,
+   "sha256": "7664a46b3a38498740a1953b162c58a77732f16de2e4d1dda58bfcae1b9409ae",
+   "tris": 1650,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.long01.glb": {
+   "bytes": 258312,
+   "sha256": "e40b9ce3c5f7784aff7181b0c9a8a97788cfab82d1b39acab43043e596ca8b8b",
+   "tris": 4108,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.long01.glb": {
+   "bytes": 138684,
+   "sha256": "2a5eb5a6fd089b4bc0172a6f56d5365346618cc61a14de5fa2e34167f45bb51c",
+   "tris": 1355,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.braid01.glb": {
+   "bytes": 298620,
+   "sha256": "40d54eb6c795bae6a85f0ba4e6ff7201baa3fce4d3e01e1e4ec94e124e951862",
+   "tris": 4999,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.braid01.glb": {
+   "bytes": 147380,
+   "sha256": "8efa931bc13cb6af46b08d604026e23cff3e941a019f2d5733d31d113f793db1",
+   "tris": 1648,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/hair.afro01.glb": {
+   "bytes": 284548,
+   "sha256": "dc22ddbdc56fbf17effd2fb9e1ae825e7e86b00da60d2d4d173d5a00a4512bd7",
+   "tris": 2192,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/lod1/hair.afro01.glb": {
+   "bytes": 231380,
+   "sha256": "034f6aa34387a6ab96deee926c02a65be2c0783f65ef287228f4b1cf44efc4c3",
+   "tris": 723,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/glasses.spamrakuen_tbm_glasses_frames_01.glb": {
+   "bytes": 42896,
+   "sha256": "d7e6cc664532fb969cb74fbfc7b6226fb8aded2211240645e33bfa5d4a3b9950",
+   "tris": 808,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/glasses.kwnet_at_optical_glasses.glb": {
+   "bytes": 93388,
+   "sha256": "4d15ca4433d392c2ff997c71c63f8e6f13e09a3acc3c2116bdcaeff3d2156bdd",
+   "tris": 1999,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/glasses.spamrakuen_sagerfrogs_glasses_01.glb": {
+   "bytes": 128692,
+   "sha256": "8bb619f7152882a23baf9d63ad01a207aea7a06abb3ce9f43ca21fc010d3ea6b",
+   "tris": 1284,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/beard.wdg_scruffy_beard.glb": {
+   "bytes": 211044,
+   "sha256": "03e5a66f4f64f0837f3a401c0c78f46ef41182ae13a54c0f825ffd5af5279fe3",
+   "tris": 2760,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/beard.grinsegold_beard_sigmund_wip.glb": {
+   "bytes": 153240,
+   "sha256": "668bf4b9040577d655603af872bb631291825f7c3bd99517211f5ccb350293d8",
+   "tris": 878,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "male/headset.office.glb": {
+   "bytes": 38156,
+   "sha256": "94b6a5878eb6f6973c3aed2e85d291981733a08aa87850074cf4529ad30aa063",
+   "tris": 1384,
+   "attributes": [
+    "NORMAL",
+    "POSITION"
+   ],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/male/pele-1.webp": {
+   "bytes": 58280,
+   "sha256": "71cbe81260c99c65d81047e1c5f9d6c6be135ed0436e691480b16c6fc81405c1",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/male/pele-2.webp": {
+   "bytes": 53052,
+   "sha256": "f97d810fd3e4bb7b139cd729854a49bd89f2e454e91676c0c8bfcab3ed775870",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/male/pele-3.webp": {
+   "bytes": 58386,
+   "sha256": "5765237a14a8910f343fe4dffb078d91002edbaf20043ba3455a9a15015b30c5",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/male/pele-4.webp": {
+   "bytes": 36634,
+   "sha256": "b4776369ac2c0418527525ecbf442744e9ac5bc8b11aa855e73b5fdca2503fda",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/male/pele-5.webp": {
+   "bytes": 39324,
+   "sha256": "e3fbb42798dc2f4f74502c1ce7a64e854cca9204d3da50f021b0fb9d21407316",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "female/body.glb": {
+   "bytes": 1802348,
+   "sha256": "79cdf9da3bdfe5321b156c897e463301c4d7d07d17eda6346dba173a33538317",
+   "tris": 36476,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0",
+    "_HIDEA",
+    "_HIDEB"
+   ],
+   "morphTargets": 6,
+   "joints": 53
+  },
+  "female/lod1/body.glb": {
+   "bytes": 507196,
+   "sha256": "d9be96a0fc49950474916c6660cbee4db983cb6588fc8c5703f252ca05a3d551",
+   "tris": 10868,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0",
+    "_HIDEA",
+    "_HIDEB"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/bottom.male_casualsuit02.glb": {
+   "bytes": 102884,
+   "sha256": "76b30eacd623ccd93f45114ff6a3a5d6381577ba7a28d350c31a90b9c48b5829",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/bottom.male_casualsuit02.glb": {
+   "bytes": 64332,
+   "sha256": "0165f34d6ebaf309be629a7e08348d4212d8440b8fd6b26a32a3ca7fb42cbb27",
+   "tris": 563,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/top.male_casualsuit03.glb": {
+   "bytes": 221508,
+   "sha256": "d2d5c3b90788384025de6fd07eaa26ea235d3011cbecf87b29ce1407994f49ce",
+   "tris": 3088,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/top.male_casualsuit03.glb": {
+   "bytes": 150428,
+   "sha256": "90a524ff24a4af4c9bbf505fe866edb4e4d2c1e75b935a001a118393267d5695",
+   "tris": 1018,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/top.male_casualsuit05.glb": {
+   "bytes": 227220,
+   "sha256": "272872c28da6902d37659d13748cd6e51e68500326a86d78af46926a06d7aadd",
+   "tris": 4284,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/top.male_casualsuit05.glb": {
+   "bytes": 129376,
+   "sha256": "3baf84589e5d12d06dd103609f5c8bdac6d0e75d4138f997b1f580c25ef7764f",
+   "tris": 1412,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/bottom.female_casualsuit01.glb": {
+   "bytes": 101832,
+   "sha256": "a9bef4b5832e124e7991aa4c5381026658013ae24e7986ded115be49f4160a7c",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/bottom.female_casualsuit01.glb": {
+   "bytes": 62964,
+   "sha256": "7dbbef11ad8170cc345c50e00a0059f59e6f510191bf6d102fcfd8d42be3ea92",
+   "tris": 563,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/top.female_elegantsuit01.glb": {
+   "bytes": 179476,
+   "sha256": "6968696cbca555a4f36a58e4f54147008fa51f9b49cc51f41d2e7d17ddb409d2",
+   "tris": 3464,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/top.female_elegantsuit01.glb": {
+   "bytes": 100180,
+   "sha256": "932b8566ade03765040b694f665b0847c39055f93d393662481782d23a9032c0",
+   "tris": 1143,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/bottom.female_elegantsuit01.glb": {
+   "bytes": 79432,
+   "sha256": "6b8f5bc4f95edada07c1a6a94000f5e6d0686365440f6fee6b43dcb58b6a4e6b",
+   "tris": 728,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/bottom.female_elegantsuit01.glb": {
+   "bytes": 65324,
+   "sha256": "f6f34b5404e3def4bb524ab090978d31f8730bea933f08dabff687adfbddf123",
+   "tris": 300,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/bottom.female_sportsuit01.glb": {
+   "bytes": 89772,
+   "sha256": "d4a0fd19a23ca146fe8441c84978d1c74a4733ba14d20de40dcf406f373a1ae4",
+   "tris": 1712,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/bottom.female_sportsuit01.glb": {
+   "bytes": 50848,
+   "sha256": "439cbb2fbbfff68dca0f75311a4a90e4c8886ba4062d91a73798606f4cbedfc4",
+   "tris": 563,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/top.toigo_female_suit.glb": {
+   "bytes": 322252,
+   "sha256": "8c0e17772b93d09e11b4f3f08ce7668924ca12a4189a6405419784da83099b55",
+   "tris": 7000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/top.toigo_female_suit.glb": {
+   "bytes": 154428,
+   "sha256": "546da5ede6688ba936098b96738101efb9f8278215acda62f49916c476ddba50",
+   "tris": 2309,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/bottom.toigo_female_suit.glb": {
+   "bytes": 146344,
+   "sha256": "7deb9cdcb12ada10d7585308929931853b7ae4a874e5d837c2e6af6515fc79ce",
+   "tris": 2496,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/bottom.toigo_female_suit.glb": {
+   "bytes": 89804,
+   "sha256": "82008f75df73d7769943cd841a78120ef9d2e01fe52b097aab25d0068091e1a7",
+   "tris": 822,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/top.toigo_female_suit_2.glb": {
+   "bytes": 301016,
+   "sha256": "40948c6fecb0cd0eb682217263c97084620f0f036e39325846ed20d43f7f995a",
+   "tris": 6999,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/top.toigo_female_suit_2.glb": {
+   "bytes": 138348,
+   "sha256": "e9e989b00534a3c44deda9819d0fdb760732919ca7f6bf3575b0456209dc3438",
+   "tris": 2308,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/bottom.toigo_female_suit_2.glb": {
+   "bytes": 195052,
+   "sha256": "ce437a16021f1f390d392c424bb1a18db8711f03598cb4884902d3b099b72fb5",
+   "tris": 4376,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/bottom.toigo_female_suit_2.glb": {
+   "bytes": 95432,
+   "sha256": "eaa70283ebcf0c8af8cc5debac259a6d5873249a4cc5f0ef4eab44c5f695503b",
+   "tris": 1443,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/shoes.shoes01.glb": {
+   "bytes": 158808,
+   "sha256": "4e5a4e219450523a20ea643da843a397d0a6f96f405e821963dff975586bfc9f",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/shoes.shoes02.glb": {
+   "bytes": 136756,
+   "sha256": "5caacbb370793899993af8cca9bd5d9e5a4d6eb9a1702160bbb9031e55bf0b7d",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/shoes.shoes03.glb": {
+   "bytes": 135300,
+   "sha256": "1020d850e5b102f62be9c6b8748d6c7cfaa6651dc4fbfc26b6c5b382d0c2a6e8",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/shoes.shoes04.glb": {
+   "bytes": 165288,
+   "sha256": "9487bb79a91cc0bdc1ab0664f5e2941ce8395a47de3ef112856b335083b6258c",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/shoes.shoes05.glb": {
+   "bytes": 143564,
+   "sha256": "f0fa73fb7f74238c1195a985858787ad80b6fed1e4773c2498b231a9d5c34926",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/shoes.shoes06.glb": {
+   "bytes": 152356,
+   "sha256": "88a803d593b832477a73ff835797f1323d695387d7c266edb0b4c1e94af5c182",
+   "tris": 2600,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.short01.glb": {
+   "bytes": 337856,
+   "sha256": "7bc5ef5c2df41781e1fe61445095b43decbce24570e257aeee4f154ad727cd77",
+   "tris": 3678,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.short01.glb": {
+   "bytes": 240388,
+   "sha256": "0fc064bec5c6823c589bf7d7a395a2178b5d2e5fdc8ddaf7f483311ab8044274",
+   "tris": 1213,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.short02.glb": {
+   "bytes": 180280,
+   "sha256": "6959a4b79d6d9177afddfc65ac645f2f5d1e9d05e84233584b81bbaf171c7e46",
+   "tris": 3344,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.short02.glb": {
+   "bytes": 107080,
+   "sha256": "407efc747ef7391fd76069acca6cdd7d2e53067b1350906810b1fa509f0e41ad",
+   "tris": 1103,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.short03.glb": {
+   "bytes": 122396,
+   "sha256": "aad94395d8c819fd6e846861ae70b93f818b6ad70c33d000f73107e1548123f8",
+   "tris": 1922,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.short03.glb": {
+   "bytes": 80140,
+   "sha256": "3d16b83fb61ccc975f48704d46a5bd8065be623a9b7e00454f2108ee6b804ede",
+   "tris": 634,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.short04.glb": {
+   "bytes": 162448,
+   "sha256": "1cd8591de818ab0c45f82ed20efe55f10e11611016862a101093ad33da8afecb",
+   "tris": 1050,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.short04.glb": {
+   "bytes": 130876,
+   "sha256": "653697b600183113a5302f59e773bc504aeee7321220e3b595f7fb5ee3821809",
+   "tris": 345,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.bob01.glb": {
+   "bytes": 299160,
+   "sha256": "f3471b9c6d6ace538dddb3d1ebdacd8ab84ce8a5c1d5e212b78fcb90eb071b2d",
+   "tris": 5000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.bob01.glb": {
+   "bytes": 168356,
+   "sha256": "0f28cadd1a47012deb8f576058dd02a9f8dc4b11af8a8295de3caf72b7626eb1",
+   "tris": 1650,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.bob02.glb": {
+   "bytes": 172572,
+   "sha256": "a36f522927129d0b72cdcfea832e07c99c2d9793d6932a1b4e9422dfd02589a0",
+   "tris": 2248,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.bob02.glb": {
+   "bytes": 112264,
+   "sha256": "405f49a7b16fe6031336bafd5168fe42b2b905f6695a20fb498eda5c6bffdaad",
+   "tris": 741,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.ponytail01.glb": {
+   "bytes": 342796,
+   "sha256": "de33021bb2f43ff7d05b21fb0b3b6b70418f74667a9e406814e8dc177935e8ff",
+   "tris": 5000,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.ponytail01.glb": {
+   "bytes": 211212,
+   "sha256": "af3a90acbd173b836b568994d902b3a31e90c032cc2a7f1c3f82f6d25cfc7c98",
+   "tris": 1650,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.long01.glb": {
+   "bytes": 258144,
+   "sha256": "8c116eaa9d51475e2070961cb9b7958bc86b4f67fc048a3d24dc003132e09386",
+   "tris": 4108,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.long01.glb": {
+   "bytes": 138040,
+   "sha256": "35ca631739034e01f02fe51b0741a037d4f5b2d8c39665f9bda26e5b5d599c3c",
+   "tris": 1354,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.braid01.glb": {
+   "bytes": 298552,
+   "sha256": "d047eded290ae3022a546833158b13079fa129d13c4e03273603c60a273a25d5",
+   "tris": 4999,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.braid01.glb": {
+   "bytes": 147212,
+   "sha256": "6288a58934e4b2c2c6220bd41bc01eefdf60465bc9100f492236d843d5cc1f63",
+   "tris": 1649,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/hair.afro01.glb": {
+   "bytes": 284372,
+   "sha256": "5e347b4b223e5c0d7d8e7d872ebb61aa7a9486db261453b5d0735898d6b3dba7",
+   "tris": 2192,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/lod1/hair.afro01.glb": {
+   "bytes": 230640,
+   "sha256": "845dea3bd2e0c4cc95a621ba3d1df3abb14b213d690b206b113d8c3479aa8f07",
+   "tris": 723,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/glasses.spamrakuen_tbm_glasses_frames_01.glb": {
+   "bytes": 42720,
+   "sha256": "869cf38ea34521c3a3abd78241b1af2fcbb34d14b82cc29b847a488f4be8f569",
+   "tris": 808,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/glasses.kwnet_at_optical_glasses.glb": {
+   "bytes": 93156,
+   "sha256": "2ea94559d56e8b3461b36c1d9f9cf1b0b7366a23cb58c5403ab07c23fbb2aeb4",
+   "tris": 1999,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/glasses.spamrakuen_sagerfrogs_glasses_01.glb": {
+   "bytes": 128520,
+   "sha256": "eb7a1b7ee0c97497b53c521bb8b6af29f0802d6adac5d860ad3aeffa77b7f888",
+   "tris": 1284,
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "morphTargets": 0,
+   "joints": 53
+  },
+  "female/headset.office.glb": {
+   "bytes": 37980,
+   "sha256": "2cbaa2707686a7493e45c3d8225410f69dfdab0cf719757d286c966b49a5e47e",
+   "tris": 1384,
+   "attributes": [
+    "NORMAL",
+    "POSITION"
+   ],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/female/pele-1.webp": {
+   "bytes": 63976,
+   "sha256": "b48da7e3cc5c2dff578f24c2f8d3bb33258c645b36a20b20ab471f9b47e0f90d",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/female/pele-2.webp": {
+   "bytes": 51256,
+   "sha256": "ab8cc8686e2f680ce20e555e9b8c9a7614bc9829a8dbab9865c6be2c62cef5c8",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/female/pele-3.webp": {
+   "bytes": 54420,
+   "sha256": "b56720b4ae98fa7041d7458e4ada6a1c6a8b731e5e2096ee396b054e30cf0e8a",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/female/pele-4.webp": {
+   "bytes": 34264,
+   "sha256": "d23797a1c08b806659c1558ed179fad7e1e06c692ebe6937ee9640ea90decf96",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  },
+  "skins/female/pele-5.webp": {
+   "bytes": 31316,
+   "sha256": "27afd6fbec75e870245364f9a4b1c0d1408995e678d9c5b71bed4b02b915bb13",
+   "tris": 0,
+   "attributes": [],
+   "morphTargets": 0,
+   "joints": 0
+  }
+ }
+}

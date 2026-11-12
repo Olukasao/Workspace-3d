@@ -1,0 +1,34 @@
+{
+  "_comment": "Fonte dos avatares (MPFB2/MakeHuman, CC0). Cada base é criada no Blender com rig game_engine; roupas são ajustadas ao corpo, separadas em parte de cima/baixo e exportadas em GLB por base.",
+  "rig": "game_engine",
+  "bases": {
+    "male": { "macro": { "gender": 1.0, "age": 0.5, "muscle": 0.55, "weight": 0.52, "height": 0.55, "proportions": 0.6 }, "skin": "young_caucasian_male", "eyebrows": "eyebrow001", "eyelashes": "eyelashes01" },
+    "female": { "macro": { "gender": 0.0, "age": 0.5, "muscle": 0.5, "weight": 0.5, "height": 0.5, "proportions": 0.6 }, "skin": "young_caucasian_female", "eyebrows": "eyebrow006", "eyelashes": "eyelashes02" }
+  },
+  "eyes": "high-poly",
+  "teeth": "teeth_base",
+  "visemes": ["aa_ah_ax_01", "ao_03", "y_iy_ih_ix_06"],
+  "faces": [
+    { "id": "rosto-1", "name": "Rosto 1", "targets": {} },
+    { "id": "rosto-2", "name": "Rosto 2", "targets": { "head/head-round": 0.45, "chin/chin-prominent-decr": 0.35, "nose/nose-scale-horiz-incr": 0.25, "mouth/mouth-lowerlip-volume-incr": 0.35 } },
+    { "id": "rosto-3", "name": "Rosto 3", "targets": { "head/head-square": 0.55, "chin/chin-width-incr": 0.4, "chin/chin-prominent-incr": 0.3, "nose/nose-hump-incr": 0.35, "cheek/l-cheek-bones-incr": 0.4, "cheek/r-cheek-bones-incr": 0.4 } },
+    { "id": "rosto-4", "name": "Rosto 4", "targets": { "head/head-oval": 0.55, "nose/nose-scale-vert-incr": 0.3, "chin/chin-height-incr": 0.3, "mouth/mouth-scale-horiz-decr": 0.25 } }
+  ],
+  "skins": [
+    { "id": "pele-1", "name": "Tom 1", "male": "young_caucasian_male", "female": "young_caucasian_female" },
+    { "id": "pele-2", "name": "Tom 2", "male": "young_asian_male", "female": "young_asian_female" },
+    { "id": "pele-3", "name": "Tom 3", "male": "middleage_caucasian_male", "female": "middleage_caucasian_female" },
+    { "id": "pele-4", "name": "Tom 4", "male": "young_african_male", "female": "young_african_female" },
+    { "id": "pele-5", "name": "Tom 5", "male": "middleage_african_male", "female": "middleage_african_female" }
+  ],
+  "outfits": [
+    "male_casualsuit02", "male_casualsuit03", "male_casualsuit04", "male_casualsuit05", "male_casualsuit06", "male_elegantsuit01",
+    "female_casualsuit01", "female_casualsuit02", "female_elegantsuit01", "female_sportsuit01",
+    "toigo_male_suit_tie_and_jacket", "toigo_male_suit_3", "toigo_female_suit", "toigo_female_suit_2"
+  ],
+  "shoes": ["shoes01", "shoes02", "shoes03", "shoes04", "shoes05", "shoes06"],
+  "hair": ["short01", "short02", "short03", "short04", "bob01", "bob02", "ponytail01", "long01", "braid01", "afro01"],
+  "beards": ["wdg_scruffy_beard", "grinsegold_beard_sigmund_wip"],
+  "glasses": ["spamrakuen_tbm_glasses_frames_01", "kwnet_at_optical_glasses", "spamrakuen_sagerfrogs_glasses_01"],
+  "budgets": { "top": 7000, "bottom": 4500, "hair": 5000, "shoes": 2600, "glasses": 2000, "beard": 3000, "lod1Ratio": 0.33 }
+}

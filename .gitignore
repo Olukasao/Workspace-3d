@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+data/
+assets-src/originals/
+test-results/
+*.log
+.build-tools/

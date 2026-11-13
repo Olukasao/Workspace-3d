@@ -57,7 +57,7 @@ export class OfficeScene extends Phaser.Scene {
     if (this.gone) return;
     const data = this.net.data!;
     this.cameras.main.setBackgroundColor('#20242b');
-    this.view = new LayoutView(this, data.layout);
+    this.view = new LayoutView(this, data.layout, true, true);
     const cam = this.cameras.main;
     cam.setBounds(0, 0, this.view.width, this.view.height).setZoom(2).setRoundPixels(true);
 

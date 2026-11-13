@@ -3,12 +3,16 @@
  * Usada pelo escritório (jogar) e pelo editor. O Phaser desenha tudo; o React não participa do loop visual.
  */
 import Phaser from 'phaser';
-import { ASSET_BY_ID, TILE, TILE_WALL_FRONT, TILE_WALL_TOP, footprintSize, gridOf, layoutToTiled, type Grid, type Layout2D, type Obj2D } from '../../../../shared/office2d';
+import { ASSET_BY_ID, TILE, rotateDir, TILE_WALL_FRONT, TILE_WALL_TOP, footprintSize, gridOf, layoutToTiled, type Grid, type Layout2D, type Obj2D } from '../../../../shared/office2d';
 import { furnitureKey, registerArt } from './textures2d';
 import { packWalls } from './art/pack';
 import { TILESET_TILES } from '../../../../shared/office2d';
 
 let seq = 0;
+/** Linhas do alto da imagem da cadeira de costas que formam o encosto (o desenho do pacote tem o encosto nas primeiras 20 linhas, a partir da linha 18 do quadro). */
+const CHAIR_BACK_ROWS = 38;
+/** Primeira linha do encosto que cobre quem senta: as de cima ficam atrás, para a cabeça aparecer acima do encosto. */
+const CHAIR_BACK_FROM = 28;
 
 /**
  * Parede do pacote Office Pixel Art conforme os vizinhos (indices do tileset do pacote: 0 piso, 1-5 topos, 6-10 frentes, 11-13 laterais...).
@@ -44,6 +48,8 @@ export class LayoutView {
     private scene: Phaser.Scene,
     public layout: Layout2D,
     private showLabels = true,
+    /** Escritório (jogar): o encosto das cadeiras vistas de costas ganha uma camada na frente de quem senta. */
+    private layered = false,
   ) {
     this.grid = gridOf(layout);
     this.build();
@@ -82,6 +88,11 @@ export class LayoutView {
     const { h } = footprintSize(a, o.rot);
     const img = this.scene.add.image(o.x * TILE, (o.y + h) * TILE, furnitureKey(a.id, a.rotatable ? o.rot : 0)).setOrigin(0, 1).setDepth(objectDepth(o));
     this.objects.set(o.id, img);
+    // cadeira vista de costas: o encosto (parte de cima da imagem) é desenhado por cima de quem está sentado; o assento e as rodinhas ficam atrás dele
+    if (this.layered && a.id === 'chair' && rotateDir('down', o.rot) === 'up') {
+      const back = this.scene.add.image(img.x, img.y, img.texture.key).setOrigin(0, 1).setDepth(objectDepth(o) + 2).setCrop(0, CHAIR_BACK_FROM, TILE, CHAIR_BACK_ROWS - CHAIR_BACK_FROM);
+      img.once(Phaser.GameObjects.Events.DESTROY, () => back.destroy());
+    }
     return img;
   }
 

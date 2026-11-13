@@ -13,7 +13,7 @@ import { acquireAvatar, frameName, releaseAvatar } from './textures2d';
 export const STATUS_BG: Record<LiveStatus, string> = { online: '#1f9d55', typing: '#2f6fed', in_call: '#c05621', away: '#b7791f', offline: '#6b7280' };
 const SEAT_DROP = 10;
 /** De costas para a câmera (olhando a mesa), a pessoa senta mais fundo, no assento. */
-const SEAT_DROP_BACK = 17;
+const SEAT_DROP_BACK = 1;
 
 export interface AnimChoice { name: AnimName; fps: number }
 /** Qual animação mostrar: andando; sentado na estação (trabalhando, digitando, atendendo); em pé (parado ou atendendo). */

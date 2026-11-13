@@ -151,6 +151,23 @@ try {
   ok(/permiss/i.test(await O.locator('[data-testid="tv-device-dev_player_reuniao"]').innerText()), 'a linha explica a falta de permissão');
   await O.click('[data-testid="tv-close"]');
 
+  // clique na impressora: área de impressoras; escolhe a da recepção (não a do ponto), envia um PDF e acompanha a fila simulada
+  await O.evaluate(() => window.__office2d.focusTv('o27'));
+  await O.waitForTimeout(700);
+  const prPt = await O.evaluate(() => window.__office2d.tvPoint('o27'));
+  await O.mouse.click(tvBox.x + prPt.x, tvBox.y + prPt.y);
+  await O.waitForSelector('[data-testid="printer-dev_prn_at_01"]');
+  ok((await O.getAttribute('[data-testid="printer-dev_prn_at_01"]', 'aria-selected')) === 'true', 'clicar na impressora abre a lista com a deste ponto marcada');
+  await O.click('[data-testid="printer-dev_prn_recepcao"]');
+  await O.setInputFiles('[data-testid="printer-file"]', { name: 'teste.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 documento de teste do e2e') });
+  await O.click('[data-testid="printer-send"]');
+  await O.screenshot({ path: path.join(ROOT, 'test-results/ws-impressora.png') });
+  await O.click('[data-testid="printer-confirm"]');
+  await O.waitForSelector('[data-testid="printer-job"]');
+  const prTxt = await O.locator('[data-testid="printer-job"]').innerText();
+  ok(/IMP-RECEPCAO/.test(prTxt) && /Fila simulada/.test(prTxt), 'PDF enviado para a impressora escolhida (fila simulada)');
+  await O.click('[data-testid="printer-close"]');
+
   // 6) editor 2D: administrador coloca um tapete e publica; o operador recebe o layout novo ao vivo
   await A.locator('nav.tabs button', { hasText: 'Editor' }).click();
   await A.waitForSelector('[data-testid="editor2d"]', { timeout: 60000 });

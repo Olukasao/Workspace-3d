@@ -212,12 +212,12 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
                     {employees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
                   </select>
                 </label>
-              ) : selObj.asset !== 'tv' ? <span className="muted">Sem estação.</span> : null}
-              {selObj.asset === 'tv' && (
-                <label className="muted">Dispositivo desta TV (acesso remoto)
+              ) : selObj.asset !== 'tv' && selObj.asset !== 'printer' ? <span className="muted">Sem estação.</span> : null}
+              {(selObj.asset === 'tv' || selObj.asset === 'printer') && (
+                <label className="muted">{selObj.asset === 'tv' ? 'Dispositivo desta TV (padrão da lista de acesso remoto)' : 'Impressora deste ponto (padrão da lista)'}
                   <select value={tvLinks[selObj.id] ?? ''} onChange={(e) => void linkTv(selObj.id, e.target.value)} data-testid="tv-device-select">
                     <option value="">— nenhum —</option>
-                    {tvDevices.map((d) => <option key={d.id} value={d.id}>{d.name}{d.remoteProvider ? ` · ${d.remoteProvider === 'rustdesk' ? 'RustDesk' : d.remoteProvider === 'anydesk' ? 'AnyDesk' : d.remoteProvider}` : ' · sem acesso remoto'}</option>)}
+                    {tvDevices.filter((d) => (selObj.asset === 'printer') === (d.kind === 'printer')).map((d) => <option key={d.id} value={d.id}>{d.name}{d.kind === 'printer' ? '' : d.remoteProvider ? ` · ${d.remoteProvider === 'rustdesk' ? 'RustDesk' : d.remoteProvider === 'anydesk' ? 'AnyDesk' : d.remoteProvider}` : ' · sem acesso remoto'}</option>)}
                   </select>
                 </label>
               )}

@@ -21,8 +21,8 @@ export interface SceneBridge {
   onSelect: (s: { employeeId: string; sx: number; sy: number } | null) => void;
   onHint: (text: string | null) => void;
   isTyping: () => boolean;
-  /** Clique numa TV do escritório: abre o painel para gerenciá-la por acesso remoto. */
-  onTv: (objectId: string) => void;
+  /** Clique numa TV ou impressora do escritório: abre a área de dispositivos dela. */
+  onDevice: (objectId: string, asset: 'tv' | 'printer') => void;
 }
 
 type KeyMap = Record<'W' | 'A' | 'S' | 'D' | 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'E' | 'SPACE', Phaser.Input.Keyboard.Key>;
@@ -169,12 +169,12 @@ export class OfficeScene extends Phaser.Scene {
       if (seat && this.routeTo(seat.cx, seat.cy)) this.pendingSit = st.id;
       return;
     }
-    // 2a) TV (pendurada na parede): abre o painel de gerenciamento remoto do dispositivo dela
+    // 2a) TV (pendurada na parede) ou impressora: abre a área de dispositivos dela
     for (const o of this.layout.objects) {
-      if (o.asset !== 'tv') continue;
+      if (o.asset !== 'tv' && o.asset !== 'printer') continue;
       const img = this.view.objects.get(o.id);
       if (!img || !img.getBounds().contains(w.x, w.y)) continue;
-      this.bridge.onTv(o.id);
+      this.bridge.onDevice(o.id, o.asset);
       return;
     }
     // 2b) cadeira solta (reunião, copa) → andar até ela e sentar virado para o lado dela

@@ -6,6 +6,7 @@ import { ADMIN, Client, OPERATOR, VIEWER, startServer, type TestServer } from '.
 const OFFICE = 'off_sede_1';
 const TV_REUNIAO = 'o40'; // dispositivo AnyDesk, só o administrador tem permissão
 const TV_ATENDIMENTO = 'o66'; // dispositivo RustDesk, o operador tem permissão
+const PRINTER = 'o27'; // impressora do atendimento (dev_prn_at_01)
 
 const base = (id: string) => `/api/office2d/${OFFICE}/objects/${id}/remote`;
 
@@ -116,8 +117,8 @@ describe('TV do escritório 2D: gerenciar o que aparece pela conexão remota', (
     expect((await put(admin, TV_REUNIAO, 'dev_prn_at_01')).status).toBe(422);
     expect((await put(admin, TV_REUNIAO, 7)).status).toBe(400);
     const list = (await admin.get<{ devices: Array<{ id: string; kind: string }>; links: Record<string, string> }>(`/api/admin/office2d/${OFFICE}/devices`)).body;
-    expect(list.devices.every((d) => ['tv_player', 'pc', 'tv'].includes(d.kind))).toBe(true);
-    expect(list.links).toMatchObject({ [TV_REUNIAO]: 'dev_player_reuniao', [TV_ATENDIMENTO]: 'dev_player_atendimento' });
+    expect(list.devices.every((d) => ['tv_player', 'pc', 'tv', 'printer'].includes(d.kind))).toBe(true);
+    expect(list.links).toMatchObject({ [TV_REUNIAO]: 'dev_player_reuniao', [TV_ATENDIMENTO]: 'dev_player_atendimento', [PRINTER]: 'dev_prn_at_01' });
     // troca e desvincula
     expect((await put(admin, TV_REUNIAO, 'dev_player_noc_01')).status).toBe(200);
     expect((await admin.get<{ device: { id: string } }>(base(TV_REUNIAO))).body.device.id).toBe('dev_player_noc_01');
@@ -125,5 +126,76 @@ describe('TV do escritório 2D: gerenciar o que aparece pela conexão remota', (
     const none = (await admin.get<{ state: string; reason: string; device: unknown }>(base(TV_REUNIAO))).body;
     expect(none).toMatchObject({ state: 'not_configured', device: null });
     expect(none.reason).toMatch(/Nenhum dispositivo/);
+  });
+});
+
+describe('impressora do escritório 2D: escolher a impressora na lista e enviar o PDF', () => {
+  let s: TestServer;
+  let admin: Client, operator: Client, viewer: Client;
+  const pdf = new TextEncoder().encode('%PDF-1.4 documento de teste 1 0 obj endobj trailer %%EOF');
+  const printers = `/api/office2d/${OFFICE}/objects/${PRINTER}/printers`;
+  const send = (c: Client, q: string, body: Uint8Array = pdf, headers: Record<string, string> = {}) => c.request<Record<string, unknown>>('POST', `/api/office2d/${OFFICE}/objects/${PRINTER}/print/jobs?${q}`, body, { 'Content-Type': 'application/pdf', 'Idempotency-Key': `k-${Math.random().toString(36).slice(2)}-${Date.now()}`, ...headers });
+
+  beforeAll(async () => {
+    s = await startServer();
+    admin = await new Client(s.url).login(ADMIN);
+    operator = await new Client(s.url).login(OPERATOR);
+    viewer = await new Client(s.url).login(VIEWER);
+    expect((await admin.put('/api/admin/workspace-mode', { mode: '2d', confirm: true })).status).toBe(200);
+  }, 30000);
+  afterAll(async () => {
+    s.ctx.ara.close();
+    s.ctx.office2d.stop();
+    await s.close();
+  });
+
+  it('a lista traz as impressoras ativas da empresa, a do objeto marcada primeiro; visualizador não imprime', async () => {
+    type L = { mode: string; queue: { available: boolean }; printers: Array<{ id: string; canPrint: boolean; bound: boolean; reason?: string }> };
+    const l = (await operator.get<L>(printers)).body;
+    expect(l.mode).toBe('demo');
+    expect(l.queue.available).toBe(true);
+    expect(l.printers.map((p) => p.id)).toEqual(['dev_prn_at_01', 'dev_prn_recepcao']);
+    expect(l.printers[0]).toMatchObject({ bound: true, canPrint: true });
+    expect(l.printers.map((p) => p.id)).not.toContain('dev_outra_prn');
+    expect((await viewer.get<L>(printers)).body.printers.every((p) => !p.canPrint && /visualizador/.test(p.reason ?? ''))).toBe(true);
+    expect((await operator.get(`/api/office2d/${OFFICE}/objects/${TV_ATENDIMENTO}/printers`)).status).toBe(404); // a TV não é impressora
+  });
+
+  it('enviar exige confirmação, PDF de verdade, impressora do inventário e perfil que imprime', async () => {
+    expect((await send(operator, 'deviceId=dev_prn_recepcao&fileName=a.pdf')).status).toBe(400); // sem confirmar
+    expect((await send(operator, 'deviceId=dev_prn_recepcao&confirm=true', new TextEncoder().encode('MZ nao e pdf'))).status).toBe(415);
+    expect((await send(operator, 'deviceId=dev_pc_at_01&confirm=true')).status).toBe(404); // não é impressora
+    expect((await send(operator, 'deviceId=dev_outra_prn&confirm=true')).status).toBe(404); // de outra empresa
+    expect((await send(viewer, 'deviceId=dev_prn_recepcao&confirm=true')).status).toBe(403);
+    expect((await send(operator, 'deviceId=dev_prn_recepcao&confirm=true', new Uint8Array())).status).toBe(400); // vazio
+  });
+
+  it('vai para a impressora ESCOLHIDA (não a do objeto), reaproveita o clique duplo e a trilha guarda a impressora', async () => {
+    const r = await send(operator, 'deviceId=dev_prn_recepcao&fileName=relatorio.pdf&confirm=true');
+    expect(r.status).toBe(201);
+    expect(r.body.printer).toMatchObject({ id: 'dev_prn_recepcao', name: 'IMP-RECEPCAO' });
+    const job = r.body.job as { id: string; status: string; mode: string };
+    expect(job.mode).toBe('demo');
+    const dup = await send(operator, 'deviceId=dev_prn_recepcao&fileName=relatorio.pdf&confirm=true');
+    expect(dup.body.duplicateOf).toBe(job.id);
+    const other = await send(operator, 'deviceId=dev_prn_at_01&fileName=relatorio.pdf&confirm=true'); // outra impressora: novo trabalho
+    expect(other.status).toBe(201);
+    expect((other.body.job as { id: string }).id).not.toBe(job.id);
+    // sem deviceId vale a impressora do objeto
+    const dflt = await send(operator, 'fileName=outro.pdf&confirm=true', new TextEncoder().encode('%PDF-1.4 outro conteudo'));
+    expect(dflt.body.printer).toMatchObject({ id: 'dev_prn_at_01' });
+    const audit = await admin.get<{ entries: Array<{ action: string; targetId: string; objectId?: string }> }>('/api/admin/audit?action=print.submit');
+    expect(audit.body.entries.some((e) => e.targetId === 'dev_prn_recepcao' && e.objectId === PRINTER)).toBe(true);
+    // o estado do trabalho é consultado pelo mesmo caminho do 3D
+    expect(((await operator.get<{ job: { id: string } }>(`/api/print/jobs/${job.id}`)).body).job.id).toBe(job.id);
+  });
+
+  it('o administrador vincula a impressora do mapa só a uma impressora do inventário', async () => {
+    const put = (obj: string, deviceId: unknown) => admin.put(`/api/admin/office2d/${OFFICE}/objects/${obj}/device`, { deviceId });
+    expect((await put(PRINTER, 'dev_pc_at_01')).status).toBe(422);
+    expect((await put(PRINTER, 'dev_prn_recepcao')).status).toBe(200);
+    expect((await operator.get<{ printers: Array<{ id: string; bound: boolean }> }>(printers)).body.printers.find((p) => p.bound)?.id).toBe('dev_prn_recepcao');
+    expect((await put(TV_ATENDIMENTO, 'dev_prn_at_01')).status).toBe(422); // TV não recebe impressora
+    expect((await put(PRINTER, null)).status).toBe(200);
   });
 });

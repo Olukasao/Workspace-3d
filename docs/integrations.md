@@ -154,6 +154,10 @@ No escritório 2D, **clicar numa TV** (pendurada na parede) abre uma **área de 
 - **Permissão:** administrador (todos os dispositivos), ou operador com concessão do dispositivo (`remote_access_grants`, a mesma do 3D). Visualizador não executa. A permissão é reavaliada no servidor a cada pedido, para o dispositivo que foi escolhido.
 - **Cadastro do dispositivo:** `remote_provider` = `anydesk` ou `rustdesk` e `remote_address` com o endereço (AnyDesk: 9 a 10 dígitos ou alias `nome@namespace`; RustDesk: 9 a 10 dígitos ou ID personalizado de 6 a 32 caracteres).
 
+## Impressora do escritório 2D: escolher a impressora e enviar o PDF
+
+**Clicar na impressora** do mapa abre a mesma área de lista da TV, agora com as impressoras do inventário (busca por nome e local). A do ponto vem marcada ("Deste ponto") e pré-selecionada, mas a pessoa escolhe qualquer uma. Depois seleciona o PDF (até 10 MB) e confirma: o documento vai para a **fila da impressora escolhida** e o estado mostrado (na fila, envio confirmado, concluído) vem da própria fila. Mesmas garantias do 3D: confirmação explícita, checagem da assinatura `%PDF-`, limite de tamanho, chave de idempotência, proteção contra clique duplo, retenção (o arquivo é apagado ao concluir) e trilha de auditoria com a impressora escolhida. Visualizador não imprime. Sem envio direto configurado (`PRINT_PROVIDER` ≠ `demo`/`ipp` implementado), a lista avisa e o envio fica desligado. O padrão do ponto é definido pelo administrador no editor (impressora selecionada → "Impressora deste ponto").
+
 ## Painéis de TV e CAD
 
 - Só abrem caminhos `/demo/…` (modo demonstração) ou `https://` de hosts listados. O endereço é validado ao vincular e de novo ao abrir.

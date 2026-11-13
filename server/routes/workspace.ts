@@ -12,18 +12,21 @@
  * - GET  /api/office2d/:officeId/objects/:objectId/remote          TV do 2D: dispositivo vinculado e se o usuário pode conectar
  * - GET  /api/office2d/:officeId/objects/:objectId/remote/devices  lista de dispositivos para escolher (como o catálogo do AnyDesk), com a permissão de cada um
  * - POST /api/office2d/:officeId/objects/:objectId/remote/request  { deviceId?, confirm } prepara a conexão com o dispositivo escolhido (AnyDesk ou RustDesk); nunca conecta sozinho
+ * - GET  /api/office2d/:officeId/objects/:objectId/printers          impressora do 2D: lista de impressoras para escolher
+ * - POST /api/office2d/:officeId/objects/:objectId/print/jobs      corpo = PDF; envia à fila da impressora escolhida (?deviceId=&fileName=&confirm=true)
  * - GET  /api/admin/office2d/:officeId/devices                     administrador: dispositivos para vincular e o vínculo de cada objeto
  * - PUT  /api/admin/office2d/:officeId/objects/:objectId/device    { deviceId | null } vincula um dispositivo a uma TV do layout
  * - GET  /api/admin/office2d/:officeId/tiled             exporta o layout no formato JSON do Tiled
  */
-import type { Router } from 'express';
+import express, { type Router } from 'express';
+import { sha256 } from '../assets/glb';
 import { WORKSPACE_MODES, isWorkspaceMode } from '../../shared/workspace';
 import { DIRS, layoutToTiled, validateLayout, type Layout2D } from '../../shared/office2d';
 import { defaultLayout2D } from '../../shared/office2dDefault';
 import type { AppContext } from '../app';
 import { currentUser, requireRole } from '../auth';
 import { one } from '../db/driver';
-import { HttpError, audit, correlationId, h, newId } from '../http';
+import { HttpError, audit, correlationId, h, idempotent, newId, str } from '../http';
 import { loadOffice } from '../office';
 
 export function workspaceRoutes(r: Router, ctx: AppContext) {
@@ -207,10 +210,10 @@ export function workspaceRoutes(r: Router, ctx: AppContext) {
     const src = preferDraft ? (draft ?? published) : (published ?? draft);
     return src ? (JSON.parse(src.layout_json) as Layout2D) : defaultLayout2D();
   };
-  const tvObject = async (user: User, officeId: string, objectId: string, preferDraft: boolean) => {
+  const tvObject = async (user: User, officeId: string, objectId: string, preferDraft: boolean, assets: string[] = ['tv']) => {
     await loadOffice(db, user, officeId);
     const o = (await layoutOf(user.companyId, officeId, preferDraft)).objects.find((x) => x.id === objectId);
-    if (!o || o.asset !== 'tv') throw new HttpError(404, 'not_found', 'TV não encontrada neste layout.');
+    if (!o || !assets.includes(o.asset)) throw new HttpError(404, 'not_found', assets.includes('printer') ? 'Objeto não encontrado neste layout.' : 'TV não encontrada neste layout.');
     return o;
   };
   interface TvDevice { device_id: string; name: string; kind: string; remote_provider: string | null; remote_address: string | null; active: number }
@@ -300,24 +303,63 @@ export function workspaceRoutes(r: Router, ctx: AppContext) {
     }
   }));
 
+  // ---------- impressora do 2D: escolher a impressora na lista e mandar o PDF para a fila dela ----------
+  r.get('/office2d/:officeId/objects/:objectId/printers', h(async (req, res) => {
+    const user = currentUser(res);
+    await requireMode2d(user.companyId);
+    const obj = await tvObject(user, req.params.officeId, req.params.objectId, false, ['printer']);
+    const [rows, bound] = await Promise.all([
+      db.query<{ id: string; name: string; location: string | null }>("SELECT id, name, location FROM managed_devices WHERE company_id = ? AND active = 1 AND kind = 'printer' ORDER BY name", [user.companyId]),
+      tvDevice(user, req.params.officeId, obj.id),
+    ]);
+    const reason = user.role === 'viewer' ? 'O perfil de visualizador não executa ações.' : undefined;
+    const printers = rows.map((d) => ({ id: d.id, name: d.name, location: d.location, canPrint: !reason, reason, bound: d.id === bound?.device_id }));
+    printers.sort((a, b) => Number(b.bound) - Number(a.bound) || a.name.localeCompare(b.name));
+    res.json({ mode: integrations.print.mode, queue: { available: integrations.print.configured, reason: integrations.print.configured ? undefined : integrations.print.detail }, printers });
+  }));
+
+  /** Corpo = bytes do PDF; mesmas garantias do 3D (confirmação, assinatura, tamanho, idempotência e clique duplo), para a impressora ESCOLHIDA. */
+  r.post('/office2d/:officeId/objects/:objectId/print/jobs', express.raw({ type: () => true, limit: ctx.cfg.printMaxBytes }), h(async (req, res) => {
+    const user = currentUser(res);
+    const cid = correlationId(res);
+    await requireMode2d(user.companyId);
+    const obj = await tvObject(user, req.params.officeId, req.params.objectId, false, ['printer']);
+    if (user.role === 'viewer') throw new HttpError(403, 'forbidden', 'O perfil de visualizador não executa ações.');
+    const bound = await tvDevice(user, req.params.officeId, obj.id);
+    const deviceId = str(req.query.deviceId, 40) ?? bound?.device_id;
+    if (!deviceId) throw new HttpError(409, 'not_configured', 'Nenhuma impressora está vinculada a este objeto: escolha uma na lista.');
+    const printer = await one<{ id: string; name: string }>(db, "SELECT id, name FROM managed_devices WHERE id = ? AND company_id = ? AND active = 1 AND kind = 'printer'", [deviceId, user.companyId]);
+    if (!printer) throw new HttpError(404, 'not_found', 'Impressora não encontrada.');
+    if (req.query.confirm !== 'true') throw new HttpError(400, 'confirmation_required', 'O envio para a impressora precisa de confirmação explícita.');
+    const body = req.body as Buffer;
+    if (!Buffer.isBuffer(body) || !body.length) throw new HttpError(400, 'bad_request', 'Documento ausente.');
+    const bytes = new Uint8Array(body.buffer, body.byteOffset, body.byteLength);
+    const hash = sha256(bytes);
+    const fileName = (str(req.query.fileName, 200) ?? 'documento.pdf').replace(/[\\/:*?"<>|]/g, '_');
+    const out = await idempotent(db, user, 'print', req.header('idempotency-key'), { officeId: req.params.officeId, objectId: obj.id, deviceId: printer.id, hash }, () =>
+      ctx.printApi!.printSubmit({ user, cid, objectId: obj.id, printer: { device_id: printer.id, device_name: printer.name }, fileName, body, bytes, hash, mode: integrations.print.mode }),
+    );
+    res.status(out.status).json({ ...out.body, replayed: out.replayed });
+  }));
+
   r.get('/admin/office2d/:officeId/devices', requireRole('admin'), h(async (req, res) => {
     const user = currentUser(res);
     await loadOffice(db, user, req.params.officeId);
     const devices = await db.query<{ id: string; name: string; kind: string; location: string | null; remote_provider: string | null; active: number }>('SELECT id, name, kind, location, remote_provider, active FROM managed_devices WHERE company_id = ? AND active = 1 ORDER BY name', [user.companyId]);
     const links = await db.query<{ object_id: string; device_id: string }>('SELECT object_id, device_id FROM object2d_devices WHERE company_id = ? AND office_id = ?', [user.companyId, req.params.officeId]);
-    res.json({ devices: devices.filter((d) => TV_KINDS.includes(d.kind)).map((d) => ({ id: d.id, name: d.name, kind: d.kind, location: d.location, remoteProvider: d.remote_provider })), links: Object.fromEntries(links.map((l) => [l.object_id, l.device_id])) });
+    res.json({ devices: devices.filter((d) => TV_KINDS.includes(d.kind) || d.kind === 'printer').map((d) => ({ id: d.id, name: d.name, kind: d.kind, location: d.location, remoteProvider: d.remote_provider })), links: Object.fromEntries(links.map((l) => [l.object_id, l.device_id])) });
   }));
 
   r.put('/admin/office2d/:officeId/objects/:objectId/device', requireRole('admin'), h(async (req, res) => {
     const user = currentUser(res);
     const officeId = req.params.officeId;
-    const obj = await tvObject(user, officeId, req.params.objectId, true);
+    const obj = await tvObject(user, officeId, req.params.objectId, true, ['tv', 'printer']);
     const deviceId = (req.body as { deviceId?: unknown })?.deviceId ?? null;
     if (deviceId !== null && typeof deviceId !== 'string') throw new HttpError(400, 'bad_request', 'deviceId deve ser um id ou null.');
     if (deviceId) {
       const dev = await one<{ kind: string }>(db, 'SELECT kind FROM managed_devices WHERE id = ? AND company_id = ? AND active = 1', [deviceId, user.companyId]);
       if (!dev) throw new HttpError(404, 'not_found', 'Dispositivo não encontrado.');
-      if (!TV_KINDS.includes(dev.kind)) throw new HttpError(422, 'wrong_kind', 'A TV só pode ser vinculada a um PC ou a um player de TV.');
+      if (obj.asset === 'printer' ? dev.kind !== 'printer' : !TV_KINDS.includes(dev.kind)) throw new HttpError(422, 'wrong_kind', obj.asset === 'printer' ? 'A impressora do mapa só pode ser vinculada a uma impressora do inventário.' : 'A TV só pode ser vinculada a um PC ou a um player de TV.');
     }
     await db.tx(async (tx) => {
       await tx.exec('DELETE FROM object2d_devices WHERE company_id = ? AND office_id = ? AND object_id = ?', [user.companyId, officeId, obj.id]);

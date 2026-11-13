@@ -125,6 +125,7 @@ export async function seed(db: Db): Promise<{ created: boolean }> {
     ['dev_player_reuniao', 'PLAYER-REUNIAO', 'tv_player', 'Sala de reunião', 'anydesk', '100 000 022', 1],
     ['dev_player_atendimento', 'PLAYER-ATENDIMENTO', 'tv_player', 'Atendimento, TV de avisos', 'rustdesk', '200 000 031', 1],
     ['dev_prn_at_01', 'IMP-ATD-01', 'printer', 'Atendimento, junto à janela', null, null, 1],
+    ['dev_prn_recepcao', 'IMP-RECEPCAO', 'printer', 'Recepção', null, null, 1],
   ];
   for (const [id, name, kind, location, provider, address, active] of devices) {
     await db.exec('INSERT INTO managed_devices (id, company_id, name, kind, location, remote_provider, remote_address, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [id, ACME, name, kind, location, provider, address, active]);
@@ -151,8 +152,9 @@ export async function seed(db: Db): Promise<{ created: boolean }> {
     await db.exec('INSERT INTO remote_access_grants (user_id, device_id, company_id) VALUES (?, ?, ?)', ['usr_operador', dev, ACME]);
   }
 
-  // ---- TVs do escritório 2D (penduradas na parede): o player de cada uma. O operador só tem permissão na do atendimento (RustDesk) ----
-  for (const [objectId, dev] of [['o40', 'dev_player_reuniao'], ['o66', 'dev_player_atendimento']]) {
+  // ---- TVs e impressora do escritório 2D: o dispositivo marcado em cada uma (a pessoa pode escolher outro na lista).
+  // TVs (penduradas na parede): O operador só tem permissão na do atendimento (RustDesk) ----
+  for (const [objectId, dev] of [['o40', 'dev_player_reuniao'], ['o66', 'dev_player_atendimento'], ['o27', 'dev_prn_at_01']]) {
     await db.exec('INSERT INTO object2d_devices (company_id, office_id, object_id, device_id, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?)', [ACME, 'off_sede_1', objectId, dev, 'usr_admin', now]);
   }
 

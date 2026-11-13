@@ -11,6 +11,7 @@ import { currentUser } from '../auth';
 import { one } from '../db/driver';
 import { HttpError, audit, correlationId, h, idempotent, newId, str } from '../http';
 import { allowedUrl, requireAction } from '../office';
+import type { SessionUser } from '../../shared/types';
 import type { PrintJobStatus } from '../providers/types';
 
 const PRINT_LABEL: Record<string, string> = { queued: 'Na fila', sent: 'Envio confirmado pela fila', completed: 'Conclusão reportada pela fila', failed: 'Falhou' };
@@ -147,30 +148,7 @@ export function actionRoutes(r: Router, { db, cfg, integrations }: AppContext) {
     const out = await idempotent(db, user, 'print', req.header('idempotency-key'), { officeId: req.params.id, objectId, hash }, async () => {
       const { bindings } = await requireAction(db, user, req.params.id, objectId, 'printQueue', integrations);
       const printer = bindings.find((b) => b.binding_type === 'device')!;
-      if (body.subarray(0, 5).toString('latin1') !== '%PDF-') {
-        await audit(db, { user, action: 'print.submit', targetType: 'device', targetId: printer.device_id!, objectId, result: 'rejected', mode, detail: { reason: 'invalid_type', fileName }, correlationId: cid });
-        throw new HttpError(415, 'invalid_type', 'Arquivo inválido: só PDF é aceito para impressão (a assinatura do arquivo não é de PDF).');
-      }
-      const now = Date.now();
-      // clique duplo com chaves diferentes: reaproveita o job recém-criado em vez de imprimir duas vezes
-      const recent = await one<Parameters<typeof toJob>[0]>(db, "SELECT id, file_name, file_bytes, status, mode, created_at, updated_at FROM print_jobs WHERE company_id = ? AND user_id = ? AND printer_device_id = ? AND file_hash = ? AND created_at > ? AND status <> 'failed' ORDER BY created_at DESC", [user.companyId, user.id, printer.device_id!, hash, now - 15_000]);
-      if (recent) return { status: 200, body: { job: toJob(recent), duplicateOf: recent.id, printer: { id: printer.device_id, name: printer.device_name }, correlationId: cid } };
-      integrations.ensureUp('print');
-      const id = newId('prn');
-      mkdirSync(printDir, { recursive: true });
-      const stored = path.join(printDir, `${id}.pdf`);
-      writeFileSync(stored, body);
-      try {
-        const sub = await integrations.print.submit({ id, printerDeviceId: printer.device_id!, fileName, bytes });
-        const purgeAfter = now + cfg.printRetentionMinutes * 60_000;
-        await db.exec('INSERT INTO print_jobs (id, company_id, printer_device_id, object_id, user_id, file_name, file_hash, file_bytes, stored_path, mode, status, created_at, updated_at, purge_after) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, user.companyId, printer.device_id!, objectId, user.id, fileName, hash, body.length, `${id}.pdf`, mode, sub.status, now, now, purgeAfter]);
-        await audit(db, { user, action: 'print.submit', targetType: 'device', targetId: printer.device_id!, objectId, result: sub.status, mode, detail: { jobId: id, fileName, bytes: body.length, fileSha256: hash }, correlationId: cid });
-        return { status: 201, body: { job: toJob({ id, file_name: fileName, file_bytes: body.length, status: sub.status, mode, created_at: now, updated_at: now }), printer: { id: printer.device_id, name: printer.device_name }, retentionMinutes: cfg.printRetentionMinutes, correlationId: cid } };
-      } catch (e) {
-        rmSync(stored, { force: true });
-        await audit(db, { user, action: 'print.submit', targetType: 'device', targetId: printer.device_id!, objectId, result: 'failed', mode, detail: { fileName, error: (e as Error).message }, correlationId: cid });
-        throw e;
-      }
+      return printSubmit({ user, cid, objectId, printer: { device_id: printer.device_id!, device_name: printer.device_name! }, fileName, body, bytes, hash, mode });
     });
     res.status(out.status).json({ ...out.body, replayed: out.replayed });
   }));
@@ -212,7 +190,39 @@ export function actionRoutes(r: Router, { db, cfg, integrations }: AppContext) {
     }));
   }
 
-  return { purgeExpiredPrintFiles };
+  return { purgeExpiredPrintFiles, printSubmit, toJob };
+
+  /**
+   * Guarda o PDF e o entrega à fila da impressora indicada (verifica a assinatura, evita duplicidade por clique duplo, registra na trilha).
+   * Usada pelo 3D (impressora vinculada ao objeto) e pelo 2D (impressora escolhida na lista).
+   */
+  async function printSubmit(a: { user: SessionUser; cid: string; objectId: string; printer: { device_id: string; device_name: string }; fileName: string; body: Buffer; bytes: Uint8Array; hash: string; mode: 'demo' | 'real' }): Promise<{ status: number; body: Record<string, unknown> }> {
+    const { user, cid, objectId, printer, fileName, body, bytes, hash, mode } = a;
+    if (body.subarray(0, 5).toString('latin1') !== '%PDF-') {
+        await audit(db, { user, action: 'print.submit', targetType: 'device', targetId: printer.device_id!, objectId, result: 'rejected', mode, detail: { reason: 'invalid_type', fileName }, correlationId: cid });
+        throw new HttpError(415, 'invalid_type', 'Arquivo inválido: só PDF é aceito para impressão (a assinatura do arquivo não é de PDF).');
+      }
+      const now = Date.now();
+      // clique duplo com chaves diferentes: reaproveita o job recém-criado em vez de imprimir duas vezes
+      const recent = await one<Parameters<typeof toJob>[0]>(db, "SELECT id, file_name, file_bytes, status, mode, created_at, updated_at FROM print_jobs WHERE company_id = ? AND user_id = ? AND printer_device_id = ? AND file_hash = ? AND created_at > ? AND status <> 'failed' ORDER BY created_at DESC", [user.companyId, user.id, printer.device_id!, hash, now - 15_000]);
+      if (recent) return { status: 200, body: { job: toJob(recent), duplicateOf: recent.id, printer: { id: printer.device_id, name: printer.device_name }, correlationId: cid } };
+      integrations.ensureUp('print');
+      const id = newId('prn');
+      mkdirSync(printDir, { recursive: true });
+      const stored = path.join(printDir, `${id}.pdf`);
+      writeFileSync(stored, body);
+      try {
+        const sub = await integrations.print.submit({ id, printerDeviceId: printer.device_id!, fileName, bytes });
+        const purgeAfter = now + cfg.printRetentionMinutes * 60_000;
+        await db.exec('INSERT INTO print_jobs (id, company_id, printer_device_id, object_id, user_id, file_name, file_hash, file_bytes, stored_path, mode, status, created_at, updated_at, purge_after) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [id, user.companyId, printer.device_id!, objectId, user.id, fileName, hash, body.length, `${id}.pdf`, mode, sub.status, now, now, purgeAfter]);
+        await audit(db, { user, action: 'print.submit', targetType: 'device', targetId: printer.device_id!, objectId, result: sub.status, mode, detail: { jobId: id, fileName, bytes: body.length, fileSha256: hash }, correlationId: cid });
+        return { status: 201, body: { job: toJob({ id, file_name: fileName, file_bytes: body.length, status: sub.status, mode, created_at: now, updated_at: now }), printer: { id: printer.device_id, name: printer.device_name }, retentionMinutes: cfg.printRetentionMinutes, correlationId: cid } };
+      } catch (e) {
+        rmSync(stored, { force: true });
+        await audit(db, { user, action: 'print.submit', targetType: 'device', targetId: printer.device_id!, objectId, result: 'failed', mode, detail: { fileName, error: (e as Error).message }, correlationId: cid });
+        throw e;
+      }
+  }
 
   /** Retenção: apaga do disco os documentos vencidos (chamado periodicamente pelo servidor). */
   async function purgeExpiredPrintFiles(): Promise<number> {

@@ -31,6 +31,8 @@ export interface AppContext {
   office2d: Office2D;
   /** Apaga do disco os documentos de impressão vencidos (retenção). */
   purgePrintFiles?: () => Promise<number>;
+  /** Envio de PDF à fila de uma impressora (o 3D e o 2D usam o mesmo caminho). */
+  printApi?: Pick<ReturnType<typeof actionRoutes>, 'printSubmit' | 'toJob'>;
 }
 
 export function createApp(cfg: Config, db: Db): { app: Express; ctx: AppContext } {
@@ -116,7 +118,9 @@ export function createApp(cfg: Config, db: Db): { app: Express; ctx: AppContext 
   officeRoutes(authed, ctx);
   assetRoutes(authed, ctx);
   adminRoutes(authed, ctx);
-  ctx.purgePrintFiles = actionRoutes(authed, ctx).purgeExpiredPrintFiles;
+  const actions = actionRoutes(authed, ctx);
+  ctx.purgePrintFiles = actions.purgeExpiredPrintFiles;
+  ctx.printApi = actions;
   liveRoutes(authed, ctx);
   workspaceRoutes(authed, ctx);
   api.use(authed);

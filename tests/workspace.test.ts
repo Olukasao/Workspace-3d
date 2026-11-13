@@ -49,7 +49,7 @@ const OFFICE = 'off_sede_1';
 let s: TestServer;
 let admin: Client, operator: Client, viewer: Client, other: Client;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-type Pos = { id: string; x: number; y: number; dir: string; moving: boolean; seat: string | null; corrected?: boolean };
+type Pos = { id: string; x: number; y: number; dir: string; moving: boolean; seat: string | null; corrected?: boolean; auto?: boolean };
 
 beforeAll(async () => {
   s = await startServer({ PRESENCE_GRACE_MS: '700' });
@@ -147,10 +147,20 @@ describe('escritório 2D: entrada e movimentação validadas pelo servidor', () 
     expect(layout.stations).toHaveLength(12);
     const j = await operator.post<{ me: Pos; positions: Pos[] }>(`/api/office2d/${OFFICE}/join`);
     expect(j.status).toBe(200);
-    me = j.body.me;
-    expect(me.id).toBe('emp_otavio');
-    expect(me.seat).toBe('st5'); // a estação vinculada a ele no demo: ele entra sentado nela
+    expect(j.body.me.id).toBe('emp_otavio');
+    // a estação vinculada a ele no demo é a st5: ele entra por uma entrada, em pé, e o servidor o leva até ela
+    expect(j.body.me.seat).toBeNull();
+    expect(j.body.me.auto).toBe(true);
     const sp5 = seatOfObject(layout.objects.find((o) => o.id === layout.stations.find((s) => s.id === 'st5')!.objectId)!)!;
+    expect(Math.hypot(j.body.me.x - sp5.x, j.body.me.y - sp5.y)).toBeGreaterThan(48);
+    let arrived = j.body.me;
+    for (let i = 0; i < 100 && arrived.seat !== 'st5'; i++) {
+      await sleep(250);
+      arrived = (await operator.post<{ me: Pos }>(`/api/office2d/${OFFICE}/join`)).body.me;
+    }
+    me = arrived;
+    expect(me.seat).toBe('st5'); // chegou à mesa dele e sentou
+    expect(me.auto).toBeFalsy();
     expect([me.x, me.y]).toEqual([sp5.x, sp5.y]);
     expect(j.body.positions.map((p) => p.id)).toContain('emp_otavio');
     expect((await operator.post<{ me: Pos }>(`/api/office2d/${OFFICE}/join`)).body.me).toMatchObject({ x: me.x, y: me.y }); // entrar de novo não duplica nem muda

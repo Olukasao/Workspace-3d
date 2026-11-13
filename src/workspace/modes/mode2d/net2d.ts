@@ -7,7 +7,7 @@ import type { Dir, Layout2D } from '../../../../shared/office2d';
 import { api } from '../../../api';
 import { onLiveEvent } from '../../../live';
 
-export interface Pos2D { id: string; officeId: string; x: number; y: number; dir: Dir; moving: boolean; seat: string | null }
+export interface Pos2D { id: string; officeId: string; x: number; y: number; dir: Dir; moving: boolean; seat: string | null; auto?: boolean }
 export interface SeatInfo { stationId: string; employeeId: string; name: string; department: string }
 export interface Office2DData { layout: Layout2D; version: number; published: boolean; seats: SeatInfo[] }
 

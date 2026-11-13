@@ -41,7 +41,7 @@ Regras do briefing mantidas: nenhuma tecla, texto ou nome de conversa vai para o
 
 - O **servidor é a autoridade** (`server/office2d.ts`): velocidade máxima 150 px/s (mais folga), caminho livre a cada 8 px, intervalo mínimo de 40 ms, regras de sentar (perto, livre ou sua, caminho livre). Posição inválida é **corrigida** e o cliente volta para a posição aceita.
 - O cliente propõe a própria posição no máximo 10 vezes por segundo; o servidor junta as posições e envia em lotes de 100 ms (evento `p2d`), só para quem pode ver a presença da empresa. Os outros personagens são **interpolados** no cliente.
-- Quem está online entra sozinho no escritório 2D (na estação vinculada, sentado, ou numa entrada livre, sem empilhar nomes); quem fica offline sai.
+- Quem está online entra sozinho no escritório 2D por uma entrada livre (sem empilhar nomes) e, se tem mesa designada, o **servidor o leva andando até ela** (caminho livre, 80 px/s) e a pessoa **senta na cadeira que já está no cenário**. Se a pessoa se mexer ou pedir para sentar, assume o controle na hora. Sem mesa designada, fica em pé na entrada. Quem fica offline sai.
 
 ## Editor 2D (administrador)
 

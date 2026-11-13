@@ -201,12 +201,36 @@ export class OfficeScene extends Phaser.Scene {
     if (!this.view) return;
     const dt = Math.min(0.1, deltaMs / 1000);
     const t = time / 1000;
-    if (this.net.me) this.updateLocal(dt);
+    if (this.net.me && !this.autoFollow()) this.updateLocal(dt);
     this.syncPeople(t, dt);
     this.updateHint();
     const cam = this.cameras.main;
     const mine = this.people.get(this.bridge.employeeId ?? '');
     if (mine && !cam.panEffect.isRunning) cam.centerOn(mine.x, mine.y - 8);
+  }
+
+  /**
+   * Ao entrar, o servidor leva a pessoa até a mesa dela e a faz sentar: o cliente só acompanha. Mexer (teclado ou clique no chão)
+   * ou pedir para sentar assume o controle.
+   */
+  private following = false;
+  private autoFollow(): boolean {
+    const pos = this.net.positions.get(this.bridge.employeeId ?? '');
+    if (!pos) return false;
+    const k = this.keys;
+    const manual = !this.bridge.isTyping() && (k.A.isDown || k.D.isDown || k.W.isDown || k.S.isDown || k.LEFT.isDown || k.RIGHT.isDown || k.UP.isDown || k.DOWN.isDown);
+    if (pos.auto && !manual && !this.path.length) {
+      this.following = true;
+      Object.assign(this.me, { x: pos.x, y: pos.y, dir: pos.dir, moving: pos.moving, seat: pos.seat });
+      return true;
+    }
+    if (this.following && !pos.auto) {
+      // chegou à mesa: aceita a posição final e não reenvia
+      this.following = false;
+      Object.assign(this.me, { x: pos.x, y: pos.y, dir: pos.dir, moving: false, seat: pos.seat });
+      this.sentSig = `${Math.round(pos.x)}|${Math.round(pos.y)}|${pos.dir}|false|${pos.seat}`;
+    }
+    return false;
   }
 
   private updateLocal(dt: number) {

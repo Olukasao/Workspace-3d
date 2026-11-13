@@ -49,6 +49,8 @@ try {
   await A.click('[data-testid="confirm-mode-switch"]');
   await O.waitForSelector('[data-testid="office2d"]', { timeout: 60000 });
   ok(true, 'operador foi para o 2D sem recarregar a página');
+  for (let i = 0; i < 4; i++) await O.click('[aria-label="Afastar"]');
+  await O.waitForTimeout(2500); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-chegada.png') });
   await A.locator('nav.tabs button', { hasText: 'Operação' }).click();
   await A.waitForSelector('[data-testid="office2d"]', { timeout: 60000 });
   const ra = await report(O);

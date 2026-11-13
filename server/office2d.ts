@@ -7,13 +7,13 @@
  *  - o layout publicado e os vínculos mesa-pessoa ficam no banco; nada disso é tocado pelo editor 3D.
  */
 import type { SessionUser } from '../shared/types';
-import { DIRS, TILE, gridOf, nearestFree, seatOfObject, walkable, type Dir, type Grid, type Layout2D } from '../shared/office2d';
+import { DIRS, TILE, findPath, gridOf, nearestFree, seatOfObject, walkable, type Dir, type Grid, type Layout2D } from '../shared/office2d';
 import { defaultLayout2D } from '../shared/office2dDefault';
 import { one, type Db } from './db/driver';
 import { HttpError } from './http';
 import type { LiveHub } from './live';
 
-export interface Pos2D { id: string; officeId: string; x: number; y: number; dir: Dir; moving: boolean; seat: string | null }
+export interface Pos2D { id: string; officeId: string; x: number; y: number; dir: Dir; moving: boolean; seat: string | null; /** o servidor está levando a pessoa até a mesa dela */ auto?: boolean }
 export interface MoveInput { x: number; y: number; dir: Dir; moving: boolean; seat: string | null }
 interface LayoutEntry { layout: Layout2D; grid: Grid; version: number; published: boolean }
 interface SeatsEntry { byStation: Map<string, string>; byEmployee: Map<string, string> }
@@ -23,6 +23,9 @@ export const MAX_SPEED = 150;
 const SLACK = 24;
 const MIN_INTERVAL_MS = 40;
 const FLUSH_MS = 100;
+/** Velocidade de quem é levado até a mesa ao entrar (passo de caminhada, abaixo do limite de 150 px/s). */
+const ARRIVE_SPEED = 80;
+interface Route { path: Array<{ x: number; y: number }>; station: string; seatX: number; seatY: number; seatDir: Dir }
 
 const hash = (s: string) => {
   let h = 2166136261;
@@ -41,6 +44,8 @@ export class Office2D {
   private dirty = new Map<string, Map<string, Pos2D>>();
   private gone = new Map<string, Set<string>>();
   private timer: ReturnType<typeof setInterval> | null = null;
+  private routes = new Map<string, Route>(); // `${empresa}:${colaborador}` → trajeto até a mesa
+  private lastAdvance = Date.now();
 
   constructor(
     private db: Db,
@@ -48,7 +53,12 @@ export class Office2D {
   ) {}
 
   start() {
-    this.timer = setInterval(() => this.flush(), FLUSH_MS);
+    this.timer = setInterval(() => {
+      const now = Date.now();
+      this.advance(now - this.lastAdvance);
+      this.lastAdvance = now;
+      this.flush();
+    }, FLUSH_MS);
     this.timer.unref?.();
   }
   stop() {
@@ -87,7 +97,7 @@ export class Office2D {
     return obj ? seatOfObject(obj) : null;
   }
 
-  /** Põe a pessoa no escritório (se ainda não estiver): na própria estação, sentada, se tiver uma; senão numa entrada livre. */
+  /** Põe a pessoa no escritório (se ainda não estiver): numa entrada livre; quem tem mesa designada é levado até ela e senta. */
   private async spawn(companyId: string, employeeId: string, officeId: string): Promise<Pos2D> {
     const [{ layout, grid }, seats] = await Promise.all([this.layoutOf(companyId, officeId), this.seatsOf(companyId, officeId)]);
     const company = this.pos.get(companyId) ?? new Map<string, Pos2D>();
@@ -96,9 +106,9 @@ export class Office2D {
     if (!p || p.officeId !== officeId) {
       const stationId = seats.byEmployee.get(employeeId);
       const sp = stationId ? this.seatPoint(layout, stationId) : null;
-      if (stationId && sp) p = { id: employeeId, officeId, x: sp.x, y: sp.y, dir: sp.dir, moving: false, seat: stationId };
-      else {
-        // numa entrada livre, longe de quem já está por perto (para os nomes não se empilharem)
+      const occupied = !!stationId && [...company.values()].some((q) => q.id !== employeeId && q.officeId === officeId && q.seat === stationId);
+      // numa entrada livre, longe de quem já está por perto (para os nomes não se empilharem)
+      const entrance = (): Pos2D => {
         const s = layout.spawns[hash(employeeId) % layout.spawns.length];
         const standing = [...company.values()].filter((q) => q.officeId === officeId && !q.seat);
         let best: { x: number; y: number } | null = null;
@@ -109,7 +119,16 @@ export class Office2D {
           best = ring.find((c) => !grid.blocked[c.y * grid.cols + c.x] && c.x >= 0 && c.y >= 0 && c.x < grid.cols && c.y < grid.rows && standing.every((q) => Math.hypot(q.x - (c.x * TILE + TILE / 2), q.y - (c.y * TILE + TILE / 2)) >= 30)) ?? null;
         }
         const c = best ?? nearestFree(grid, s.x, s.y) ?? s;
-        p = { id: employeeId, officeId, x: c.x * TILE + TILE / 2, y: c.y * TILE + TILE / 2, dir: 'down', moving: false, seat: null };
+        return { id: employeeId, officeId, x: c.x * TILE + TILE / 2, y: c.y * TILE + TILE / 2, dir: 'down', moving: false, seat: null };
+      };
+      p = entrance();
+      // quem tem mesa designada (e livre) entra por uma entrada e é levado até ela, onde senta na cadeira que já está no cenário
+      if (stationId && sp && !occupied) {
+        const cells = findPath(grid, { x: Math.floor(p.x / TILE), y: Math.floor(p.y / TILE) }, { x: Math.floor(sp.x / TILE), y: Math.floor(sp.y / TILE) });
+        if (cells.length) {
+          this.routes.set(`${companyId}:${employeeId}`, { path: cells.map((q) => ({ x: q.x * TILE + TILE / 2, y: q.y * TILE + TILE / 2 })), station: stationId, seatX: sp.x, seatY: sp.y, seatDir: sp.dir });
+          p.auto = true;
+        } else p = { id: employeeId, officeId, x: sp.x, y: sp.y, dir: sp.dir, moving: false, seat: stationId }; // sem caminho: já sentado
       }
       company.set(employeeId, p);
       this.mark(companyId, p);
@@ -131,6 +150,13 @@ export class Office2D {
     const p = this.pos.get(user.companyId)?.get(user.employeeId);
     if (!p || p.officeId !== officeId) throw new HttpError(409, 'not_joined', 'Entre no escritório antes de se mover.');
     const k = `${user.companyId}:${user.employeeId}`;
+    if (p.auto) {
+      // levado até a mesa: só assume o controle quem se mexe ou pede para sentar; sinal parado do cliente é corrigido para a posição do servidor
+      if (input.moving || input.seat) {
+        this.routes.delete(k);
+        p.auto = false;
+      } else return { ...p, corrected: true };
+    }
     const now = Date.now();
     const last = this.lastMove.get(k) ?? 0;
     if (now - last < MIN_INTERVAL_MS) return { ...p, corrected: false };
@@ -169,6 +195,54 @@ export class Office2D {
     return true;
   }
 
+  private dropRoutes(companyId: string, officeId: string) {
+    for (const p of this.list(companyId, officeId)) {
+      if (this.routes.delete(`${companyId}:${p.id}`)) {
+        p.auto = false;
+        p.moving = false;
+      }
+    }
+  }
+
+  /** Leva, passo a passo, quem acabou de entrar até a mesa dela; ao chegar, a pessoa senta. */
+  advance(dtMs: number) {
+    const dt = Math.min(1, Math.max(0, dtMs) / 1000);
+    for (const [key, r] of [...this.routes]) {
+      const [companyId, id] = [key.slice(0, key.indexOf(':')), key.slice(key.indexOf(':') + 1)];
+      const p = this.pos.get(companyId)?.get(id);
+      if (!p) {
+        this.routes.delete(key);
+        continue;
+      }
+      let left = ARRIVE_SPEED * dt;
+      while (left > 0 && r.path.length) {
+        const t = r.path[0];
+        const d = Math.hypot(t.x - p.x, t.y - p.y);
+        if (d <= left) {
+          [p.x, p.y] = [t.x, t.y];
+          left -= d;
+          r.path.shift();
+        } else {
+          p.x += ((t.x - p.x) / d) * left;
+          p.y += ((t.y - p.y) / d) * left;
+          left = 0;
+        }
+        if (d > 0.5) p.dir = Math.abs(t.x - p.x) > Math.abs(t.y - p.y) ? (t.x > p.x ? 'right' : 'left') : t.y > p.y ? 'down' : 'up';
+      }
+      if (r.path.length) p.moving = true;
+      else {
+        // chegou: senta (a mesa continua livre e é dela)
+        const taken = [...(this.pos.get(companyId)?.values() ?? [])].some((q) => q.id !== id && q.officeId === p.officeId && q.seat === r.station);
+        [p.x, p.y, p.dir] = [r.seatX, r.seatY, r.seatDir];
+        p.moving = false;
+        p.seat = taken ? null : r.station;
+        p.auto = false;
+        this.routes.delete(key);
+      }
+      this.mark(companyId, p);
+    }
+  }
+
   list(companyId: string, officeId: string): Pos2D[] {
     return [...(this.pos.get(companyId)?.values() ?? [])].filter((p) => p.officeId === officeId);
   }
@@ -178,6 +252,7 @@ export class Office2D {
     const company = this.pos.get(companyId);
     if (!company?.delete(employeeId)) return;
     this.lastMove.delete(`${companyId}:${employeeId}`);
+    this.routes.delete(`${companyId}:${employeeId}`);
     this.dirty.get(companyId)?.delete(employeeId);
     if (!this.gone.has(companyId)) this.gone.set(companyId, new Set());
     this.gone.get(companyId)!.add(employeeId);
@@ -221,6 +296,7 @@ export class Office2D {
     this.layouts.delete(`${companyId}:${officeId}`);
     this.bump(`l:${companyId}:${officeId}`);
     const { layout, grid, version } = await this.layoutOf(companyId, officeId);
+    this.dropRoutes(companyId, officeId); // o mapa mudou: quem estava a caminho da mesa para onde está
     for (const p of this.list(companyId, officeId)) {
       const stationOk = !p.seat || !!this.seatPoint(layout, p.seat);
       if (p.seat && stationOk) {
@@ -243,6 +319,7 @@ export class Office2D {
     this.bump(`s:${companyId}:${officeId}`);
     const seats = await this.seatsOf(companyId, officeId);
     const { grid } = await this.layoutOf(companyId, officeId);
+    this.dropRoutes(companyId, officeId);
     for (const p of this.list(companyId, officeId)) {
       if (!p.seat) continue;
       const owner = seats.byStation.get(p.seat);

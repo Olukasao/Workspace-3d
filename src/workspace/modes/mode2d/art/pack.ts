@@ -141,8 +141,6 @@ export function packFurniture(a: AssetDef, rot: number, fw: number, fh: number):
 
 /** Pisos do pacote (madeira, carpete cinza, vinil cinza) lado a lado, ou null. */
 export const packFloors = () => floors;
-/** Cadeira de escritório do pacote vista de uma direção (a prévia do avatar a desenha atrás de quem está sentado). */
-export const packChair = (d: Facing): View | null => props.get('office_chair')?.[d] ?? null;
 
 /** Número de ladrilhos de parede do pacote (8 colunas × 4 linhas, 25 usados), anexados ao fim do tileset. */
 export const PACK_WALL_TILES = 25;

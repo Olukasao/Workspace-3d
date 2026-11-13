@@ -9,8 +9,7 @@ import { LPC_BEARD_IDS, LPC_HAIR_IDS, LPC_LEGS_IDS, LPC_SHOES_IDS, LPC_TORSO_IDS
 import { LPC_CLOTH_COLORS, LPC_EXTRAS, LPC_EYE_COLORS, LPC_HAIR_COLORS, LPC_METAL_COLORS, LPC_PARTS, LPC_SKINS, type LpcExtra } from '../../../../shared/avatarLpc.generated';
 import type { SessionUser } from '../../../../shared/types';
 import { api, errorText, type ApiError } from '../../../api';
-import { ANIMS, FH, FOOT_Y, FW, ROW, composeSheet, type AnimName } from './art/characters';
-import { packChair } from './art/pack';
+import { ANIMS, FH, FW, ROW, composeSheet, type AnimName } from './art/characters';
 import { drawPartThumb, preloadLpc, preloadPart, swatch } from './art/lpc';
 
 interface Mine { style: string; config: unknown; version: number; saved: boolean }
@@ -25,7 +24,6 @@ const ANIM_LIST: Array<{ id: AnimName; label: string; fps: number }> = [
   { id: 'talk', label: 'Falando', fps: 4 },
   { id: 'sittalk', label: 'Falando sentado', fps: 4 },
 ];
-const SEATED = new Set<AnimName>(['sit', 'type', 'sittalk']);
 const DIR_LIST = [
   { id: 'down', label: 'Frente' },
   { id: 'up', label: 'Costas' },
@@ -66,11 +64,6 @@ function Preview({ cfg }: { cfg: Avatar2DConfig }) {
       const g = c.getContext('2d')!;
       g.imageSmoothingEnabled = false;
       g.clearRect(0, 0, c.width, c.height);
-      if (SEATED.has(anim)) {
-        // quem está sentado aparece numa cadeira de escritório, como no escritório
-        const ch = packChair(dir);
-        if (ch) g.drawImage(ch.img, 0, 0, ch.img.width, ch.img.height, (FW / 2 - 16 - ch.ax) * SCALE, (FOOT_Y - 34 - ch.ay) * SCALE, ch.img.width * SCALE, ch.img.height * SCALE);
-      }
       const col = def.start + (def.frames > 1 ? i % def.frames : 0);
       g.drawImage(s, col * FW, ROW[dir] * FH, FW, FH, 0, 0, FW * SCALE, FH * SCALE);
       i++;

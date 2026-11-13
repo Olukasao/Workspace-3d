@@ -75,6 +75,10 @@ No **Editor**, selecione uma mesa e escolha o colaborador no inspetor (seção d
 - A mesa é **travada** para não sair do lugar por acidente. Salve o rascunho e publique.
 - Computadores sobre a mesa herdam o ocupante. Uma pessoa ocupa uma mesa, e uma mesa tem uma pessoa.
 
+## Modo 2D e alternância global 2D/3D
+
+O administrador escolhe, em **Configurações → Ambiente virtual**, se a empresa inteira usa o escritório **3D** ou o **2D** (Phaser, pixel art). A troca pede confirmação, fica gravada no banco (sobrevive a reinício) e chega a todos os navegadores ao vivo, sem recarregar. Só um motor gráfico existe por vez: no 2D o Three.js/GLB não é baixado, e no 3D o Phaser não. No 2D há escritório com movimento em tempo real (o servidor valida cada passo), editor de layout para o administrador e avatar em camadas. Detalhes, decisões e como conferir o isolamento pelo DevTools: [docs/workspace-2d.md](docs/workspace-2d.md).
+
 ## Avatares e presença ao vivo
 
 - **Meu avatar** (clique no seu nome, no topo): no estilo padrão (**Ara 3D Gen**) é um **editor completo**, como o do Ara. Em *Montar*, escolha corpo, idade, origem, pele, olhos, cabelo, barba, brincos, roupas (tecido e cor), sapatos e acessórios, ou comece de um dos 16 personagens prontos. Em *Detalhado*, ajuste mais de 200 controles do corpo e do rosto. A pré-visualização 3D gira e mostra o que você monta. **Salvar** gera o seu avatar no servidor e publica para todo mundo na hora; **Cancelar** descarta. Cada pessoa edita só o próprio avatar.
@@ -94,11 +98,12 @@ Detalhes: [docs/avatars-ara.md](docs/avatars-ara.md) (estilo Ara 3D Gen e a esco
 ```bash
 npm run typecheck   # TypeScript estrito (cliente, servidor, ferramentas e testes)
 npm run lint        # ESLint
-npm test            # 89 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
+npm test            # 123 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
 npm run e2e         # 20 verificações no navegador real (Chrome/Edge), pelos fluxos da interface
 npm run e2e:draw    # 7 verificações: construir a estrutura do zero (piso, paredes, janela, porta, puxador)
 npm run e2e:avatars # 10 verificações com duas pessoas em sessões separadas: avatar na mesa, personagem personalizado, digitação, atendimento, várias abas, reconexão, troca de estilo pelo admin
 npm run e2e:ara-editor # 8 verificações do editor completo de avatar: montar, detalhado, salvar (o servidor gera o modelo), o colega vê, cancelar (E2E_PROD=1 testa a versão compilada)
+npm run e2e:workspace # troca global 2D/3D, isolamento dos motores (rede e memória), 3 ciclos sem vazamento, multijogador, editor 2D, avatar 2D
 npm run perf        # medição com 100 objetos repetidos → test-results/perf-report.json
 npm run perf:avatars      # medição com 25 avatares simultâneos (rode npm run build antes) → test-results/perf-avatars-report.json
 npm run assets:validate   # glTF Validator (Khronos) em todos os GLB + conferência do manifesto
@@ -159,6 +164,7 @@ docs/            reaproveitamento do FigureBox, integrações, assets, decisões
 - [docs/verification.md](docs/verification.md): resultado das verificações e da medição de desempenho
 - [docs/production-gaps.md](docs/production-gaps.md): o que falta para produção
 - [docs/continuar.md](docs/continuar.md): onde paramos, decisões, pendências e como continuar de outro computador
+- [docs/workspace-2d.md](docs/workspace-2d.md): modo 2D, troca global 2D/3D pelo administrador, isolamento dos motores, multijogador, editor 2D, avatar 2D, banco e decisões
 - [docs/avatars-ara.md](docs/avatars-ara.md): avatares do estilo Ara 3D Gen (padrão), escolha do estilo pelo admin, pipeline, licenças, desempenho e lacunas
 - [docs/avatars.md](docs/avatars.md): avatares do estilo MakeHuman (desativado por padrão): catálogo, pipeline, licenças, clipping, desempenho, lacunas
 - [docs/characters-roadmap.md](docs/characters-roadmap.md): roteiro antigo de personagens, substituído pelos avatares

@@ -10,6 +10,7 @@ import { Box3, Color, CatmullRomCurve3, CylinderGeometry, DoubleSide, Group, Mat
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { isAraCustom, isAraPreset, type AraAvatarConfig } from '../../../shared/avatarAra';
+import { disposeScene } from '../dispose';
 import type { BuiltAvatar } from './assets';
 
 export interface AraCharacter { id: string; name: string; gender: 'male' | 'female'; style: 'corporate' | 'casual'; file: string; lod1: string; tris: number; lod1Tris: number; height: number }
@@ -44,6 +45,13 @@ function loadGltf(rel: string): Promise<GLTF> {
 const previewBuffers = new Map<string, ArrayBuffer>();
 export function registerPreviewModel(key: string, bytes: ArrayBuffer) {
   previewBuffers.set(key, bytes);
+}
+/** Libera da GPU os modelos do estilo Ara em cache e as prévias do editor (ao sair do modo 3D). */
+export function disposeAraAssets() {
+  for (const p of gltfs.values()) void p.then((g) => disposeScene(g.scene), () => undefined);
+  gltfs.clear();
+  previewBuffers.clear();
+  manifest = null;
 }
 export function dropPreviewModel(key: string) {
   previewBuffers.delete(key);

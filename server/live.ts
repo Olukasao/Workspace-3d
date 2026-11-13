@@ -16,10 +16,13 @@
  */
 import type { Response } from 'express';
 import type { SessionUser } from '../shared/types';
-import { DEFAULT_AVATAR_STYLE, isAvatarStyle, type AvatarStyle } from '../shared/avatarAra';
+import { DEFAULT_AVATAR_STYLE, isAvatarStyle, type AvatarStyle, type EffectiveAvatarStyle } from '../shared/avatarAra';
+import { DEFAULT_WORKSPACE_MODE, isWorkspaceMode, type WorkspaceMode, type WorkspaceState } from '../shared/workspace';
+import type { Office2D } from './office2d';
 import { one, type Db } from './db/driver';
 
-export type LiveStatus = 'offline' | 'in_call' | 'typing' | 'online';
+/** away = a própria pessoa marcou "ausente" (ou ficou sem mexer no computador por um tempo). */
+export type LiveStatus = 'offline' | 'in_call' | 'typing' | 'away' | 'online';
 
 export interface LivePerson {
   employeeId: string;
@@ -51,6 +54,7 @@ interface PersonState {
   connections: Set<number>;
   offlineAt: number | null; // quando a última conexão caiu (tolerância em curso)
   typingUntil: number;
+  away: boolean;
   call: { active: boolean; startedAt: number; speakingUntil: number | null; hasSpeakingSignal: boolean; source: 'demo' | 'real' } | null;
   appearance: { config: unknown; version: number } | null;
   simulated: boolean;
@@ -97,6 +101,8 @@ export class LiveHub {
   private reconcileTimer: ReturnType<typeof setInterval> | null = null;
   private simTimer: ReturnType<typeof setInterval> | null = null;
   private styles = new Map<string, AvatarStyle>(); // cache do estilo ativo por empresa
+  private workspace = new Map<string, WorkspaceState>(); // cache do modo (2D/3D) por empresa
+  private p2d: Office2D | null = null;
 
   constructor(
     private db: Db,
@@ -121,6 +127,81 @@ export class LiveHub {
     for (const t of [this.timer, this.reconcileTimer, this.simTimer]) if (t) clearInterval(t);
     for (const c of this.clients.values()) c.res.end();
     this.clients.clear();
+  }
+
+  attach2d(o: Office2D) {
+    this.p2d = o;
+  }
+
+  /** Envia um evento SSE a todas as conexões da empresa (por padrão, só a quem pode ver a presença). */
+  broadcast(companyId: string, event: string, data: unknown, presenceOnly = true) {
+    for (const c of this.clients.values()) if (c.user.companyId === companyId && (!presenceOnly || c.canSeePresence)) send(c.res, event, data);
+  }
+
+  /** A pessoa está conectada (ou dentro da tolerância)? Usado para tirar do escritório 2D quem ficou offline. */
+  isOnline(companyId: string, employeeId: string): boolean {
+    const p = this.people.get(this.key(companyId, employeeId));
+    return !!p && this.derive(p) !== 'offline';
+  }
+
+  /** Quem está online agora (inclui os colegas simulados do modo demonstração). Usado para colocar no escritório 2D. */
+  onlineEmployees(): Array<{ companyId: string; employeeId: string }> {
+    const out: Array<{ companyId: string; employeeId: string }> = [];
+    for (const p of this.people.values()) if (this.derive(p) !== 'offline') out.push({ companyId: p.companyId, employeeId: p.employeeId });
+    return out;
+  }
+
+  /** Modo já em memória (síncrono); null enquanto ninguém da empresa o consultou. */
+  modeCached(companyId: string): WorkspaceMode | null {
+    return this.workspace.get(companyId)?.mode ?? null;
+  }
+
+  /** Modo do ambiente virtual da empresa (padrão: 3D). `version` é o instante da última troca. */
+  async workspaceState(companyId: string): Promise<WorkspaceState> {
+    const hit = this.workspace.get(companyId);
+    if (hit) return hit;
+    const row = await one<{ setting_value: string; updated_at: number }>(this.db, "SELECT setting_value, updated_at FROM company_settings WHERE company_id = ? AND setting_key = 'workspace_mode'", [companyId]);
+    const st: WorkspaceState = row && isWorkspaceMode(row.setting_value) ? { mode: row.setting_value, version: Number(row.updated_at) } : { mode: DEFAULT_WORKSPACE_MODE, version: 0 };
+    this.workspace.set(companyId, st);
+    return st;
+  }
+
+  /** Estilo de avatar em vigor: 'sprite2d' no modo 2D; no 3D, o estilo que o administrador escolheu. */
+  async effectiveStyle(companyId: string): Promise<EffectiveAvatarStyle> {
+    return (await this.workspaceState(companyId)).mode === '2d' ? 'sprite2d' : this.avatarStyle(companyId);
+  }
+
+  /**
+   * Troca o modo da empresa para todos: grava, esquece o estado em memória (as aparências mudam de estilo), tira todos do
+   * escritório 2D e manda a cada conexão o evento `mode` e um snapshot novo. As sessões e os dados continuam; cada navegador
+   * desmonta o motor gráfico que sai e monta o que entra. Trocar para o modo em vigor não faz nada.
+   */
+  async setWorkspaceMode(companyId: string, mode: WorkspaceMode, userId: string): Promise<WorkspaceState> {
+    const cur = await this.workspaceState(companyId);
+    if (cur.mode === mode) return cur;
+    const version = Math.max(Date.now(), cur.version + 1);
+    await this.db.tx(async (tx) => {
+      const row = await one<{ setting_value: string }>(tx, "SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = 'workspace_mode'", [companyId]);
+      if (row) await tx.exec("UPDATE company_settings SET setting_value = ?, updated_by = ?, updated_at = ? WHERE company_id = ? AND setting_key = 'workspace_mode'", [mode, userId, version, companyId]);
+      else await tx.exec("INSERT INTO company_settings (company_id, setting_key, setting_value, updated_by, updated_at) VALUES (?, 'workspace_mode', ?, ?, ?)", [companyId, mode, userId, version]);
+    });
+    const next: WorkspaceState = { mode, version };
+    this.workspace.set(companyId, next);
+    this.p2d?.reset(companyId);
+    for (const [k, p] of this.people) if (p.companyId === companyId) this.people.delete(k);
+    for (const c of this.clients.values()) {
+      if (c.user.companyId !== companyId) continue;
+      if (c.user.employeeId) {
+        const p = await this.person(companyId, c.user.employeeId);
+        if (p) {
+          p.connections.add(c.id);
+          p.offlineAt = null;
+        }
+      }
+      send(c.res, 'mode', next);
+      send(c.res, 'snapshot', await this.snapshot(c.user, c.canSeePresence));
+    }
+    return next;
   }
 
   /** Estilo de avatar ativo da empresa (padrão: Ara 3D Gen). */
@@ -163,7 +244,7 @@ export class LiveHub {
     const k = this.key(companyId, employeeId);
     let p = this.people.get(k);
     if (p) return p;
-    const style = await this.avatarStyle(companyId);
+    const style = await this.effectiveStyle(companyId);
     const row = (await this.db.query<{ name: string; active: number; config_json: string | null; version: number | null; has_user: number }>(
       `SELECT e.name, e.active, a.config_json, a.version, (SELECT COUNT(*) FROM users u WHERE u.employee_id = e.id AND u.active = 1) AS has_user
          FROM employees e LEFT JOIN avatar_choices a ON a.employee_id = e.id AND a.company_id = e.company_id AND a.style = ?
@@ -175,7 +256,7 @@ export class LiveHub {
     const raced = this.people.get(k);
     if (raced) return raced;
     p = {
-      employeeId, companyId, name: row.name, connections: new Set(), offlineAt: null, typingUntil: 0, call: null,
+      employeeId, companyId, name: row.name, connections: new Set(), offlineAt: null, typingUntil: 0, away: false, call: null,
       appearance: row.config_json ? { config: JSON.parse(row.config_json), version: Number(row.version) } : null,
       simulated: this.demoMode && Number(row.has_user) === 0, version: this.seq, lastPublished: '', // versão parte do seq global: nunca regride após invalidate
 
@@ -195,6 +276,7 @@ export class LiveHub {
     if (!connected) return 'offline';
     if (p.call?.active) return 'in_call';
     if (p.typingUntil > now) return 'typing';
+    if (p.away) return 'away';
     return 'online';
   }
 
@@ -231,6 +313,7 @@ export class LiveHub {
 
   private tick() {
     const now = Date.now();
+    void this.p2d?.sweep().catch((e) => console.error('escritório 2D:', e));
     for (const p of this.people.values()) {
       if (p.call?.active && now - p.call.startedAt > this.cfg.callMaxMs) p.call = null; // salvaguarda: chamada esquecida
       if (p.offlineAt !== null && p.connections.size === 0 && now - p.offlineAt >= this.cfg.graceMs) p.offlineAt = null;
@@ -270,7 +353,7 @@ export class LiveHub {
   }
 
   /** Snapshot inicial da empresa (presença só para quem pode ver). */
-  async snapshot(user: SessionUser, canSeePresence: boolean): Promise<{ seq: number; people: LivePerson[]; config: { graceMs: number; typingTtlMs: number }; presenceVisible: boolean; avatarStyle: AvatarStyle }> {
+  async snapshot(user: SessionUser, canSeePresence: boolean): Promise<{ seq: number; people: LivePerson[]; config: { graceMs: number; typingTtlMs: number }; presenceVisible: boolean; avatarStyle: EffectiveAvatarStyle; workspace: WorkspaceState }> {
     const rows = await this.db.query<{ id: string }>('SELECT id FROM employees WHERE company_id = ? AND active = 1', [user.companyId]);
     const people: LivePerson[] = [];
     if (canSeePresence) {
@@ -279,7 +362,7 @@ export class LiveHub {
         if (p) people.push({ ...this.view(p), version: p.version, seq: this.seq });
       }
     }
-    return { seq: this.seq, people, config: { graceMs: this.cfg.graceMs, typingTtlMs: this.cfg.typingTtlMs }, presenceVisible: canSeePresence, avatarStyle: await this.avatarStyle(user.companyId) };
+    return { seq: this.seq, people, config: { graceMs: this.cfg.graceMs, typingTtlMs: this.cfg.typingTtlMs }, presenceVisible: canSeePresence, avatarStyle: await this.effectiveStyle(user.companyId), workspace: await this.workspaceState(user.companyId) };
   }
 
   // ---------- sinais (sempre do PRÓPRIO colaborador) ----------
@@ -287,6 +370,14 @@ export class LiveHub {
   async typing(user: SessionUser, state: 'start' | 'stop') {
     const p = await this.self(user);
     p.typingUntil = state === 'start' ? Date.now() + this.cfg.typingTtlMs : 0;
+    this.publish(p);
+    return this.view(p);
+  }
+
+  /** Marca a própria pessoa como ausente (ou de volta). Vale para o colaborador da sessão. */
+  async setAway(user: SessionUser, away: boolean) {
+    const p = await this.self(user);
+    p.away = away;
     this.publish(p);
     return this.view(p);
   }

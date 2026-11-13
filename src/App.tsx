@@ -2,21 +2,20 @@ import { LogOut } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import type { OfficeInfo, SessionUser } from '../shared/types';
 import { AuditPage, CreditsPage, IntegrationsPage } from './admin/pages';
+import { SettingsPage } from './admin/SettingsPage';
 import { api, errorText } from './api';
-import { AvatarEditor } from './avatar/AvatarEditor';
 import { PresenceDemo } from './avatar/PresenceDemo';
 import { connectLive } from './live';
-import { Editor } from './editor/Editor';
 import { isDirty, useEditor } from './editor/store';
-import { Operational } from './ops/Operational';
+import { WorkspaceManager } from './workspace/WorkspaceManager';
 import { Toast, toast } from './ui';
 
-type Page = 'ops' | 'editor' | 'audit' | 'integrations' | 'credits' | 'avatar';
+type Page = 'ops' | 'editor' | 'audit' | 'integrations' | 'credits' | 'avatar' | 'settings';
 const ROLE_LABEL = { admin: 'Administrador', operator: 'Operador', viewer: 'Visualizador' } as const;
 
 const pageFromHash = (): Page => {
   const p = location.hash.replace('#/', '') as Page;
-  return ['ops', 'editor', 'audit', 'integrations', 'credits', 'avatar'].includes(p) ? p : 'ops';
+  return ['ops', 'editor', 'audit', 'integrations', 'credits', 'avatar', 'settings'].includes(p) ? p : 'ops';
 };
 
 export function App() {
@@ -102,6 +101,7 @@ function Shell({ user, demoMode, onLogout }: { user: SessionUser; demoMode: bool
           {user.role === 'admin' && <button aria-pressed={current === 'editor'} onClick={() => setPage('editor')}>Editor</button>}
           {user.role === 'admin' && <button aria-pressed={current === 'audit'} onClick={() => setPage('audit')}>Trilha</button>}
           {user.role === 'admin' && <button aria-pressed={current === 'integrations'} onClick={() => setPage('integrations')}>Integrações</button>}
+          {user.role === 'admin' && <button aria-pressed={current === 'settings'} onClick={() => setPage('settings')} data-testid="nav-settings">Configurações</button>}
           <button aria-pressed={current === 'credits'} onClick={() => setPage('credits')}>Créditos</button>
         </nav>
         <div className="spacer" />
@@ -116,12 +116,11 @@ function Shell({ user, demoMode, onLogout }: { user: SessionUser; demoMode: bool
       </header>
       {err && <div className="page"><div className="notice bad">{err}</div></div>}
       {!err && offices && !officeId && <div className="page"><div className="notice info">Nenhum andar cadastrado para esta empresa.</div></div>}
-      {officeId && current === 'ops' && <Operational key={`${officeId}-${opsKey}`} officeId={officeId} user={user} onEdit={(id) => { setPage('editor'); useEditor.getState().select([id]); }} />}
-      {officeId && current === 'editor' && <Editor officeId={officeId} user={user} onOfficeChanged={() => { setOpsKey((k) => k + 1); void loadOffices(); }} />}
+      <WorkspaceManager page={current} officeId={officeId} user={user} opsKey={opsKey} onEdit={(id) => { setPage('editor'); useEditor.getState().select([id]); }} onOfficeChanged={() => { setOpsKey((k) => k + 1); void loadOffices(); }} />
       {current === 'audit' && <AuditPage />}
       {current === 'integrations' && <IntegrationsPage demoMode={demoMode} />}
       {current === 'credits' && <CreditsPage />}
-      {current === 'avatar' && <AvatarEditor user={user} />}
+      {current === 'settings' && <SettingsPage />}
     </div>
   );
 }

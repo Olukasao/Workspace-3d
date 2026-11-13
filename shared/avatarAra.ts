@@ -4,6 +4,7 @@
  * A lista abaixo precisa bater com tools/avatars-ara/gallery.ts (conferido em tests/live.test.ts contra o manifesto distribuído).
  */
 import { normalizeAraParams, type AraParams } from './araCustom';
+import { defaultAvatar2D, validateAvatar2D, type Avatar2DConfig } from './avatar2d';
 import { AVATAR_CATALOG_VERSION, defaultAvatar, validateAvatar, type AvatarConfig } from './avatarCatalog';
 
 export const AVATAR_STYLES = ['ara3d', 'makehuman'] as const;
@@ -51,11 +52,13 @@ export interface AraCustomConfig {
   headsetAlways: boolean;
 }
 export type AraAvatarConfig = AraPresetConfig | AraCustomConfig;
-export type AnyAvatarConfig = AvatarConfig | AraAvatarConfig;
+export type AnyAvatarConfig = AvatarConfig | AraAvatarConfig | Avatar2DConfig;
+/** Estilo em vigor para a empresa: um dos dois do 3D (escolhido pelo admin) ou 'sprite2d' enquanto o modo 2D estiver ativo. */
+export type EffectiveAvatarStyle = AvatarStyle | 'sprite2d';
 export const isAraCustom = (c: unknown): c is AraCustomConfig => isAraConfig(c) && 'custom' in (c as object);
 export const isAraPreset = (c: unknown): c is AraPresetConfig => isAraConfig(c) && 'character' in (c as object);
 export const isAraConfig = (c: unknown): c is AraAvatarConfig => !!c && typeof c === 'object' && (c as { style?: unknown }).style === 'ara3d';
-export const styleOfConfig = (c: AnyAvatarConfig): AvatarStyle => (isAraConfig(c) ? 'ara3d' : 'makehuman');
+export const styleOfConfig = (c: AnyAvatarConfig): EffectiveAvatarStyle => ((c as { style?: string }).style === 'sprite2d' ? 'sprite2d' : isAraConfig(c) ? 'ara3d' : 'makehuman');
 export const isAvatarStyle = (s: unknown): s is AvatarStyle => AVATAR_STYLES.includes(s as AvatarStyle);
 
 const hash = (s: string) => {
@@ -89,10 +92,10 @@ export function validateAraAvatar(input: unknown): string[] {
 }
 
 /** Valida a configuração para o estilo ativo da empresa (uma configuração de outro estilo é recusada). */
-export function validateForStyle(style: AvatarStyle, input: unknown): string[] {
-  return style === 'ara3d' ? validateAraAvatar(input) : validateAvatar(input);
+export function validateForStyle(style: EffectiveAvatarStyle, input: unknown): string[] {
+  return style === 'sprite2d' ? validateAvatar2D(input) : style === 'ara3d' ? validateAraAvatar(input) : validateAvatar(input);
 }
 
-export function defaultForStyle(style: AvatarStyle, seed: string): AnyAvatarConfig {
-  return style === 'ara3d' ? defaultAraAvatar(seed) : defaultAvatar(seed);
+export function defaultForStyle(style: EffectiveAvatarStyle, seed: string): AnyAvatarConfig {
+  return style === 'sprite2d' ? defaultAvatar2D(seed) : style === 'ara3d' ? defaultAraAvatar(seed) : defaultAvatar(seed);
 }

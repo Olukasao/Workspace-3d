@@ -108,6 +108,12 @@ export async function seed(db: Db): Promise<{ created: boolean }> {
     await db.exec('INSERT INTO seat_assignments (id, company_id, office_id, object_id, employee_id, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [`seat_${objectId}`, ACME, 'off_sede_1', objectId, emp, 'usr_admin', now]);
   }
 
+  // ---- escritório 2D: quem senta em cada estação do layout padrão (independente das mesas do 3D) ----
+  const seats2d: Array<[string, string]> = [['st1', 'emp_ana'], ['st2', 'emp_bruno'], ['st3', 'emp_carla'], ['st4', 'emp_diego'], ['st5', 'emp_otavio'], ['st6', 'emp_helena'], ['st7', 'emp_igor'], ['st8', 'emp_aline']];
+  for (const [station, emp] of seats2d) {
+    await db.exec('INSERT INTO seat2d_assignments (company_id, office_id, station_id, employee_id, updated_at) VALUES (?, ?, ?, ?, ?)', [ACME, 'off_sede_1', station, emp, now]);
+  }
+
   // ---- dispositivos gerenciados (endereços de acesso remoto fictícios) ----
   const devices: Array<[string, string, string, string, string | null, string | null, number]> = [
     ['dev_pc_at_01', 'PC-ATD-01', 'pc', 'Atendimento, posto 01', 'anydesk', '100 000 001', 1],

@@ -5,6 +5,7 @@
  */
 import { ACESFilmicToneMapping, AmbientLight, BoxGeometry, Color, DirectionalLight, Group, HemisphereLight, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, Scene, SRGBColorSpace, Vector3, WebGLRenderer } from 'three';
 import { isAraConfig, type AnyAvatarConfig } from '../../shared/avatarAra';
+import type { AvatarConfig } from '../../shared/avatarCatalog';
 import { buildAraAvatar } from '../three/avatar/ara';
 import { buildAvatar, type BuiltAvatar } from '../three/avatar/assets';
 import { AvatarRig, STATION, type PoseState } from '../three/avatar/rig';
@@ -71,7 +72,7 @@ async function renderAvatar(req: Req): Promise<{ png: string; missing: string[] 
   const state: PoseState = { mode: req.mode ?? 'stand', activity: req.activity ?? 'idle', speaking: req.speaking ?? null };
   if (!current || current.key !== key) {
     current?.av.dispose();
-    const av = isAraConfig(req.config) ? await buildAraAvatar(req.config, req.lod ?? 0) : await buildAvatar(req.config, req.lod ?? 0);
+    const av = isAraConfig(req.config) ? await buildAraAvatar(req.config, req.lod ?? 0) : await buildAvatar(req.config as AvatarConfig, req.lod ?? 0);
     holder.add(av.root);
     current = { key, av, rig: new AvatarRig(av, state) };
   }

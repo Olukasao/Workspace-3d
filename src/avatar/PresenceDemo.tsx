@@ -10,8 +10,8 @@ import { errorText } from '../api';
 import { demoCall, useLive, type LiveStatus } from '../live';
 import { toast } from '../ui';
 
-export const STATUS_LABEL: Record<LiveStatus, string> = { offline: 'Offline', online: 'Online', typing: 'Digitando no chat', in_call: 'Em atendimento' };
-export const STATUS_COLOR: Record<LiveStatus, string> = { offline: '#9aa0a6', online: '#1f9d55', typing: '#2f6fed', in_call: '#c05621' };
+export const STATUS_LABEL: Record<LiveStatus, string> = { offline: 'Offline', online: 'Online', typing: 'Digitando no chat', in_call: 'Em atendimento', away: 'Ausente' };
+export const STATUS_COLOR: Record<LiveStatus, string> = { offline: '#9aa0a6', online: '#1f9d55', typing: '#2f6fed', in_call: '#c05621', away: '#d69e2e' };
 
 export function PresenceDemo({ user, demoMode }: { user: SessionUser; demoMode: boolean }) {
   const me = useLive((s) => (user.employeeId ? s.people[user.employeeId] : undefined));

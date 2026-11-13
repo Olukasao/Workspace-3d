@@ -6,9 +6,10 @@
  * Uma única conexão por aba; o servidor consolida várias abas/dispositivos num avatar por pessoa.
  */
 import { create } from 'zustand';
-import { DEFAULT_AVATAR_STYLE, type AnyAvatarConfig, type AvatarStyle } from '../shared/avatarAra';
+import { DEFAULT_AVATAR_STYLE, type AnyAvatarConfig, type EffectiveAvatarStyle } from '../shared/avatarAra';
+import { DEFAULT_WORKSPACE_MODE, type WorkspaceState } from '../shared/workspace';
 
-export type LiveStatus = 'offline' | 'in_call' | 'typing' | 'online';
+export type LiveStatus = 'offline' | 'in_call' | 'typing' | 'away' | 'online';
 export interface LivePerson {
   employeeId: string;
   name: string;
@@ -23,20 +24,37 @@ export interface LivePerson {
 interface LiveState {
   connected: boolean;
   presenceVisible: boolean;
-  /** estilo de avatar ativo da empresa (o administrador pode trocar; chega no snapshot) */
-  avatarStyle: AvatarStyle;
+  /** estilo de avatar em vigor: o do 3D escolhido pelo administrador, ou 'sprite2d' no modo 2D (chega no snapshot) */
+  avatarStyle: EffectiveAvatarStyle;
+  /** modo do ambiente (3D ou 2D) escolhido pelo administrador para toda a empresa; `version` descarta eventos atrasados */
+  workspace: WorkspaceState;
+  /** o servidor já informou o modo (até lá nenhum motor gráfico é carregado: nada de baixar o 3D para depois trocar para o 2D) */
+  workspaceKnown: boolean;
+  /** true enquanto a troca de ambiente acontece (o motor antigo sai, o novo entra) */
+  switching: boolean;
+  setWorkspace(w: WorkspaceState): void;
+  setSwitching(v: boolean): void;
   people: Record<string, LivePerson>;
   resyncNonce: number;
   seq: number;
   ignoredStale: number;
   apply(p: LivePerson): void;
-  snapshot(s: { seq: number; people: LivePerson[]; presenceVisible: boolean; avatarStyle?: AvatarStyle }): void;
+  snapshot(s: { seq: number; people: LivePerson[]; presenceVisible: boolean; avatarStyle?: EffectiveAvatarStyle; workspace?: WorkspaceState }): void;
 }
 
 export const useLive = create<LiveState>((set, get) => ({
   connected: false,
   presenceVisible: false,
   avatarStyle: DEFAULT_AVATAR_STYLE,
+  workspace: { mode: DEFAULT_WORKSPACE_MODE, version: 0 },
+  workspaceKnown: false,
+  switching: false,
+  setWorkspace(w) {
+    if (w.version > get().workspace.version || !get().workspaceKnown) set({ workspace: w.version >= get().workspace.version ? w : get().workspace, workspaceKnown: true });
+  },
+  setSwitching(v) {
+    set({ switching: v });
+  },
   people: {},
   resyncNonce: 0,
   seq: 0,
@@ -50,7 +68,7 @@ export const useLive = create<LiveState>((set, get) => ({
     set({ people: { ...get().people, [p.employeeId]: p }, seq: Math.max(get().seq, p.seq) });
   },
   snapshot(s) {
-    set({ people: Object.fromEntries(s.people.map((p) => [p.employeeId, p])), seq: s.seq, presenceVisible: s.presenceVisible, avatarStyle: s.avatarStyle ?? DEFAULT_AVATAR_STYLE });
+    set({ people: Object.fromEntries(s.people.map((p) => [p.employeeId, p])), seq: s.seq, presenceVisible: s.presenceVisible, avatarStyle: s.avatarStyle ?? DEFAULT_AVATAR_STYLE, ...(s.workspace && s.workspace.version >= get().workspace.version ? { workspace: s.workspace } : {}), ...(s.workspace ? { workspaceKnown: true } : {}) });
   },
 }));
 
@@ -58,6 +76,19 @@ if (import.meta.env?.DEV && typeof window !== 'undefined') (window as unknown as
 
 let source: EventSource | null = null;
 let refs = 0;
+
+/**
+ * Eventos do escritório 2D (posições, layout, estações). Cada tela do 2D se inscreve ao montar e cancela ao desmontar: nada
+ * fica escutando depois que o motor 2D sai. A inscrição vale mesmo que a conexão ainda não tenha sido aberta.
+ */
+const handlers = new Map<string, Set<(data: unknown) => void>>();
+const EVENTS_2D = ['p2d', 'layout2d', 'seats2d'] as const;
+export function onLiveEvent(name: (typeof EVENTS_2D)[number], fn: (data: unknown) => void): () => void {
+  if (!handlers.has(name)) handlers.set(name, new Set());
+  handlers.get(name)!.add(fn);
+  return () => handlers.get(name)?.delete(fn);
+}
+export const liveHandlerCount = () => [...handlers.values()].reduce((n, s) => n + s.size, 0);
 
 /** Abre (uma vez por aba) o fluxo de presença; devolve a função que fecha quando ninguém mais usa. */
 export function connectLive(): () => void {
@@ -69,6 +100,9 @@ export function connectLive(): () => void {
     source.addEventListener('snapshot', (e) => useLive.getState().snapshot(JSON.parse((e as MessageEvent).data)));
     source.addEventListener('person', (e) => useLive.getState().apply(JSON.parse((e as MessageEvent).data)));
     source.addEventListener('resync', () => useLive.setState({ resyncNonce: useLive.getState().resyncNonce + 1 }));
+    // troca de ambiente: o evento chega antes do snapshot novo; versões antigas ou repetidas são ignoradas
+    source.addEventListener('mode', (e) => useLive.getState().setWorkspace(JSON.parse((e as MessageEvent).data)));
+    for (const name of EVENTS_2D) source.addEventListener(name, (e) => handlers.get(name)?.forEach((fn) => fn(JSON.parse((e as MessageEvent).data))));
   }
   return () => {
     refs--;
@@ -105,6 +139,18 @@ export const typingSignal = {
     if (!this.last) return;
     this.last = 0;
     void post('/api/live/typing', { state: 'stop' }).catch(() => undefined);
+  },
+};
+
+/** "Ausente": a pessoa marca (ou o navegador marca depois de um tempo sem uso); vale só para ela. */
+export const awaySignal = {
+  current: false,
+  set(away: boolean) {
+    if (this.current === away) return;
+    this.current = away;
+    void post('/api/live/away', { away }).catch(() => {
+      this.current = !away;
+    });
   },
 };
 

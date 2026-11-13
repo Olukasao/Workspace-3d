@@ -11,6 +11,7 @@ import { Color, DoubleSide, Material, Mesh, MeshStandardMaterial, Object3D, Skel
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { AvatarBase, AvatarConfig } from '../../../shared/avatarCatalog';
+import { disposeMaterial, disposeScene } from '../dispose';
 import { FACES, itemFor, slotColorHex, AVATAR_SLOTS } from '../../../shared/avatarCatalog';
 
 export interface ManifestItem { id: string; slot: string; base: AvatarBase; source: string; file: string; lod1: string | null; tris: number; tint: boolean; hideBit: number | null; attach?: string; meta: Record<string, string> }
@@ -53,6 +54,17 @@ function loadSkin(rel: string): Promise<Texture> {
     textures.set(rel, p);
   }
   return p;
+}
+
+/** Libera da GPU todos os modelos, texturas e materiais dos avatares em cache (ao sair do modo 3D). */
+export function disposeAvatarAssets() {
+  for (const p of gltfs.values()) void p.then((g) => disposeScene(g.scene), () => undefined);
+  gltfs.clear();
+  for (const m of tinted.values()) disposeMaterial(m);
+  tinted.clear();
+  for (const p of textures.values()) void p.then((t) => t.dispose(), () => undefined);
+  textures.clear();
+  manifest = null;
 }
 
 // ---------- materiais ----------

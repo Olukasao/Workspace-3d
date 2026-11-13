@@ -51,7 +51,7 @@ export function AuditPage() {
 const STATE: Record<IntegrationStatus['state'], [string, string]> = { ok: ['ok', 'Disponível'], not_configured: ['neutral', 'Não configurado'], unavailable: ['bad', 'Indisponível'] };
 
 /** Opção do administrador: estilo dos avatares da empresa. A troca vale ao vivo para quem está com o escritório aberto. */
-function AvatarStyleCard() {
+export function AvatarStyleCard() {
   const [info, setInfo] = useState<{ style: AvatarStyle; options: Array<{ id: AvatarStyle; label: string }> } | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -71,8 +71,8 @@ function AvatarStyleCard() {
   };
   return (
     <div className="card" data-testid="avatar-style-card">
-      <h3>Estilo dos avatares</h3>
-      <p className="muted">Vale para a empresa toda. Trocar não apaga nada: cada pessoa guarda a escolha que fez em cada estilo e volta a ela se o estilo anterior for reativado.</p>
+      <h3>Estilo dos avatares 3D</h3>
+      <p className="muted">Vale para o ambiente 3D da empresa toda (no ambiente 2D os avatares são sprites). Trocar não apaga nada: cada pessoa guarda a escolha que fez em cada estilo e volta a ela se o estilo anterior for reativado.</p>
       <div className="tabs" role="radiogroup" aria-label="Estilo dos avatares">
         {info?.options.map((o) => (
           <button key={o.id} role="radio" aria-checked={info.style === o.id} aria-pressed={info.style === o.id} disabled={busy} data-avatar-style={o.id} onClick={() => void choose(o.id)}>{o.label}</button>
@@ -121,7 +121,6 @@ export function IntegrationsPage({ demoMode }: { demoMode: boolean }) {
             </tbody>
           </table>
         </div>
-        <AvatarStyleCard />
         {demoMode && <div className="notice demo">“Simular falha” existe só no modo demonstração: serve para conferir que o mapa e a edição continuam funcionando quando um provedor cai.</div>}
       </div>
     </main>
@@ -198,6 +197,8 @@ export function CreditsPage() {
         <div>
           <h3>Avatares: estilo Ara 3D Gen (padrão)</h3>
           <p className="muted">{ara ? `${ara.count} personagens` : 'Personagens'} gerados com o <a href="https://github.com/olatunde85/3d-gen" target="_blank" rel="noopener noreferrer">Ara 3D Gen</a> (código MIT{ara ? `, commit ${ara.commit.slice(0, 7)}` : ''}). O gerador do Ara (código MIT, em vendor/ara3d) também roda dentro do Office 3D: no servidor, que gera o modelo ao salvar, e no navegador, na pré-visualização do editor. Corpos, rostos, cabelos, roupas e sapatos vêm dos dados do MakeHuman, CC0 1.0 (public/assets/ara-data). Os personagens gerados podem ser usados sem atribuição. A animação é procedural, do próprio Office 3D. Lista por arquivo da galeria em <span className="mono">public/assets/avatars-ara/CREDITS.md</span>.</p>
+          <h3>Escritório 2D</h3>
+          <p className="muted"><strong>Office Pixel Art by Imersa Studios</strong> (pacote gratuito, <a href="https://imersastudios.itch.io/office-pixel-art" target="_blank" rel="noopener noreferrer">imersastudios.itch.io/office-pixel-art</a>): mesa, computador, cadeira, arquivo, plantas, bebedouro e três pisos do modo 2D, usados sem alteração, com autorização de redistribuição integrada ao produto. Os demais móveis, as paredes e os personagens 2D são arte original do projeto. Licença em <span className="mono">public/assets/office-pixel/</span>.</p>
           <h3>Avatares: estilo MakeHuman (desativado, escolhível pelo administrador)</h3>
           <p className="muted">Corpos, roupas, cabelos, peles e acessórios da comunidade <a href="https://www.makehumancommunity.org" target="_blank" rel="noopener noreferrer">MakeHuman</a> (CC0 1.0), preparados no Blender com o MPFB2 (ferramenta GPL-3.0, usada só na construção e não distribuída). O headset é geometria original do projeto. Lista por arquivo, com as alterações, em <span className="mono">public/assets/avatars/CREDITS.md</span>.</p>
         </div>

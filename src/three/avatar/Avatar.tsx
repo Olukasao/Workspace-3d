@@ -9,6 +9,7 @@ import { useFrame } from '@react-three/fiber';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { Frustum, Matrix4, OrthographicCamera, Sphere, Vector3, type Group } from 'three';
 import { defaultForStyle, isAraConfig, styleOfConfig, type AnyAvatarConfig } from '../../../shared/avatarAra';
+import type { AvatarConfig } from '../../../shared/avatarCatalog';
 import { useLive, type LivePerson } from '../../live';
 import { buildAraAvatar } from './ara';
 import { buildAvatar, type BuiltAvatar } from './assets';
@@ -49,7 +50,7 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
 
   useEffect(() => {
     let alive = true;
-    (isAraConfig(config) ? buildAraAvatar(config, lod) : buildAvatar(config, lod)).then(
+    (isAraConfig(config) ? buildAraAvatar(config, lod) : buildAvatar(config as AvatarConfig, lod)).then(
       (av) => {
         if (!alive) return av.dispose();
         setFailed(null);

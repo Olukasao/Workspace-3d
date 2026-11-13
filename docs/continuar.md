@@ -26,9 +26,10 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 | Construir a estrutura do zero (piso, parede, porta, janela, esticar parede) | pronto, `npm run e2e:draw` 7/7 |
 | Paredes piscando nos cantos (z-fighting) | corrigido |
 | Mesa com posição fixa (vincular colaborador à mesa) | pronto |
-| Avatares: **Ara 3D Gen (padrão)** e MakeHuman + MPFB (desativado) | pronto: **editor completo do Ara** (Montar e Detalhado, 200+ controles em português, prévia 3D ao vivo, 16 personagens prontos como ponto de partida), o servidor gera o modelo ao salvar, escolha do estilo pelo admin em Integrações (ao vivo, por empresa), persistência por colaborador e estilo, poses por IK |
+| Avatares: **Ara 3D Gen (padrão)** e MakeHuman + MPFB (desativado) | pronto: **editor completo do Ara** (Montar e Detalhado, 200+ controles em português, prévia 3D ao vivo, 16 personagens prontos como ponto de partida), o servidor gera o modelo ao salvar, escolha do estilo pelo admin em Configurações (ao vivo, por empresa), persistência por colaborador e estilo, poses por IK |
 | Presença ao vivo (SSE): offline, online, digitando, em atendimento, fala | pronto, com sinais de demonstração para atendimento e fala |
-| Testes automáticos (`npm test`) | 89/89, typecheck e lint limpos |
+| **Modo 2D + troca global 2D/3D pelo admin** | pronto: ver `docs/workspace-2d.md`. Escritório 2D em Phaser com servidor autoritativo, editor de layout, avatar 2D em camadas, `npm run e2e:workspace` |
+| Testes automáticos (`npm test`) | 123/123, typecheck e lint limpos |
 | `npm run e2e:avatars` | 10/10 (inclui a troca de estilo pelo admin) |
 | `npm run e2e:ara-editor` | 8/8, em desenvolvimento e na versão compilada (`E2E_PROD=1`) |
 | `npm run e2e:draw` | 7/7 |
@@ -38,7 +39,9 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 
 ## Decisões tomadas (não refazer sem motivo)
 
-- **Estilo de avatar ativo: Ara 3D Gen. O MakeHuman + MPFB2 fica guardado e desativado**, e o administrador escolhe entre os dois em Integrações. O usuário rejeitou o visual do MakeHuman e pediu o Ara 3D Gen "no lugar do atual", mantendo o atual salvo. Foi avaliado antes o Quaternius (Universal Base Characters), descartado. O **bobba_client não foi integrado**: os avatares dele são do Habbo (copyright da Sulake, e o projeto nem os inclui) e o código é GPL-3.0.
+- **Modo 2D (briefing "Workspace 3D: modo 2D com alternância global administrativa"):** o administrador escolhe 2D ou 3D para toda a empresa; só um motor gráfico por vez; o inativo nem é baixado. Tempo real pelo SSE que já existia (**sem Socket.IO**, aceito pelo briefing), pixel art original pintada por código, padrão continua 3D, vínculos de estação 2D em tabela própria. O app **espera o servidor informar o modo** antes de montar qualquer motor. Detalhes em `docs/workspace-2d.md`.
+
+- **Estilo de avatar ativo: Ara 3D Gen. O MakeHuman + MPFB2 fica guardado e desativado**, e o administrador escolhe entre os dois em Configurações. O usuário rejeitou o visual do MakeHuman e pediu o Ara 3D Gen "no lugar do atual", mantendo o atual salvo. Foi avaliado antes o Quaternius (Universal Base Characters), descartado. O **bobba_client não foi integrado**: os avatares dele são do Habbo (copyright da Sulake, e o projeto nem os inclui) e o código é GPL-3.0.
 - **Editor completo do Ara:** o usuário pediu que a edição fosse "igual a da Ara, com diversos tipos de personalizar" (a primeira versão era só uma galeria de personagens prontos). Agora o estilo Ara tem editor completo. O corpo base continua sendo o do MakeHuman (mesmo pacote CC0): muda o gerador, as roupas procedurais, os sapatos e o formato. Se o visual ainda desagradar, a saída é outra fonte de assets, de outro estilo (cartoon, low-poly, pixel isométrico original).
 - **Parâmetros, não arquivos:** o servidor guarda os parâmetros do personagem, valida com uma lista permitida de escritório (sem armas, fantasias, biquíni, tatuagens; só 18+; sempre vestido) e **gera o modelo ele mesmo**. O cliente nunca envia modelo 3D. Ver `docs/avatars-ara.md`, seção "Como funciona".
 - **`vendor/ara3d`:** cópia sem alterações do núcleo do Ara 3D Gen (MIT) mais os dados CC0 em `public/assets/ara-data` (50 MB). Roda no servidor (thread própria) e no navegador (worker da prévia). Está no git, então o produto roda sem o clone do Ara.
@@ -49,6 +52,8 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 - **Esqueleto único por avatar, LOD0 a menos de 8 m, sem sombra no LOD1:** otimizações feitas depois da primeira medição com 25 avatares.
 
 ## Pendências (em ordem)
+
+0. **2D:** pinça (zoom por toque) não feita; arte pode ganhar mais variedade (mais móveis e roupas); falta teste manual em celular. O estilo do avatar 3D (Integrações → agora **Configurações**) continua valendo só para o modo 3D.
 
 1. **Confirmar a estabilidade do `npm run e2e`**: rodar mais 2 ou 3 vezes seguidas. Passou 20/20 uma vez depois da correção abaixo.
 2. **Limpeza dos modelos gerados:** ficam em `data/avatar-models` e nunca são apagados (3 a 5 MB por edição). Falta uma rotina que apague os que nenhum avatar salvo usa. Com mais de um servidor, o armazenamento precisa ser compartilhado. Também não há regeneração automática se a pasta sumir. Ver `docs/avatars-ara.md`, "Lacunas".

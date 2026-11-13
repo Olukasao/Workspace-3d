@@ -211,13 +211,13 @@ await check('reconexão recupera aparência e estado, sem avatar duplicado', asy
   return '1 avatar, personagem salvo, trabalhando';
 });
 
-await check('o admin troca o estilo dos avatares (Integrações): a outra sessão acompanha ao vivo, e voltar restaura a escolha de cada pessoa', async () => {
+await check('o admin troca o estilo dos avatares (Configurações): a outra sessão acompanha ao vivo, e voltar restaura a escolha de cada pessoa', async () => {
   const goOps = async () => {
     await B.locator('nav.tabs button', { hasText: 'Operação' }).click();
     await B.locator('[role="option"]', { hasText: 'Mesa 05' }).first().click();
   };
   const setStyle = async (id) => {
-    await B.locator('nav.tabs button', { hasText: 'Integrações' }).click();
+    await B.locator('nav.tabs button', { hasText: 'Configurações' }).click();
     await B.click(`[data-avatar-style="${id}"]`);
     await B.waitForSelector(`[data-avatar-style="${id}"][aria-pressed="true"]`);
   };

@@ -12,7 +12,8 @@ interface Msg {
   createdAt: number;
 }
 
-export function ChatDialog({ officeId, object, onClose }: { officeId: string; object: OperationalObject; onClose: () => void }) {
+/** `direct`: abre a conversa pelo colega (ambiente 2D, sem mesa 3D); senão, pela mesa do mapa 3D. */
+export function ChatDialog({ officeId, object, onClose, direct = false }: { officeId: string; object: Pick<OperationalObject, 'objectId' | 'seat'>; onClose: () => void; direct?: boolean }) {
   const [conv, setConv] = useState<{ conversationId: string; created: boolean; mode: 'demo' | 'real' } | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState('');
@@ -23,7 +24,7 @@ export function ChatDialog({ officeId, object, onClose }: { officeId: string; ob
   useEffect(() => {
     let alive = true;
     api
-      .post<{ conversationId: string; created: boolean; mode: 'demo' | 'real' }>(`/api/offices/${officeId}/actions/chat/open`, { objectId: object.objectId })
+      .post<{ conversationId: string; created: boolean; mode: 'demo' | 'real' }>(direct ? `/api/office2d/${officeId}/chat/open` : `/api/offices/${officeId}/actions/chat/open`, direct ? { employeeId: object.seat?.employee?.id } : { objectId: object.objectId })
       .then(async (c) => {
         if (!alive) return;
         setConv(c);
@@ -34,6 +35,7 @@ export function ChatDialog({ officeId, object, onClose }: { officeId: string; ob
     return () => {
       alive = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [officeId, object.objectId]);
   useEffect(() => {
     log.current?.scrollTo({ top: log.current.scrollHeight });

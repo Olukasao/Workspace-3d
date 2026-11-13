@@ -7,6 +7,7 @@ import { DEMO_ACCOUNTS, DEMO_PASSWORD } from './db/seed';
 import { SESSION_COOKIE, currentUser, login, logout, readCookie, requireAuth, sessionCookie } from './auth';
 import { HttpError, correlation, errorHandler, h, requireAppHeader } from './http';
 import { AraGenerator } from './araGen';
+import { Office2D } from './office2d';
 import { DemoCallSource, LiveHub } from './live';
 import { Integrations } from './providers';
 import { ProviderNotConfigured, ProviderUnavailable } from './providers/types';
@@ -15,6 +16,7 @@ import { adminRoutes } from './routes/admin';
 import { assetRoutes } from './routes/assets';
 import { liveRoutes } from './routes/live';
 import { officeRoutes } from './routes/office';
+import { workspaceRoutes } from './routes/workspace';
 
 export interface AppContext {
   cfg: Config;
@@ -24,12 +26,18 @@ export interface AppContext {
   live: LiveHub;
   /** Gera (em thread própria) e guarda os modelos 3D dos personagens personalizados do estilo Ara 3D Gen. */
   ara: AraGenerator;
+  /** Escritório 2D: layout, estações e posição de cada pessoa (autoridade do servidor). */
+  office2d: Office2D;
   /** Apaga do disco os documentos de impressão vencidos (retenção). */
   purgePrintFiles?: () => Promise<number>;
 }
 
 export function createApp(cfg: Config, db: Db): { app: Express; ctx: AppContext } {
-  const ctx: AppContext = { cfg, db, integrations: new Integrations(cfg, db), live: new LiveHub(db, cfg.live, new DemoCallSource(), cfg.demoMode), ara: new AraGenerator(path.join(ROOT, 'public/assets/ara-data'), path.join(cfg.dataDir, 'avatar-models')) };
+  const live = new LiveHub(db, cfg.live, new DemoCallSource(), cfg.demoMode);
+  const office2d = new Office2D(db, live);
+  live.attach2d(office2d);
+  const ctx: AppContext = { cfg, db, integrations: new Integrations(cfg, db), live, office2d, ara: new AraGenerator(path.join(ROOT, 'public/assets/ara-data'), path.join(cfg.dataDir, 'avatar-models')) };
+  office2d.start();
   ctx.live.start();
   const app = express();
   app.disable('x-powered-by');
@@ -86,6 +94,7 @@ export function createApp(cfg: Config, db: Db): { app: Express; ctx: AppContext 
   adminRoutes(authed, ctx);
   ctx.purgePrintFiles = actionRoutes(authed, ctx).purgeExpiredPrintFiles;
   liveRoutes(authed, ctx);
+  workspaceRoutes(authed, ctx);
   api.use(authed);
   api.use((_req, _res, next) => next(new HttpError(404, 'not_found', 'Rota não encontrada.')));
 

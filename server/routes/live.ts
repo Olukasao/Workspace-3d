@@ -4,6 +4,7 @@
  * - GET  /api/live/snapshot   o mesmo snapshot por HTTP (o cliente recarrega ao reconectar)
  * - POST /api/live/typing     { state: 'start' | 'stop' } — só o booleano, do próprio usuário
  * - POST /api/live/call       { action: 'start' | 'end', speakingSignal?: boolean } — ciclo de atendimento (demo)
+ * - POST /api/live/away       { away: boolean } — "ausente" (a própria pessoa)
  * - POST /api/live/speaking   { speaking: boolean } — indicador booleano de fala (demo)
  * - GET  /api/avatar/model/:model/lod0.glb|lod1.glb  modelo 3D gerado pelo servidor para um personagem personalizado (só da empresa)
  * - GET  /api/avatar/catalog  estilo ativo da empresa + galeria Ara 3D Gen + catálogo de peças do MakeHuman
@@ -78,6 +79,14 @@ export function liveRoutes(r: Router, ctx: AppContext) {
     res.json({ person });
   }));
 
+  // "ausente": a própria pessoa (ou o navegador, depois de um tempo sem uso) avisa; vale só para o colaborador da sessão
+  r.post('/live/away', h(async (req, res) => {
+    const user = currentUser(res);
+    const away = (req.body as { away?: unknown })?.away;
+    if (typeof away !== 'boolean') throw new HttpError(400, 'bad_request', 'away deve ser verdadeiro ou falso.');
+    res.json({ person: await wrap(() => live.setAway(user, away)) });
+  }));
+
   r.post('/live/speaking', h(async (req, res) => {
     const user = currentUser(res);
     if (cfg.callProvider !== 'demo') throw new HttpError(409, 'not_configured', 'O indicador de fala vem do sistema de telefonia.');
@@ -89,7 +98,7 @@ export function liveRoutes(r: Router, ctx: AppContext) {
   // ---------- aparência ----------
   r.get('/avatar/catalog', h(async (_req, res) => {
     const user = currentUser(res);
-    res.json({ version: AVATAR_CATALOG_VERSION, style: await live.avatarStyle(user.companyId), ara: ARA_CHARACTERS, catalog: AVATAR_CATALOG });
+    res.json({ version: AVATAR_CATALOG_VERSION, style: await live.effectiveStyle(user.companyId), ara: ARA_CHARACTERS, catalog: AVATAR_CATALOG });
   }));
 
   // ---------- estilo de avatar da empresa (opção do administrador) ----------
@@ -106,7 +115,7 @@ export function liveRoutes(r: Router, ctx: AppContext) {
   }));
 
   const loadMine = async (companyId: string, employeeId: string) => {
-    const style = await live.avatarStyle(companyId);
+    const style = await live.effectiveStyle(companyId);
     const row = await one<{ config_json: string; version: number; updated_at: number }>(db, 'SELECT config_json, version, updated_at FROM avatar_choices WHERE employee_id = ? AND company_id = ? AND style = ?', [employeeId, companyId, style]);
     return row ? { style, config: JSON.parse(row.config_json) as AnyAvatarConfig, version: Number(row.version), updatedAt: Number(row.updated_at), saved: true } : { style, config: defaultForStyle(style, employeeId), version: 0, updatedAt: 0, saved: false };
   };
@@ -123,7 +132,7 @@ export function liveRoutes(r: Router, ctx: AppContext) {
     if (!user.employeeId || user.employeeId !== employeeId) throw new HttpError(403, 'forbidden', 'Você só pode editar o seu próprio avatar.');
     const { config, baseVersion } = (body ?? {}) as { config?: unknown; baseVersion?: unknown };
     if (!Number.isInteger(baseVersion)) throw new HttpError(400, 'bad_request', 'Informe a versão-base do avatar.');
-    const style = await live.avatarStyle(user.companyId);
+    const style = await live.effectiveStyle(user.companyId);
     const errors = validateForStyle(style, config);
     if (errors.length) throw new HttpError(422, 'invalid_avatar', 'A configuração do avatar tem itens fora do catálogo do estilo ativo.', { details: errors });
     // personagem personalizado: o servidor normaliza os parâmetros e GERA o modelo 3D (nunca recebe modelo do cliente)

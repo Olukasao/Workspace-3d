@@ -122,11 +122,7 @@ export class Office2D {
       p = entrance();
       // quem tem mesa designada (e livre) entra por uma entrada e é levado até ela, onde senta na cadeira que já está no cenário
       if (stationId && sp && !occupied) {
-        const cells = findPath(grid, { x: Math.floor(p.x / TILE), y: Math.floor(p.y / TILE) }, { x: Math.floor(sp.x / TILE), y: Math.floor(sp.y / TILE) });
-        if (cells.length) {
-          this.routes.set(`${companyId}:${employeeId}`, { path: cells.map((q) => ({ x: q.x * TILE + TILE / 2, y: q.y * TILE + TILE / 2 })), station: stationId, seatX: sp.x, seatY: sp.y, seatDir: sp.dir });
-          p.auto = true;
-        } else p = { id: employeeId, officeId, x: sp.x, y: sp.y, dir: sp.dir, moving: false, seat: stationId }; // sem caminho: já sentado
+        if (!this.routeToSeat(companyId, p, grid, stationId, sp)) p = { id: employeeId, officeId, x: sp.x, y: sp.y, dir: sp.dir, moving: false, seat: stationId }; // sem caminho: já sentado
       }
       company.set(employeeId, p);
       this.mark(companyId, p);
@@ -134,9 +130,42 @@ export class Office2D {
     return p;
   }
 
+  /** Cria o trajeto da pessoa até o lugar (A*, só por células livres) e a põe em modo `auto`. false = não há caminho. */
+  private routeToSeat(companyId: string, p: Pos2D, grid: Grid, stationId: string, sp: { x: number; y: number; dir: Dir }): boolean {
+    const cells = findPath(grid, { x: Math.floor(p.x / TILE), y: Math.floor(p.y / TILE) }, { x: Math.floor(sp.x / TILE), y: Math.floor(sp.y / TILE) });
+    if (!cells.length) return false;
+    this.routes.set(`${companyId}:${p.id}`, { path: cells.map((q) => ({ x: q.x * TILE + TILE / 2, y: q.y * TILE + TILE / 2 })), station: stationId, seatX: sp.x, seatY: sp.y, seatDir: sp.dir });
+    p.auto = true;
+    return true;
+  }
+
+  /**
+   * Chamado quando o estado da pessoa muda. Ao entrar em atendimento, quem não está sentado na própria mesa vai direto para o
+   * computador e senta (quem já está na mesa, ou não tem mesa designada, fica onde está).
+   */
+  statusChanged(companyId: string, employeeId: string, status: string) {
+    if (status === 'in_call') void this.goToDesk(companyId, employeeId).catch((e) => console.error('escritório 2D:', e));
+  }
+  private async goToDesk(companyId: string, employeeId: string) {
+    const p = this.pos.get(companyId)?.get(employeeId);
+    if (!p || p.auto) return;
+    const [{ layout, grid }, seats] = await Promise.all([this.layoutOf(companyId, p.officeId), this.seatsOf(companyId, p.officeId)]);
+    const stationId = seats.byEmployee.get(employeeId);
+    if (!stationId || p.seat === stationId) return;
+    const sp = this.seatPoint(layout, stationId);
+    if (!sp) return;
+    const taken = [...(this.pos.get(companyId)?.values() ?? [])].some((q) => q.id !== employeeId && q.officeId === p.officeId && q.seat === stationId);
+    if (taken) return;
+    p.seat = null;
+    p.moving = false;
+    if (!this.routeToSeat(companyId, p, grid, stationId, sp)) [p.x, p.y, p.dir, p.seat] = [sp.x, sp.y, sp.dir, stationId]; // mesmo lugar ou sem caminho: senta direto
+    this.mark(companyId, p);
+  }
+
   /** Entrar no escritório pela tela do 2D: devolve a própria posição e a de todos os que já estão lá. */
   async join(user: SessionUser, officeId: string): Promise<{ me: Pos2D; positions: Pos2D[] }> {
     if (!user.employeeId) throw new HttpError(409, 'no_employee', 'Sua conta não está ligada a um colaborador do diretório: você só pode observar o escritório.');
+    if (this.hub.needsWorkspaceSignal && !this.hub.isOnline(user.companyId, user.employeeId)) throw new HttpError(409, 'not_online', 'Você só aparece no mapa quando o Workspace (chat interno) está aberto: por enquanto você só observa o escritório.');
     const me = await this.spawn(user.companyId, user.employeeId, officeId);
     this.mark(user.companyId, me);
     return { me, positions: this.list(user.companyId, officeId) };

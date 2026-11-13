@@ -24,6 +24,8 @@ export interface Config {
   /** 'manual' mostra o endereço; 'uri' também devolve o link anydesk: (só após validação no ambiente gerenciado). */
   anydeskLaunch: 'manual' | 'uri';
   workscape: { baseUrl: string; token: string };
+  /** Sinal "Workspace aberto" que o chat interno envia (segredo só no servidor). Vazio = recepção desligada. */
+  workspacePresence: { token: string };
   /** Hosts https autorizados para painéis de TV e para links de CAD (Autodesk). */
   dashboardAllowedHosts: string[];
   cadAllowedHosts: string[];
@@ -68,6 +70,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     },
     anydeskLaunch: oneOf(env.ANYDESK_LAUNCH, ['manual', 'uri'] as const, 'manual'),
     workscape: { baseUrl: env.WORKSCAPE_BASE_URL ?? '', token: env.WORKSCAPE_TOKEN ?? '' },
+    workspacePresence: { token: env.WORKSPACE_PRESENCE_TOKEN ?? '' },
     dashboardAllowedHosts: list(env.DASHBOARD_ALLOWED_HOSTS),
     cadAllowedHosts: list(env.CAD_ALLOWED_HOSTS),
     printMaxBytes: Number(env.PRINT_MAX_MB ?? 10) * 1024 * 1024,

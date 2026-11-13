@@ -89,7 +89,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
           <button className="btn icon" onClick={() => scene()?.zoomBy(0.8)} aria-label="Afastar" title="Afastar"><Minus size={16} /></button>
         </div>
         {hint && <div className="office2d-hint" role="status" data-testid="office2d-hint">{hint}</div>}
-        {net.spectator && <div className="office2d-hint" role="status">Sua conta não tem um colaborador no diretório: você só observa o escritório (arraste para mover a câmera).</div>}
+        {net.spectator && <div className="office2d-hint" role="status" data-testid="office2d-spectator">{net.spectatorReason}</div>}
         {card && selected && (
           <div className="office2d-card" style={{ left: Math.min(card.sx + 12, window.innerWidth - 270), top: Math.max(card.sy - 10, 8) }} role="dialog" aria-label={`Cartão de ${selected.name}`} data-testid="person-card">
             <button className="btn icon ghost small" style={{ float: 'right' }} onClick={() => setCard(null)} aria-label="Fechar"><X size={14} /></button>

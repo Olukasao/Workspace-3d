@@ -120,7 +120,7 @@ function Shell({ user, demoMode, onLogout }: { user: SessionUser; demoMode: bool
       {current === 'audit' && <AuditPage />}
       {current === 'integrations' && <IntegrationsPage demoMode={demoMode} />}
       {current === 'credits' && <CreditsPage />}
-      {current === 'settings' && <SettingsPage />}
+      {current === 'settings' && <SettingsPage officeId={officeId} />}
     </div>
   );
 }

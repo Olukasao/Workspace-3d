@@ -17,6 +17,8 @@ export class Net2D {
   data: Office2DData | null = null;
   me: Pos2D | null = null;
   spectator = false;
+  /** Por que a pessoa só observa (sem colaborador, ou Workspace fechado). */
+  spectatorReason = '';
   private offs: Array<() => void> = [];
   private lastSent = 0;
   private pending: Pick<Pos2D, 'x' | 'y' | 'dir' | 'moving' | 'seat'> | null = null;
@@ -68,9 +70,24 @@ export class Net2D {
     );
     if (!this.employeeId) {
       this.spectator = true; // conta sem colaborador: só observa
+      this.spectatorReason = 'Sua conta não tem um colaborador no diretório: você só observa o escritório (arraste para mover a câmera).';
       return;
     }
-    const j = await api.post<{ me: Pos2D; positions: Pos2D[] }>(`/api/office2d/${this.officeId}/join`);
+    let j: { me: Pos2D; positions: Pos2D[] };
+    try {
+      j = await api.post<{ me: Pos2D; positions: Pos2D[] }>(`/api/office2d/${this.officeId}/join`);
+    } catch (e) {
+      // Workspace fechado: a pessoa não aparece no mapa, mas vê quem está nele
+      if ((e as { status?: number }).status !== 409) throw e;
+      this.spectator = true;
+      this.spectatorReason = (e as Error).message || 'Você só observa o escritório (arraste para mover a câmera).';
+      const r = await api.get<{ positions: Pos2D[] }>(`/api/office2d/${this.officeId}/positions`);
+      if (this.stopped) return;
+      const t = performance.now();
+      for (const q of r.positions) this.positions.set(q.id, { ...q, at: t });
+      this.emit('positions');
+      return;
+    }
     if (this.stopped) return;
     this.me = j.me;
     const now = performance.now();

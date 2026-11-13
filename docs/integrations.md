@@ -22,6 +22,7 @@ Princípios aplicados a todas:
 | `ANYDESK_LAUNCH` | `manual` / `uri` | `manual` mostra o endereço autorizado; `uri` também devolve o link `anydesk:` (depois de validado) |
 | `PRINT_PROVIDER` | `demo` / `ipp` / `none` | Envio direto à impressora (o diálogo do navegador sempre existe) |
 | `WORKSCAPE_BASE_URL`, `WORKSCAPE_TOKEN` | — | Reservadas para o adaptador Workscape |
+| `WORKSPACE_PRESENCE_TOKEN` | vazio | Segredo do sinal "Workspace aberto" (ver a seção abaixo); vazio desliga a recepção |
 | `DASHBOARD_ALLOWED_HOSTS` | lista de hosts | Painéis de TV `https://` permitidos (também entram no `frame-src` da CSP) |
 | `CAD_ALLOWED_HOSTS` | lista de hosts | Links de projeto CAD (Autodesk) permitidos |
 | `PRINT_MAX_MB`, `PRINT_RETENTION_MINUTES` | número | Limite do PDF e retenção no disco |
@@ -130,6 +131,19 @@ Adaptador real (desenho, ainda não implementado):
 - **Servidor de impressão corporativo (IPP/CUPS):** `submit` → `Print-Job` (IPP) na fila do destino, com usuário de serviço; `status` → `Get-Job-Attributes` (`job-state` 3/4/5 = na fila, 9 = concluído, 7/8 = falha).
 - **Ou agente gerenciado** instalado no servidor de impressão, que recebe o PDF por HTTPS com mTLS.
 - Em qualquer caso, a lista de destinos autorizados fica no servidor, junto com limites e retenção.
+
+## Sinal "Workspace aberto" (presença no mapa)
+
+Fora da demonstração (`DEMO_MODE=false`), **quem aparece no mapa, como online, é só quem o Workspace (chat interno) marcou como aberto**. Estar com a aba do Office 3D aberta não basta. Até o vínculo existir, ninguém aparece. Na demonstração nada muda: vale a conexão do próprio navegador e os colegas simulados.
+
+O Workspace avisa por `PUT /api/integrations/workspace-presence`, sem sessão de usuário: autentica com `Authorization: Bearer <WORKSPACE_PRESENCE_TOKEN>` (segredo só no servidor, comparado em tempo constante). Dois formatos:
+
+- **Lista completa** (recomendado, ressincroniza sozinho): `{ "companyId": "...", "employeeIds": ["emp_ana", "emp_bruno"] }`. Quem não está na lista passa a offline.
+- **Evento:** `{ "companyId": "...", "employeeId": "emp_ana", "open": true }`.
+
+Resposta: `{ "accepted": n, "ignored": m }` (ids desconhecidos ou inativos são ignorados). Só o fato de estar aberto trafega: nenhum conteúdo de conversa. Sem token configurado o endereço responde 409.
+
+Quem está com o Office 3D aberto mas sem o Workspace aberto não entra no mapa: a tela 2D mostra o aviso e ele só observa (`GET /api/office2d/:id/positions`).
 
 ## Painéis de TV e CAD
 

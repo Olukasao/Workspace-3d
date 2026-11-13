@@ -103,6 +103,14 @@ export class LiveHub {
   private styles = new Map<string, AvatarStyle>(); // cache do estilo ativo por empresa
   private workspace = new Map<string, WorkspaceState>(); // cache do modo (2D/3D) por empresa
   private p2d: Office2D | null = null;
+  /**
+   * Fora da demonstração, quem aparece no mapa (e como online) é só quem o Workspace (chat interno) marcou como "aberto":
+   * a presença vem desse sinal, não de estar com a aba do Office 3D aberta. Sem o sinal, ninguém aparece.
+   */
+  private workspaceOpen = new Set<string>();
+  get needsWorkspaceSignal() {
+    return !this.demoMode;
+  }
 
   constructor(
     private db: Db,
@@ -265,6 +273,28 @@ export class LiveHub {
     return p;
   }
 
+  /** O Workspace avisou que a pessoa está com ele aberto (ou fechou). Devolve false se o colaborador não existe ou está inativo. */
+  async setWorkspaceOpen(companyId: string, employeeId: string, open: boolean): Promise<boolean> {
+    const p = await this.person(companyId, employeeId);
+    if (!p) return false;
+    const k = this.key(companyId, employeeId);
+    if (open) this.workspaceOpen.add(k);
+    else this.workspaceOpen.delete(k);
+    this.publish(p);
+    return true;
+  }
+
+  /** Lista completa de quem está com o Workspace aberto na empresa: quem não está na lista passa a offline. Devolve os ids aceitos. */
+  async setWorkspaceSnapshot(companyId: string, employeeIds: string[]): Promise<string[]> {
+    const want = new Set(employeeIds);
+    const accepted: string[] = [];
+    for (const id of want) if (await this.setWorkspaceOpen(companyId, id, true)) accepted.push(id);
+      else want.delete(id);
+    const prefix = `${companyId}:`;
+    for (const k of [...this.workspaceOpen]) if (k.startsWith(prefix) && !want.has(k.slice(prefix.length))) await this.setWorkspaceOpen(companyId, k.slice(prefix.length), false);
+    return accepted;
+  }
+
   /** Estado derivado com a prioridade OFFLINE > EM ATENDIMENTO > DIGITANDO > ONLINE. */
   private derive(p: PersonState, now = Date.now()): LiveStatus {
     if (p.simulated) {
@@ -272,7 +302,7 @@ export class LiveHub {
       if (p.call?.active) return 'in_call';
       return p.simulatedStatus ?? 'online';
     }
-    const connected = p.connections.size > 0 || (p.offlineAt !== null && now - p.offlineAt < this.cfg.graceMs);
+    const connected = this.needsWorkspaceSignal ? this.workspaceOpen.has(this.key(p.companyId, p.employeeId)) : p.connections.size > 0 || (p.offlineAt !== null && now - p.offlineAt < this.cfg.graceMs);
     if (!connected) return 'offline';
     if (p.call?.active) return 'in_call';
     if (p.typingUntil > now) return 'typing';
@@ -304,6 +334,7 @@ export class LiveHub {
     p.lastPublished = sig;
     this.seq++;
     p.version = this.seq;
+    this.p2d?.statusChanged(p.companyId, p.employeeId, v.status);
     const out = { ...v, version: p.version, seq: this.seq };
     for (const c of this.clients.values()) {
       if (c.user.companyId !== p.companyId || !c.canSeePresence) continue;

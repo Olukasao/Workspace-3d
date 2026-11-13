@@ -53,6 +53,7 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 
 ## Pendências (em ordem)
 
+0. **Integração do Workspace (chat interno):** fazer o chat chamar `PUT /api/integrations/workspace-presence` quando detectar que o Workspace está aberto (formato e segredo em `docs/integrations.md`). Enquanto isso, fora da demonstração ninguém aparece no mapa.
 0. **2D:** pinça (zoom por toque) não feita; instalar mais móveis e decoração 2D com licença que permita redistribuir (feito em parte, ver docs/workspace-2d.md); arte pode ganhar mais variedade (mais móveis e roupas); falta teste manual em celular. O estilo do avatar 3D (Integrações → agora **Configurações**) continua valendo só para o modo 3D.
 
 1. **Confirmar a estabilidade do `npm run e2e`**: rodar mais 2 ou 3 vezes seguidas. Passou 20/20 uma vez depois da correção abaixo.

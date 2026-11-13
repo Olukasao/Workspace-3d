@@ -8,6 +8,7 @@ import { WORKSPACE_MODES, WORKSPACE_MODE_LABEL, type WorkspaceMode } from '../..
 import { api, errorText } from '../api';
 import { useLive } from '../live';
 import { Dialog, toast } from '../ui';
+import { DeskAssignments } from './DeskAssignments';
 import { AvatarStyleCard } from './pages';
 
 const DESCRIPTION: Record<WorkspaceMode, string> = {
@@ -15,7 +16,7 @@ const DESCRIPTION: Record<WorkspaceMode, string> = {
   '2d': 'Escritório em pixel art, visto de cima em 3/4: andar com o teclado ou clicando, sentar nas estações, ver quem está perto. Leve, funciona bem em celular e em computador simples.',
 };
 
-export function SettingsPage() {
+export function SettingsPage({ officeId = null }: { officeId?: string | null }) {
   const mode = useLive((s) => s.workspace.mode);
   const [pending, setPending] = useState<WorkspaceMode | null>(null);
   const [busy, setBusy] = useState(false);
@@ -54,6 +55,7 @@ export function SettingsPage() {
             ))}
           </div>
         </section>
+        <DeskAssignments officeId={officeId} />
         <AvatarStyleCard />
       </div>
       {pending && (

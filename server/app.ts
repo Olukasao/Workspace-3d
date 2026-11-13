@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import express, { type Express } from 'express';
@@ -85,6 +86,29 @@ export function createApp(cfg: Config, db: Db): { app: Express; ctx: AppContext 
     if (!cfg.demoMode) return res.json({ demoMode: false, accounts: [] });
     res.json({ demoMode: true, password: DEMO_PASSWORD, accounts: DEMO_ACCOUNTS.map((a) => ({ email: a.email, label: a.label, name: a.name, role: a.role })) });
   });
+
+  /**
+   * Sinal "Workspace aberto", enviado pelo chat interno (sem sessão de usuário: autentica por token no servidor, WORKSPACE_PRESENCE_TOKEN).
+   * Lista completa: { companyId, employeeIds: [...] } (quem não está na lista passa a offline); ou um evento: { companyId, employeeId, open }.
+   * Só o fato de estar aberto; nenhum conteúdo de conversa. Aceita só colaboradores ativos da empresa.
+   */
+  api.put('/integrations/workspace-presence', h(async (req, res) => {
+    const token = cfg.workspacePresence.token;
+    if (!token) throw new HttpError(409, 'not_configured', 'O sinal "Workspace aberto" está desligado: defina WORKSPACE_PRESENCE_TOKEN no servidor.');
+    const given = Buffer.from(String(req.headers.authorization ?? '').replace(/^Bearer /i, ''));
+    const want = Buffer.from(token);
+    if (given.length !== want.length || !timingSafeEqual(given, want)) throw new HttpError(401, 'unauthenticated', 'Token inválido.');
+    const b = (req.body ?? {}) as { companyId?: unknown; employeeIds?: unknown; employeeId?: unknown; open?: unknown };
+    if (typeof b.companyId !== 'string' || !(await db.query('SELECT id FROM companies WHERE id = ?', [b.companyId])).length) throw new HttpError(400, 'bad_request', 'companyId desconhecido.');
+    if (Array.isArray(b.employeeIds)) {
+      if (b.employeeIds.length > 5000 || !b.employeeIds.every((x) => typeof x === 'string')) throw new HttpError(400, 'bad_request', 'employeeIds deve ser uma lista de ids.');
+      const accepted = await live.setWorkspaceSnapshot(b.companyId, b.employeeIds as string[]);
+      return void res.json({ accepted: accepted.length, ignored: b.employeeIds.length - accepted.length });
+    }
+    if (typeof b.employeeId !== 'string' || typeof b.open !== 'boolean') throw new HttpError(400, 'bad_request', 'Envie employeeIds (lista completa) ou employeeId e open.');
+    const ok = await live.setWorkspaceOpen(b.companyId, b.employeeId, b.open);
+    res.json({ accepted: ok ? 1 : 0, ignored: ok ? 0 : 1 });
+  }));
 
   const authed = express.Router();
   authed.use(requireAuth(db));

@@ -148,6 +148,17 @@ try {
   ok(objsAfter === objsBefore + 1, `layout publicado chegou ao operador (${objsBefore} → ${objsAfter} objetos)`);
   await A.screenshot({ path: path.join(ROOT, 'test-results/ws-editor.png') });
 
+  // mesas e cadeiras por pessoa (Configurações): o administrador escolhe a mesa do Otávio e o vínculo vale na hora
+  await A.click('[data-testid="nav-settings"]');
+  await A.waitForSelector('[data-testid="desk-assignments-card"]');
+  await A.waitForSelector('[data-testid="desk-select-emp_otavio"] option:nth-child(3)', { state: 'attached' });
+  const stBefore = await A.evaluate(() => fetch('/api/office2d/off_sede_1').then((r) => r.json()).then((j) => j.seats.find((x) => x.employeeId === 'emp_otavio')?.stationId));
+  const free = await A.evaluate((cur) => [...document.querySelectorAll('[data-testid="desk-select-emp_otavio"] option')].find((o) => o.value && o.value !== cur && !/hoje de/.test(o.textContent))?.value, stBefore);
+  await A.selectOption('[data-testid="desk-select-emp_otavio"]', free);
+  await A.waitForFunction(([id, st]) => fetch('/api/office2d/off_sede_1').then((r) => r.json()).then((j) => j.seats.find((x) => x.employeeId === id)?.stationId === st), ['emp_otavio', free]);
+  ok(stBefore === 'st5' && free && free !== stBefore, `mesa do Otávio trocada pela tela de Configurações (${stBefore} → ${free})`);
+  await A.screenshot({ path: path.join(ROOT, 'test-results/ws-mesas.png') });
+
   // 7) trocas repetidas 2D ⇄ 3D: o motor inativo sai por completo, sem vazar
   const setMode = async (m) => {
     await A.locator('[data-testid="nav-settings"]').click();

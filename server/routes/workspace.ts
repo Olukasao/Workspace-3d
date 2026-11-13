@@ -55,6 +55,14 @@ export function workspaceRoutes(r: Router, ctx: AppContext) {
     res.json({ layout, version, published, seats: await seatList(user.companyId, req.params.officeId) });
   }));
 
+  // quem está no mapa agora (para quem só observa, por exemplo enquanto o Workspace dele está fechado)
+  r.get('/office2d/:officeId/positions', h(async (req, res) => {
+    const user = currentUser(res);
+    await loadOffice(db, user, req.params.officeId);
+    await requireMode2d(user.companyId);
+    res.json({ positions: office2d.list(user.companyId, req.params.officeId) });
+  }));
+
   r.post('/office2d/:officeId/join', h(async (req, res) => {
     const user = currentUser(res);
     await loadOffice(db, user, req.params.officeId);

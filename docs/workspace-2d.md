@@ -41,11 +41,15 @@ Regras do briefing mantidas: nenhuma tecla, texto ou nome de conversa vai para o
 
 - O **servidor é a autoridade** (`server/office2d.ts`): velocidade máxima 150 px/s (mais folga), caminho livre a cada 8 px, intervalo mínimo de 40 ms, regras de sentar (perto, livre ou sua, caminho livre). Posição inválida é **corrigida** e o cliente volta para a posição aceita.
 - O cliente propõe a própria posição no máximo 10 vezes por segundo; o servidor junta as posições e envia em lotes de 100 ms (evento `p2d`), só para quem pode ver a presença da empresa. Os outros personagens são **interpolados** no cliente.
+- **Quem aparece no mapa:** fora da demonstração, só quem está com o Workspace (chat interno) aberto (ver `docs/integrations.md`, "Sinal Workspace aberto"). O vínculo com o chat ainda não existe: enquanto isso ninguém aparece fora da demonstração.
+- **Em atendimento:** quem não está na própria mesa vai direto para o computador e senta (o servidor leva a pessoa por um caminho livre). Quem já está na mesa, ou não tem mesa designada, fica onde está.
 - Quem está online entra sozinho no escritório 2D por uma entrada livre (sem empilhar nomes) e, se tem mesa designada, o **servidor o leva andando até ela** (caminho livre, 80 px/s) e a pessoa **senta na cadeira que já está no cenário**. Se a pessoa se mexer ou pedir para sentar, assume o controle na hora. Sem mesa designada, fica em pé na entrada. Quem fica offline sai.
 
 ## Editor 2D (administrador)
 
 Editor → no modo 2D abre o editor do layout: pintar piso, paredes, apagar, colocar/mover/girar/remover móveis (26 do catálogo), definir entradas, vincular colaborador a cada estação. **Salvar rascunho** (com versão-base: 409 se outro administrador salvou antes) e **Publicar**: todos os conectados recebem o layout novo ao vivo (as pessoas que estavam num lugar que deixou de existir são realocadas; vínculos de estações removidas caem). Toda mesa com computador vira uma estação automaticamente. O servidor valida o layout inteiro (`validateLayout`) antes de gravar: limites, sobreposição, móvel sobre parede, estações com lugar para sentar.
+
+**Mesas e cadeiras por pessoa:** Configurações → *Mesas e cadeiras (2D)* lista cada pessoa com a mesa dela (a cadeira é a da mesa); cada escolha vale na hora, sem publicar o layout. Escolher a mesa de outra pessoa a passa para a nova dona. No editor também dá para vincular por mesa.
 
 Vínculo de pessoas às estações 2D fica em tabela própria (`seat2d_assignments`), separado das mesas do 3D.
 

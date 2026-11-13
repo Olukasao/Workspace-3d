@@ -6,12 +6,13 @@ Executadas em 12/11/2026 no ambiente descrito no fim deste documento. Os relató
 |---|---|---|
 | Tipagem (estrita) | `npm run typecheck` | ✅ sem erros |
 | Lint | `npm run lint` | ✅ sem erros |
-| Testes de cena, editor, desenho, API e presença | `npm test` | ✅ **76/76** (cena 8 · operações do editor 12 · desenho livre 6 · API 32 · presença, avatares e estilos 18) |
+| Testes de cena, editor, desenho, API e presença | `npm test` | ✅ **89/89** (cena 8 · operações do editor 12 · desenho livre 6 · API 32 · presença, avatares e estilos 18 · avatar personalizado 13, com geração real de modelo no servidor) |
 | Aceite no navegador real | `npm run e2e` | ✅ **20/20** com `?leve` e tempo limite de 60 s (275 s, 0 erros de página). Antes dessa correção oscilava entre 17 e 18 de 20 por lentidão da renderização por software, e não por defeito do produto (ver [continuar.md](continuar.md#instabilidade-do-e2e-investigada-em-13112026)). **Uma rodada só depois da correção**: falta repetir para confirmar a estabilidade |
 | glTF Validator (Khronos) | `npm run assets:validate` | ✅ 52 modelos, **0 erros**, 4 avisos (espaço tangente gerado) |
 | Construir a estrutura do zero | `npm run e2e:draw` | ✅ **7/7** (plano vazio → piso arrastado → 4 paredes ponto a ponto → janela e porta → esticar parede → publicar) |
 | Build de produção | `npm run build` | ✅ (blocos: app 231 KB, r3f 387 KB, three 684 KB; gzip 71 + 125 + 176 KB) |
-| Desempenho com 25 avatares | `npm run perf:avatars` | ✅ Estilo Ara (padrão): 32 FPS de mediana com a câmera próxima (mín. 8) e 30 com ela afastada, 900 texturas na GPU. Estilo MakeHuman: 37 e 49, 160 texturas. O Ara é mais pesado (ver [avatars-ara.md](avatars-ara.md#desempenho-com-25-avatares-npm-run-perfavatars)) |
+| Desempenho com 25 avatares | `npm run perf:avatars` | ✅ Estilo Ara (padrão): 25 a 32 FPS de mediana com a câmera próxima (mín. 5 a 8) e 30 a 35 com ela afastada, 900 texturas na GPU. Estilo MakeHuman: 37 e 49, 160 texturas. O Ara é mais pesado (ver [avatars-ara.md](avatars-ara.md#desempenho-com-25-avatares-npm-run-perfavatars)) |
+| Editor completo de avatar (Ara) | `npm run e2e:ara-editor` | ✅ **8/8**, em desenvolvimento e na versão compilada (`E2E_PROD=1`, sob a CSP de produção), 0 erros de página |
 | Clipping dos avatares | `npm run avatars:sheet` | ✅ 8 looks × 6 poses conferidos; 2 problemas corrigidos e 1 aceito (ver [avatars.md](avatars.md#validação-de-clipping)) |
 | Produção sob CSP | `npm run build && npm start` + navegador | ✅ sem violações no console; asset inexistente → 404 |
 | Caminho local | `npm run db:reset` e `npm run dev` | ✅ migração + seed; API, Vite e proxy respondendo |
@@ -99,6 +100,26 @@ No navegador real, com o mouse: esvazia o rascunho, arrasta um piso de 8 × 6 m 
 - **O diálogo roubava o foco a cada evento de presença.** O componente `Dialog` refazia o foco inicial sempre que o pai renderizava de novo, e isso tirava o cursor do campo enquanto a pessoa digitava. Também mandava "parou de digitar" 60 ms depois de "começou". Agora o foco só é ajustado ao abrir.
 - **Corrida no servidor de presença:** duas leituras simultâneas podiam criar dois estados para a mesma pessoa e perder a conexão dela.
 - **Versão que regredia:** depois de um `resync`, a versão voltava a 0 e o cliente descartava os eventos novos como atrasados. Agora a versão parte do contador global e nunca regride. Há teste em `tests/live.test.ts`.
+
+## Editor completo de avatar (`npm run e2e:ara-editor`)
+
+Duas sessões: A edita o próprio avatar, B observa o escritório.
+
+1. **Abre o editor:** 16 personagens prontos, abas Montar e Detalhado, seções de corpo, pele, cabelo, roupa e sapatos, miniaturas carregadas.
+2. **Mexer nos controles** (gênero, idade, peso, cabelo, cor) gera uma prévia nova no navegador, sem travar a tela.
+3. **Roupa:** conjunto pronto com cor e tecido; peças soltas validadas.
+4. **Detalhado:** 18 grupos de controles do rosto, rótulos em português, ajuste fino e "zerar".
+5. **Salvar:** o servidor gera o modelo; o estado vira "Salvo" e os parâmetros ficam gravados.
+6. **O colega vê** o personagem novo na Mesa 05 sem recarregar.
+7. **Cancelar** descarta a edição; recarregar a página traz o personagem salvo.
+8. **Recusas:** biquíni, arma e menor de 18 anos → 422.
+
+**Defeitos encontrados e corrigidos neste trabalho:**
+
+- **Corrida de carregamento no editor:** em desenvolvimento, o React monta o componente duas vezes e dispara duas leituras do avatar salvo. A segunda resposta, chegando depois de a pessoa já ter editado, sobrescrevia a edição. Agora só a leitura mais recente vale.
+- **Corpos todos iguais:** o `setup-assets` do Ara gera `targets.pack` vazio no Windows (barras invertidas nas chaves), e todos os personagens saíam com o mesmo corpo. Corrigido (ver [avatars-ara.md](avatars-ara.md)).
+- **Shader da pele não compilava** com os 34 morph targets que o Ara exporta (ANGLE/Direct3D 11). Os modelos finais mantêm só 5.
+- **Limite de uso** contava a partir do início da geração, que dura mais que o intervalo, e nunca disparava. Agora conta do fim.
 
 ## Correção: paredes piscando nos cantos
 

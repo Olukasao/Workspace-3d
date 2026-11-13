@@ -6,10 +6,10 @@
  *  - os visemas do rig apontam para os morph targets `viseme_*` (mapa em `MORPH_ALIAS`);
  *  - o headset é geometria original, montada na posição da cabeça deste personagem e presa ao osso `Head`.
  */
-import { Color, CatmullRomCurve3, CylinderGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, SphereGeometry, TubeGeometry, Vector3, type Bone, type Object3D, type SkinnedMesh } from 'three';
+import { Box3, Color, CatmullRomCurve3, CylinderGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, SphereGeometry, TubeGeometry, Vector3, type Bone, type Object3D, type SkinnedMesh } from 'three';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import type { AraAvatarConfig } from '../../../shared/avatarAra';
+import { isAraCustom, isAraPreset, type AraAvatarConfig } from '../../../shared/avatarAra';
 import type { BuiltAvatar } from './assets';
 
 export interface AraCharacter { id: string; name: string; gender: 'male' | 'female'; style: 'corporate' | 'casual'; file: string; lod1: string; tris: number; lod1Tris: number; height: number }
@@ -36,6 +36,33 @@ function loadGltf(rel: string): Promise<GLTF> {
     });
     p.catch(() => gltfs.delete(rel));
     gltfs.set(rel, p);
+  }
+  return p;
+}
+
+/** Prévias do editor (parâmetros ainda não salvos): o modelo gerado no navegador, guardado só em memória e só nesta aba. */
+const previewBuffers = new Map<string, ArrayBuffer>();
+export function registerPreviewModel(key: string, bytes: ArrayBuffer) {
+  previewBuffers.set(key, bytes);
+}
+export function dropPreviewModel(key: string) {
+  previewBuffers.delete(key);
+  gltfs.delete(`preview:${key}`);
+}
+export const araModelUrl = (model: string, lod: 0 | 1) => `/api/avatar/model/${model}/lod${lod}.glb`;
+
+/** Modelo de um personagem personalizado: a prévia local (se for uma) ou o que o servidor gerou (cookie da sessão, mesma origem). */
+function loadCustom(model: string, lod: 0 | 1): Promise<GLTF> {
+  const preview = previewBuffers.get(model);
+  const key = preview ? `preview:${model}` : `custom:${model}:${lod}`;
+  let p = gltfs.get(key);
+  if (!p) {
+    p = (preview ? loader.parseAsync(preview.slice(0), '') : loader.loadAsync(araModelUrl(model, lod))).then((g) => {
+      tuneMaterials(g.scene);
+      return g;
+    });
+    p.catch(() => gltfs.delete(key));
+    gltfs.set(key, p);
   }
   return p;
 }
@@ -134,12 +161,25 @@ function makeHeadset(headY: number, headZ: number): Group {
 export async function buildAraAvatar(cfg: AraAvatarConfig, lod: 0 | 1 = 0): Promise<BuiltAvatar> {
   const m = await loadAraManifest();
   const missing: string[] = [];
-  let ch = m.characters.find((c) => c.id === cfg.character);
-  if (!ch) {
-    missing.push(cfg.character);
-    ch = m.characters[0];
+  let g: GLTF;
+  let meshId: string;
+  let height: number;
+  if (isAraCustom(cfg) && cfg.model) {
+    g = await loadCustom(cfg.model, lod);
+    meshId = cfg.model;
+    height = new Box3().setFromObject(g.scene).getSize(new Vector3()).y;
+  } else {
+    // personagem pronto da galeria (padrão de quem ainda não personalizou); personalizado sem modelo cai no primeiro da galeria
+    const wanted = isAraPreset(cfg) ? cfg.character : '(sem modelo)';
+    let ch = m.characters.find((c) => c.id === wanted);
+    if (!ch) {
+      missing.push(wanted);
+      ch = m.characters[0];
+    }
+    g = await loadGltf(lod && ch.lod1 ? ch.lod1 : ch.file);
+    meshId = ch.id;
+    height = ch.height;
   }
-  const g = await loadGltf(lod && ch.lod1 ? ch.lod1 : ch.file);
   const root = cloneSkinned(g.scene) as Group;
   root.name = 'avatar';
   const bones: Record<string, Bone> = {};
@@ -150,7 +190,7 @@ export async function buildAraAvatar(cfg: AraAvatarConfig, lod: 0 | 1 = 0): Prom
     if (mesh.isMesh) {
       mesh.castShadow = lod === 0;
       mesh.frustumCulled = false; // o recorte é feito por avatar inteiro
-      mesh.name = ch!.id;
+      mesh.name = meshId;
       if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) morphMeshes.push(mesh);
     }
   });
@@ -166,7 +206,7 @@ export async function buildAraAvatar(cfg: AraAvatarConfig, lod: 0 | 1 = 0): Prom
     head.attach(headset); // segue a cabeça, mantendo a posição atual
   }
   return {
-    root, bones, morphMeshes, headset, skin: null, lod, height: ch.height, missing, morphAlias: MORPH_ALIAS,
+    root, bones, morphMeshes, headset, skin: null, lod, height, missing, morphAlias: MORPH_ALIAS,
     dispose() {
       root.removeFromParent();
     },

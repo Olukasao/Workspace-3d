@@ -5,6 +5,7 @@
  * - POST /api/live/typing     { state: 'start' | 'stop' } — só o booleano, do próprio usuário
  * - POST /api/live/call       { action: 'start' | 'end', speakingSignal?: boolean } — ciclo de atendimento (demo)
  * - POST /api/live/speaking   { speaking: boolean } — indicador booleano de fala (demo)
+ * - GET  /api/avatar/model/:model/lod0.glb|lod1.glb  modelo 3D gerado pelo servidor para um personagem personalizado (só da empresa)
  * - GET  /api/avatar/catalog  estilo ativo da empresa + galeria Ara 3D Gen + catálogo de peças do MakeHuman
  * - GET  /api/admin/avatar-style  estilo ativo e opções (admin); PUT { style } troca o estilo da empresa, ao vivo para todos
  * - GET  /api/avatar/me       aparência do próprio colaborador
@@ -13,14 +14,19 @@
  */
 import type { Router } from 'express';
 import { AVATAR_CATALOG, AVATAR_CATALOG_VERSION } from '../../shared/avatarCatalog';
-import { ARA_CHARACTERS, AVATAR_STYLES, AVATAR_STYLE_LABEL, defaultForStyle, isAvatarStyle, validateForStyle, type AnyAvatarConfig } from '../../shared/avatarAra';
+import { normalizeAraParams } from '../../shared/araCustom';
+import { AraBusyError } from '../araGen';
+import { ARA_CHARACTERS, AVATAR_STYLES, AVATAR_STYLE_LABEL, defaultForStyle, isAraCustom, isAvatarStyle, validateForStyle, type AnyAvatarConfig } from '../../shared/avatarAra';
 import type { AppContext } from '../app';
 import { currentUser, requireRole } from '../auth';
 import { one } from '../db/driver';
 import { HttpError, audit, correlationId, h } from '../http';
 
+const GEN_COOLDOWN_MS = 4000;
+
 export function liveRoutes(r: Router, ctx: AppContext) {
-  const { db, live, cfg } = ctx;
+  const { db, live, cfg, ara } = ctx;
+  const lastGen = new Map<string, number>(); // geração por pessoa: no máximo uma a cada poucos segundos
   const canSeePresence = (role: string) => role !== 'viewer';
 
   r.get('/live/stream', h(async (_req, res) => {
@@ -120,7 +126,23 @@ export function liveRoutes(r: Router, ctx: AppContext) {
     const style = await live.avatarStyle(user.companyId);
     const errors = validateForStyle(style, config);
     if (errors.length) throw new HttpError(422, 'invalid_avatar', 'A configuração do avatar tem itens fora do catálogo do estilo ativo.', { details: errors });
-    const json = JSON.stringify(config);
+    // personagem personalizado: o servidor normaliza os parâmetros e GERA o modelo 3D (nunca recebe modelo do cliente)
+    let final = config as AnyAvatarConfig;
+    if (isAraCustom(config)) {
+      const { params } = normalizeAraParams(config.custom);
+      // gerar é caro: no máximo um avatar novo a cada poucos segundos por pessoa (contado do fim da geração anterior)
+      if (!ara.has(user.companyId, params) && Date.now() - (lastGen.get(user.id) ?? 0) < GEN_COOLDOWN_MS) throw new HttpError(429, 'too_many_requests', 'Aguarde alguns segundos antes de salvar outro avatar.');
+      try {
+        const { model } = await ara.ensure(user.companyId, params);
+        lastGen.set(user.id, Date.now());
+        final = { v: config.v, style: 'ara3d', custom: params, model, headsetAlways: config.headsetAlways };
+      } catch (e) {
+        if (e instanceof AraBusyError) throw new HttpError(503, 'busy', e.message);
+        console.error('geração do avatar:', e);
+        throw new HttpError(500, 'avatar_generation_failed', 'Não foi possível gerar o seu avatar agora. Tente de novo.');
+      }
+    }
+    const json = JSON.stringify(final);
     const now = Date.now();
     const out = await db.tx(async (tx) => {
       const cur = await one<{ version: number }>(tx, 'SELECT version FROM avatar_choices WHERE employee_id = ? AND company_id = ? AND style = ?', [employeeId, user.companyId, style]);
@@ -130,10 +152,22 @@ export function liveRoutes(r: Router, ctx: AppContext) {
       else await tx.exec('INSERT INTO avatar_choices (employee_id, style, company_id, config_json, catalog_version, version, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)', [employeeId, style, user.companyId, json, AVATAR_CATALOG_VERSION, user.id, now]);
       return curVersion + 1;
     });
-    await live.appearanceChanged(user.companyId, employeeId, config, out);
+    await live.appearanceChanged(user.companyId, employeeId, final, out);
     await audit(db, { user, action: 'avatar.save', targetType: 'employee', targetId: employeeId, result: 'completed', mode: 'real', detail: { version: out }, correlationId: correlationId(resLocals) });
-    return { version: out, style, config, updatedAt: now };
+    return { version: out, style, config: final, updatedAt: now };
   };
+
+  // modelo 3D de um personagem personalizado: conteúdo endereçado por hash, lido só pela empresa dona
+  r.get('/avatar/model/:model/:file', h(async (req, res) => {
+    const user = currentUser(res);
+    const { model, file } = req.params;
+    const lod = file === 'lod0.glb' ? 0 : file === 'lod1.glb' ? 1 : null;
+    const path = lod === null || !/^[a-f0-9]{16}$/.test(model) ? null : ara.file(user.companyId, model, lod);
+    if (!path) throw new HttpError(404, 'not_found', 'Modelo não encontrado.');
+    res.setHeader('Content-Type', 'model/gltf-binary');
+    res.setHeader('Cache-Control', 'private, max-age=31536000, immutable');
+    res.sendFile(path);
+  }));
 
   r.put('/avatar/me', h(async (req, res) => {
     const user = currentUser(res);

@@ -9,11 +9,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { NodeIO, type Document } from '@gltf-transform/core';
-import { ALL_EXTENSIONS, EXTTextureWebP } from '@gltf-transform/extensions';
-import { dedup, prune, simplify, weld } from '@gltf-transform/functions';
-import { MeshoptSimplifier } from 'meshoptimizer';
-import sharp from 'sharp';
+import { newIO, optimizeLod0, optimizeLod1 } from './optimize';
 interface GalleryEntry { id: string; name: string; gender: 'male' | 'female'; style: 'corporate' | 'casual'; params: Record<string, unknown> }
 
 const ROOT = path.resolve(import.meta.dirname, '../..');
@@ -21,65 +17,8 @@ const RAW = path.join(ROOT, '.build-tools/ara-raw');
 const OUT = path.join(ROOT, 'public/assets/avatars-ara');
 const sha = (b: Uint8Array) => createHash('sha256').update(b).digest('hex');
 
-/** Morph targets mantidos: 34 alvos estouram o shader no driver de vídeo (ANGLE/D3D11); o rig só usa os visemas e o piscar. */
-const KEEP_MORPHS = ['viseme_aa', 'viseme_O', 'viseme_I', 'eyeBlinkLeft', 'eyeBlinkRight'];
-function trimMorphs(doc: Document) {
-  for (const mesh of doc.getRoot().listMeshes()) {
-    const names = ((mesh.getExtras() as { targetNames?: string[] }).targetNames ?? []) as string[];
-    const keep = names.map((n, i) => (KEEP_MORPHS.includes(n) ? i : -1)).filter((i) => i >= 0);
-    for (const prim of mesh.listPrimitives()) {
-      prim.listTargets().forEach((t, i) => {
-        if (!keep.includes(i)) {
-          prim.removeTarget(t);
-          t.dispose();
-        }
-      });
-    }
-    mesh.setExtras({ ...mesh.getExtras(), targetNames: keep.map((i) => names[i]) });
-    mesh.setWeights(keep.map(() => 0));
-  }
-}
-
-const BIG = /^(skin|eyes|hair)\b/i; // materiais que aparecem de perto: mais resolução
-
-async function textures(doc: Document, bigPx: number, smallPx: number) {
-  doc.createExtension(EXTTextureWebP).setRequired(false);
-  for (const tex of doc.getRoot().listTextures()) {
-    const img = tex.getImage();
-    if (!img) continue;
-    const mats = doc.getRoot().listMaterials().filter((m) => [m.getBaseColorTexture(), m.getNormalTexture(), m.getMetallicRoughnessTexture(), m.getEmissiveTexture(), m.getOcclusionTexture()].includes(tex));
-    const px = mats.some((m) => BIG.test(m.getName())) ? bigPx : smallPx;
-    const out = await sharp(Buffer.from(img)).resize(px, px, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 82, alphaQuality: 90 }).toBuffer();
-    tex.setImage(new Uint8Array(out)).setMimeType('image/webp');
-    const uri = tex.getURI();
-    if (uri) tex.setURI(uri.replace(/\.(png|jpe?g)$/i, '.webp'));
-  }
-}
-
-function stats(doc: Document) {
-  let tris = 0;
-  let morphs = 0;
-  let minY = Infinity;
-  let maxY = -Infinity;
-  for (const mesh of doc.getRoot().listMeshes()) {
-    for (const p of mesh.listPrimitives()) {
-      tris += (p.getIndices()?.getCount() ?? 0) / 3;
-      morphs = Math.max(morphs, p.listTargets().length);
-      const pos = p.getAttribute('POSITION');
-      if (pos) for (let i = 0; i < pos.getCount(); i++) {
-        const y = pos.getElement(i, [] as number[])[1];
-        minY = Math.min(minY, y);
-        maxY = Math.max(maxY, y);
-      }
-    }
-  }
-  const joints = doc.getRoot().listSkins()[0]?.listJoints().map((j) => j.getName()) ?? [];
-  return { tris: Math.round(tris), morphs, joints, height: +(maxY - minY).toFixed(3) };
-}
-
 async function main() {
-  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
-  await MeshoptSimplifier.ready;
+  const io = newIO();
   if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
   mkdirSync(path.join(OUT, 'lod1'), { recursive: true });
   const araCommit = (() => {
@@ -94,27 +33,10 @@ async function main() {
   const characters = [];
   let total = 0;
   for (const e of GALLERY) {
-    // LOD0
-    const d0 = await io.read(path.join(RAW, `${e.id}.medium.glb`));
-    trimMorphs(d0);
-    await textures(d0, 1024, 256);
-    await d0.transform(dedup(), prune());
-    const s0 = stats(d0);
-    if (s0.joints[0] !== 'Hips' || !s0.joints.includes('LeftHandIndex1') || s0.morphs !== KEEP_MORPHS.length) throw new Error(`${e.id}: esqueleto ou morphs inesperados (${s0.joints[0]}, ${s0.morphs} morphs)`);
-    const b0 = await io.writeBinary(d0);
+    const o0 = await optimizeLod0(io, readFileSync(path.join(RAW, `${e.id}.medium.glb`)));
+    const o1 = await optimizeLod1(io, readFileSync(path.join(RAW, `${e.id}.low.glb`)));
+    const [b0, b1, s0, s1] = [o0.bytes, o1.bytes, o0.stats, o1.stats];
     writeFileSync(path.join(OUT, `${e.id}.glb`), b0);
-    // LOD1: detalhe baixo, sem morphs, simplificado
-    const d1 = await io.read(path.join(RAW, `${e.id}.low.glb`));
-    for (const mesh of d1.getRoot().listMeshes()) for (const p of mesh.listPrimitives()) for (const t of p.listTargets()) { p.removeTarget(t); t.dispose(); }
-    await d1.transform(weld(), simplify({ simplifier: MeshoptSimplifier, ratio: 0.28, error: 0.006, lockBorder: true }));
-    // longe, só a cor importa: sem normal, rugosidade, oclusão nem emissivo (menos texturas na GPU e menos memória)
-    for (const m of d1.getRoot().listMaterials()) {
-      m.setNormalTexture(null).setOcclusionTexture(null).setMetallicRoughnessTexture(null).setEmissiveTexture(null);
-    }
-    await textures(d1, 512, 128);
-    await d1.transform(dedup(), prune());
-    const s1 = stats(d1);
-    const b1 = await io.writeBinary(d1);
     writeFileSync(path.join(OUT, 'lod1', `${e.id}.glb`), b1);
     files[`${e.id}.glb`] = { bytes: b0.byteLength, sha256: sha(b0), tris: s0.tris };
     files[`lod1/${e.id}.glb`] = { bytes: b1.byteLength, sha256: sha(b1), tris: s1.tris };

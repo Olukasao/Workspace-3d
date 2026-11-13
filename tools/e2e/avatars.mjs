@@ -99,22 +99,30 @@ await check('online: o avatar ocupa a cadeira da mesa vinculada (na outra sessã
   return `avatar em ${a.x}; ${a.z} (assento da Mesa 05), personagem ${a.items[0]}, mãos no teclado`;
 });
 
-await check('troca de personagem: salvar no "Meu avatar" aparece na outra sessão; escolha não salva fica só no preview', async () => {
+await check('personagem personalizado: salvar no "Meu avatar" gera o modelo no servidor e aparece na outra sessão; edição não salva fica só no preview', async () => {
   const before = (await otavioOn(B))[0].appearance;
   const current = (await otavioOn(B))[0].items[0];
   TARGET = current === 'ara-m2' ? 'ara-m6' : 'ara-m2';
   await A.click('[data-testid="my-avatar"]');
   await A.waitForSelector('[data-character]');
   assert((await A.locator('[data-character]').count()) === 16, 'galeria deve ter 16 personagens');
-  assert((await A.locator('img[src*="/thumbs/"]').first().evaluate((img) => img.complete && img.naturalWidth > 0)), 'miniatura não carregou');
-  await A.click(`[data-character="${TARGET}"]`);
+  const thumb = A.locator('img[src*="/thumbs/"]').first();
+  await thumb.scrollIntoViewIfNeeded();
+  await until(() => thumb.evaluate((img) => img.complete && img.naturalWidth > 0), 'miniatura carregada', 20000);
+  const wanted = TARGET;
+  await A.click(`.gallery-card[data-character="${wanted}"]`); // ponto de partida do editor completo
+  await A.locator('[data-slider="height"] input').fill('0.8');
   await A.waitForTimeout(2500);
   assert((await otavioOn(B))[0].appearance === before, 'escolha não salva vazou para a outra sessão');
+  await A.waitForFunction(() => !/Atualizando/.test(document.querySelector('[data-testid="preview-status"]')?.textContent ?? ''), null, { timeout: 90000 });
   await A.click('[data-testid="avatar-save"]');
-  await until(async () => (await otavioOn(B))[0]?.items?.includes(TARGET), `personagem ${TARGET} na sessão B`);
+  await A.waitForFunction(() => /Salvo \(versão/.test(document.querySelector('[data-testid="preview-status"]')?.textContent ?? ''), null, { timeout: 120000 });
+  TARGET = (await A.evaluate(async () => (await (await fetch('/api/avatar/me')).json()).config.model)); // o servidor gerou o modelo: o identificador dele aparece na cena
+  assert(/^[a-f0-9]{16}$/.test(TARGET), 'sem modelo gerado');
+  await until(async () => (await otavioOn(B))[0]?.items?.includes(TARGET), `modelo ${TARGET} na sessão B`, 90000);
   await B.waitForTimeout(2000);
   await shot(B, '02-personagem');
-  return `${TARGET} visível na sessão B sem recarregar`;
+  return `modelo ${TARGET} (a partir de ${wanted}, mais alto) visível na sessão B sem recarregar`;
 });
 
 await check('digitação no chat interno ativa a animação; parar volta ao trabalho', async () => {

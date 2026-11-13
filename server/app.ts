@@ -6,6 +6,7 @@ import type { Db } from './db/driver';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from './db/seed';
 import { SESSION_COOKIE, currentUser, login, logout, readCookie, requireAuth, sessionCookie } from './auth';
 import { HttpError, correlation, errorHandler, h, requireAppHeader } from './http';
+import { AraGenerator } from './araGen';
 import { DemoCallSource, LiveHub } from './live';
 import { Integrations } from './providers';
 import { ProviderNotConfigured, ProviderUnavailable } from './providers/types';
@@ -21,12 +22,14 @@ export interface AppContext {
   integrations: Integrations;
   /** Presença ao vivo (avatares): conexões, digitação, atendimento. */
   live: LiveHub;
+  /** Gera (em thread própria) e guarda os modelos 3D dos personagens personalizados do estilo Ara 3D Gen. */
+  ara: AraGenerator;
   /** Apaga do disco os documentos de impressão vencidos (retenção). */
   purgePrintFiles?: () => Promise<number>;
 }
 
 export function createApp(cfg: Config, db: Db): { app: Express; ctx: AppContext } {
-  const ctx: AppContext = { cfg, db, integrations: new Integrations(cfg, db), live: new LiveHub(db, cfg.live, new DemoCallSource(), cfg.demoMode) };
+  const ctx: AppContext = { cfg, db, integrations: new Integrations(cfg, db), live: new LiveHub(db, cfg.live, new DemoCallSource(), cfg.demoMode), ara: new AraGenerator(path.join(ROOT, 'public/assets/ara-data'), path.join(cfg.dataDir, 'avatar-models')) };
   ctx.live.start();
   const app = express();
   app.disable('x-powered-by');

@@ -6,36 +6,19 @@
 import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { RotateCcw, Save } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { ARA_CHARACTERS, isAraConfig, validateForStyle, type AnyAvatarConfig, type AvatarStyle } from '../../shared/avatarAra';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { validateForStyle, type AnyAvatarConfig, type AvatarStyle } from '../../shared/avatarAra';
 import { AVATAR_CATALOG, FACES, LOOKS, PALETTES, SKIN_TONES, switchBase, type AvatarBase, type AvatarConfig, type AvatarSlot } from '../../shared/avatarCatalog';
 import type { SessionUser } from '../../shared/types';
 import { api, ApiError, errorText } from '../api';
 import { Avatar } from '../three/avatar/Avatar';
-import { STATION, type PoseState } from '../three/avatar/rig';
+import { type PoseState } from '../three/avatar/rig';
+import { Station } from './Station';
 import { toast } from '../ui';
 
 const SKIN_SWATCH: Record<string, string> = { 'pele-1': '#e8c4a8', 'pele-2': '#d9b08c', 'pele-3': '#c99a76', 'pele-4': '#7a4b30', 'pele-5': '#5a3624' };
 
-function Station() {
-  const c = (w: number, h: number, d: number, x: number, y: number, z: number, color: string) => (
-    <mesh position={[x, y, z]} castShadow receiveShadow>
-      <boxGeometry args={[w, h, d]} />
-      <meshStandardMaterial color={color} roughness={0.7} />
-    </mesh>
-  );
-  return (
-    <group>
-      {c(1.4, 0.03, 0.7, 0, STATION.deskHeight - 0.015, 0.72, '#c8a57a')}
-      {c(0.44, 0.02, 0.15, 0, STATION.deskHeight + 0.01, STATION.keyboardZ + 0.04, '#e6e8eb')}
-      {c(0.6, 0.36, 0.03, 0, STATION.deskHeight + 0.22, STATION.monitorZ + 0.1, '#16181c')}
-      {c(0.48, 0.06, 0.46, 0, STATION.seatHeight - 0.03, -0.04, '#3b4048')}
-      {c(0.46, 0.5, 0.05, 0, STATION.seatHeight + 0.3, -0.29, '#3b4048')}
-    </group>
-  );
-}
-
-export function AvatarEditor({ user }: { user: SessionUser }) {
+function MakeHumanEditor({ user }: { user: SessionUser }) {
   const [saved, setSaved] = useState<{ config: AnyAvatarConfig; version: number; saved: boolean; style: AvatarStyle } | null>(null);
   const [draftAny, setDraft] = useState<AnyAvatarConfig | null>(null);
   const [pose, setPose] = useState<'stand' | 'sit'>('stand');
@@ -58,8 +41,7 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
   const errors = draftAny && saved ? validateForStyle(saved.style, draftAny) : [];
   if (err && !draftAny) return <div className="page"><div className="notice warn">{err}</div></div>;
   if (!draftAny || !saved) return <div className="loading">Carregando seu avatar…</div>;
-  const ara = isAraConfig(draftAny) ? draftAny : null;
-  // `draft` só é usado nos controles do estilo MakeHuman (renderizados apenas quando `ara` é nulo)
+  // este editor só roda no estilo MakeHuman: a aparência é sempre uma AvatarConfig
   const draft = draftAny as AvatarConfig;
 
   const set = (patch: Partial<AvatarConfig>) => setDraft({ ...draft, ...patch });
@@ -142,30 +124,6 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
           {err && <div className="notice bad" role="alert">{err}</div>}
           {errors.length > 0 && <div className="notice warn">{errors.join(' ')}</div>}
         </div>
-        {ara && (
-          <div className="side-body" data-style="ara3d">
-            {(['male', 'female'] as const).map((g) => (
-              <div className="stack" key={g}>
-                <h3>{g === 'male' ? 'Personagens masculinos' : 'Personagens femininos'}</h3>
-                <div className="gallery-grid" role="radiogroup" aria-label={g === 'male' ? 'Personagens masculinos' : 'Personagens femininos'}>
-                  {ARA_CHARACTERS.filter((c) => c.gender === g).map((c) => (
-                    <button key={c.id} className="gallery-card" role="radio" aria-checked={ara.character === c.id} aria-pressed={ara.character === c.id} data-character={c.id} onClick={() => setDraft({ ...ara, character: c.id })}>
-                      <img src={`/assets/avatars-ara/thumbs/${c.id}.webp`} alt="" width={90} height={120} loading="lazy" />
-                      <span>{c.name}</span>
-                      <span className="muted">{c.style === 'casual' ? 'casual' : 'corporativo'}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-            <div className="stack">
-              <h3>Acessórios</h3>
-              <label className="check"><input type="checkbox" checked={ara.headsetAlways} onChange={(e) => setDraft({ ...ara, headsetAlways: e.target.checked })} /> Usar o headset sempre (ele entra sozinho durante atendimentos)</label>
-              <p className="muted">Estilo de avatar escolhido pelo administrador da empresa: Ara 3D Gen (personagens prontos).</p>
-            </div>
-          </div>
-        )}
-        {!ara && (
         <div className="side-body">
           <div className="stack">
             <h3>Corpo-base</h3>
@@ -225,8 +183,27 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
             <label className="check"><input type="checkbox" checked={draft.headsetAlways} onChange={(e) => set({ headsetAlways: e.target.checked })} /> Usar o headset sempre (ele entra sozinho durante atendimentos)</label>
           </div>
         </div>
-        )}
       </aside>
     </div>
   );
+}
+
+const AraEditor = lazy(() => import('./ara/AraEditor').then((m) => ({ default: m.AraEditor })));
+
+/** "Meu avatar": o editor depende do estilo de avatar que o administrador escolheu para a empresa. */
+export function AvatarEditor({ user }: { user: SessionUser }) {
+  const [style, setStyle] = useState<AvatarStyle | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    api.get<{ style: AvatarStyle }>('/api/avatar/me').then((r) => setStyle(r.style), (e) => setErr(errorText(e)));
+  }, []);
+  if (err) return <div className="page"><div className="notice warn">{err}</div></div>;
+  if (!style) return <div className="loading">Carregando seu avatar…</div>;
+  if (style === 'ara3d')
+    return (
+      <Suspense fallback={<div className="loading">Carregando o editor de avatar…</div>}>
+        <AraEditor user={user} />
+      </Suspense>
+    );
+  return <MakeHumanEditor user={user} />;
 }

@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generatedAt": "2026-11-13T11:25:25.888Z",
+ "generatedAt": "2026-11-13T12:21:25.629Z",
  "units": "m",
  "upAxis": "Y",
  "front": "+Z",
@@ -24,9 +24,9 @@
    "style": "corporate",
    "file": "ara-m1.glb",
    "lod1": "lod1/ara-m1.glb",
-   "tris": 54744,
-   "lod1Tris": 14672,
-   "height": 1.692,
+   "tris": 55486,
+   "lod1Tris": 15198,
+   "height": 1.907,
    "params": {
     "outfit": "set_suit_tie",
     "hair": "short04",
@@ -44,9 +44,9 @@
    "style": "corporate",
    "file": "ara-m2.glb",
    "lod1": "lod1/ara-m2.glb",
-   "tris": 55846,
-   "lod1Tris": 14440,
-   "height": 1.705,
+   "tris": 55914,
+   "lod1Tris": 14462,
+   "height": 1.973,
    "params": {
     "outfit": "male_elegantsuit01",
     "hair": "short01",
@@ -65,8 +65,8 @@
    "file": "ara-m3.glb",
    "lod1": "lod1/ara-m3.glb",
    "tris": 37916,
-   "lod1Tris": 8076,
-   "height": 1.71,
+   "lod1Tris": 8218,
+   "height": 1.641,
    "params": {
     "outfit": "male_casualsuit03",
     "hair": "short02",
@@ -85,8 +85,8 @@
    "file": "ara-m4.glb",
    "lod1": "lod1/ara-m4.glb",
    "tris": 39938,
-   "lod1Tris": 8528,
-   "height": 1.691,
+   "lod1Tris": 8588,
+   "height": 1.839,
    "params": {
     "outfit": "male_casualsuit05",
     "hair": "short03",
@@ -105,8 +105,8 @@
    "file": "ara-m5.glb",
    "lod1": "lod1/ara-m5.glb",
    "tris": 47396,
-   "lod1Tris": 11690,
-   "height": 1.713,
+   "lod1Tris": 11836,
+   "height": 1.744,
    "params": {
     "outfit": "male_casualsuit01",
     "hair": "afro01",
@@ -124,9 +124,9 @@
    "style": "corporate",
    "file": "ara-m6.glb",
    "lod1": "lod1/ara-m6.glb",
-   "tris": 68242,
-   "lod1Tris": 20550,
-   "height": 1.692,
+   "tris": 70304,
+   "lod1Tris": 22044,
+   "height": 1.751,
    "params": {
     "outfit": "male_elegantsuit01",
     "hair": "short04",
@@ -144,9 +144,9 @@
    "style": "casual",
    "file": "ara-m7.glb",
    "lod1": "lod1/ara-m7.glb",
-   "tris": 48538,
-   "lod1Tris": 12352,
-   "height": 1.7,
+   "tris": 48502,
+   "lod1Tris": 12402,
+   "height": 1.773,
    "params": {
     "outfit": "none",
     "hair": "short01",
@@ -164,9 +164,9 @@
    "style": "corporate",
    "file": "ara-m8.glb",
    "lod1": "lod1/ara-m8.glb",
-   "tris": 51424,
-   "lod1Tris": 12350,
-   "height": 1.687,
+   "tris": 51582,
+   "lod1Tris": 12570,
+   "height": 1.754,
    "params": {
     "outfit": "set_suit_tie",
     "hair": "short04",
@@ -184,9 +184,9 @@
    "style": "corporate",
    "file": "ara-f1.glb",
    "lod1": "lod1/ara-f1.glb",
-   "tris": 42826,
-   "lod1Tris": 10352,
-   "height": 1.73,
+   "tris": 42766,
+   "lod1Tris": 10426,
+   "height": 1.854,
    "params": {
     "outfit": "female_elegantsuit01",
     "hair": "bob02",
@@ -204,9 +204,9 @@
    "style": "corporate",
    "file": "ara-f2.glb",
    "lod1": "lod1/ara-f2.glb",
-   "tris": 54656,
-   "lod1Tris": 14528,
-   "height": 1.725,
+   "tris": 54550,
+   "lod1Tris": 14698,
+   "height": 1.721,
    "params": {
     "outfit": "set_pantsuit",
     "hair": "long01",
@@ -224,9 +224,9 @@
    "style": "corporate",
    "file": "ara-f3.glb",
    "lod1": "lod1/ara-f3.glb",
-   "tris": 55516,
-   "lod1Tris": 14316,
-   "height": 1.729,
+   "tris": 55314,
+   "lod1Tris": 14338,
+   "height": 1.603,
    "params": {
     "outfit": "set_pantsuit",
     "hair": "ponytail01",
@@ -244,9 +244,9 @@
    "style": "casual",
    "file": "ara-f4.glb",
    "lod1": "lod1/ara-f4.glb",
-   "tris": 44246,
-   "lod1Tris": 11324,
-   "height": 1.688,
+   "tris": 43936,
+   "lod1Tris": 11562,
+   "height": 1.498,
    "params": {
     "outfit": "none",
     "hair": "long01",
@@ -264,9 +264,9 @@
    "style": "casual",
    "file": "ara-f5.glb",
    "lod1": "lod1/ara-f5.glb",
-   "tris": 53998,
-   "lod1Tris": 15736,
-   "height": 1.7,
+   "tris": 53948,
+   "lod1Tris": 15886,
+   "height": 1.628,
    "params": {
     "outfit": "none",
     "hair": "braid01",
@@ -284,9 +284,9 @@
    "style": "corporate",
    "file": "ara-f6.glb",
    "lod1": "lod1/ara-f6.glb",
-   "tris": 58638,
-   "lod1Tris": 14844,
-   "height": 1.737,
+   "tris": 58540,
+   "lod1Tris": 14958,
+   "height": 1.748,
    "params": {
     "outfit": "set_pantsuit",
     "hair": "bob01",
@@ -304,9 +304,9 @@
    "style": "corporate",
    "file": "ara-f7.glb",
    "lod1": "lod1/ara-f7.glb",
-   "tris": 52412,
-   "lod1Tris": 13418,
-   "height": 1.73,
+   "tris": 52194,
+   "lod1Tris": 13504,
+   "height": 1.606,
    "params": {
     "outfit": "set_pantsuit",
     "hair": "bob02",
@@ -324,9 +324,9 @@
    "style": "casual",
    "file": "ara-f8.glb",
    "lod1": "lod1/ara-f8.glb",
-   "tris": 52588,
-   "lod1Tris": 14178,
-   "height": 1.699,
+   "tris": 52498,
+   "lod1Tris": 14362,
+   "height": 1.529,
    "params": {
     "outfit": "none",
     "hair": "long01",
@@ -340,164 +340,164 @@
  ],
  "files": {
   "ara-m1.glb": {
-   "bytes": 2558616,
-   "sha256": "07b74e872a391bc60944a1665ee907c7367f3b44ab6330ebfccd29ee91b817b3",
-   "tris": 54744
+   "bytes": 2759776,
+   "sha256": "7ebaad88b1a2f8916fd1c5dc81c44c894ea952ee02351578a804357abe12bec3",
+   "tris": 55486
   },
   "lod1/ara-m1.glb": {
-   "bytes": 842316,
-   "sha256": "4235e7765818e6b6aa96b70ae479b789f5a09331623db251fe95fa0e172c45b9",
-   "tris": 14672
+   "bytes": 865232,
+   "sha256": "37ee39e9cf93c460bfc1946c0b16d8f35546d7e39aeff8af8b336cf350a1a33a",
+   "tris": 15198
   },
   "ara-m2.glb": {
-   "bytes": 2750420,
-   "sha256": "fb7326d2c83cead78076cd9df03bbe54d8023f3db6ea9f511eabb2b39eecdfc7",
-   "tris": 55846
+   "bytes": 3027012,
+   "sha256": "c64dc61dd49a02254b00d66c79ab291b1d5027227473783889cecbddbfa9d2a2",
+   "tris": 55914
   },
   "lod1/ara-m2.glb": {
-   "bytes": 883492,
-   "sha256": "bf709b8bcffde1130f53ff71f81a24ffaed47f6db233069e64a9c7c810198559",
-   "tris": 14440
+   "bytes": 884048,
+   "sha256": "db61493bb073b0b7b01e9abb2682ee187379da6c39acd86745fe60bc5b12d46d",
+   "tris": 14462
   },
   "ara-m3.glb": {
-   "bytes": 1779720,
-   "sha256": "cac47925db53391f4a2fff0e4a057303d5d030ea6026aa6935bc74e44ae5d72d",
+   "bytes": 1994980,
+   "sha256": "b6d8a2cdccc9b90664bbee2d90980aeedfbb2f257f9e84f8a6d13dd32a3a18b2",
    "tris": 37916
   },
   "lod1/ara-m3.glb": {
-   "bytes": 484368,
-   "sha256": "1a937b82ff349664eb6b09d60f495a2da6126c8976d60ff77988184571205e76",
-   "tris": 8076
+   "bytes": 489620,
+   "sha256": "da99fe4e28eb0b3a6e4236047bba115fdcccf4c6c3362ae6e0f831382a965c73",
+   "tris": 8218
   },
   "ara-m4.glb": {
-   "bytes": 1882016,
-   "sha256": "791234291ac96fe3e3102a7416303b44e3bab594658b5f6910b8c10fe83be37b",
+   "bytes": 2081252,
+   "sha256": "94778821ee80e998cdfdaeab88d2f4d4bc905d29f873e8a426557ff4222c61dc",
    "tris": 39938
   },
   "lod1/ara-m4.glb": {
-   "bytes": 517924,
-   "sha256": "12d35fccd57d895e984be61b35a85c62572793367e27122438b860d5c9bbf2fc",
-   "tris": 8528
+   "bytes": 520176,
+   "sha256": "5c9ebde42cc2d1625e6b0a22d24bf9639a1040a0219ceb8d34454bb8bd4467a5",
+   "tris": 8588
   },
   "ara-m5.glb": {
-   "bytes": 2431616,
-   "sha256": "961cf04cda0a0874c3cef04aa75054d827d7ad7ec5618769276ec39001f149af",
+   "bytes": 2620660,
+   "sha256": "c40abe880c1471ee43965d276e6cd492663ed8a251725733686ee23795e50bb0",
    "tris": 47396
   },
   "lod1/ara-m5.glb": {
-   "bytes": 740908,
-   "sha256": "5abfcadf5de4c1ad1f52ddfef2023cc8fcf4ab9491fbaeeccffdcc0be1fb5676",
-   "tris": 11690
+   "bytes": 745608,
+   "sha256": "e9b76e71e6aefc02a09f46563d6a325af8ab65abf7ea0d583edbccf475ef3585",
+   "tris": 11836
   },
   "ara-m6.glb": {
-   "bytes": 3749528,
-   "sha256": "1ec6d7ef679e0aab2c24320afd7516adfe7d7fb793477eb8e9194613abdb307a",
-   "tris": 68242
+   "bytes": 4828812,
+   "sha256": "7f61da12ec46b74c136ac9cf75e661a01ce2771e3360ed796bf31b5e46a89d75",
+   "tris": 70304
   },
   "lod1/ara-m6.glb": {
-   "bytes": 1369580,
-   "sha256": "9d09ffa2521e0cc7ac6cbef34a9eaa6c5cf96061fe6e4c8851d7e6b136d877be",
-   "tris": 20550
+   "bytes": 1482752,
+   "sha256": "711e4a45c80e0122b9954f11b7a9fbf0aa00fa53fcdeab61d2d9cd71ec63d75a",
+   "tris": 22044
   },
   "ara-m7.glb": {
-   "bytes": 2449804,
-   "sha256": "e8ab9da93dcb06fe9afe12240a7a100bc40acdd2eec7a265fb2044c7e571914e",
-   "tris": 48538
+   "bytes": 2693080,
+   "sha256": "7289fe1870efa98d379e842588191e0cfe7539393dd1c5da738a330ef47dccd3",
+   "tris": 48502
   },
   "lod1/ara-m7.glb": {
-   "bytes": 786072,
-   "sha256": "2ac3f70a77d91c74dcaa22ce42d4cdc50809b10d69f661c1e95ef4d76bf9435f",
-   "tris": 12352
+   "bytes": 788604,
+   "sha256": "089715658965b8e087d36bf4e4646b811e5e00208522b3177911e51879800e7b",
+   "tris": 12402
   },
   "ara-m8.glb": {
-   "bytes": 2364004,
-   "sha256": "dc1730715b2016a17c5e59057b23488f68fa44bb5f47c2eccdd10b9cb3fd3555",
-   "tris": 51424
+   "bytes": 2537480,
+   "sha256": "35acf4b6c861cab2ff30723eebd7f9d1fc918f16cf3dd1eeb7a1a56b7be2b134",
+   "tris": 51582
   },
   "lod1/ara-m8.glb": {
-   "bytes": 712620,
-   "sha256": "6bb6cbe671afe3fe4f873e363ad6d77a7968fca52481424dc35f30af3095c043",
-   "tris": 12350
+   "bytes": 719516,
+   "sha256": "137c69bb40e982e253a1547988c75aa0e355481e33dc0a00515329c768659a6f",
+   "tris": 12570
   },
   "ara-f1.glb": {
-   "bytes": 1996548,
-   "sha256": "c36d278ffab72b5df9757e7bb29d579e6ba4997bc2ea25fd55f757c120fd9de9",
-   "tris": 42826
+   "bytes": 2228116,
+   "sha256": "172bc8cce82397a56c7c405bcc45aecf1e2aa4ea5e2bda1ba5cbf5202e7993c8",
+   "tris": 42766
   },
   "lod1/ara-f1.glb": {
-   "bytes": 621928,
-   "sha256": "f2e44f81064a2de992279f3e88551a415f6f4cf8d417a90d5f7034871129eec0",
-   "tris": 10352
+   "bytes": 623892,
+   "sha256": "3a62f9877f89d0d8f6409073b22b1467a2fea6828f148163ee68f36a5af5ca3d",
+   "tris": 10426
   },
   "ara-f2.glb": {
-   "bytes": 2470464,
-   "sha256": "b430579e13b2b6887fd3990f016aa267a112731ff68e395c7e5cbdfe18c08215",
-   "tris": 54656
+   "bytes": 2654628,
+   "sha256": "597526b36e4f68a98d2327ed8bb3bfec477e98d4d5139d4c70afdc0ce23a9efd",
+   "tris": 54550
   },
   "lod1/ara-f2.glb": {
-   "bytes": 808928,
-   "sha256": "11a996dfe3beab0a8a2b2d6a989adf1d77105d5bcb92f5e241b02a1bb9ebd2b7",
-   "tris": 14528
+   "bytes": 814124,
+   "sha256": "1d0167810862a47f15dcf785d7e2af46903bcb744239c29319d6f815d2fbebe8",
+   "tris": 14698
   },
   "ara-f3.glb": {
-   "bytes": 2660436,
-   "sha256": "d268f72a7432f0cf91dc68841484aa33882d5e1391b5a2f6be0773df9ae8105d",
-   "tris": 55516
+   "bytes": 2844480,
+   "sha256": "92c818963c1526633ec8ad549505c4b8b0597e0a61f473f71df46ba592a458f7",
+   "tris": 55314
   },
   "lod1/ara-f3.glb": {
-   "bytes": 859116,
-   "sha256": "239395ae049f1f37511ee237a7a8649edcd1caf08fd2802fb116feecd218a62d",
-   "tris": 14316
+   "bytes": 857708,
+   "sha256": "729121ef3ab214948abfa31cd9ed7c5f27219ea6493565cbf6e261a272fa7ccd",
+   "tris": 14338
   },
   "ara-f4.glb": {
-   "bytes": 2043692,
-   "sha256": "fd4622317a35a2c34a975319f43918490027e9d6788db382b156b4ff6b4e7085",
-   "tris": 44246
+   "bytes": 2220384,
+   "sha256": "83fbca19356ad4f9f3e82ff89d3048bb4009575831e2028be34575a67eda6a2f",
+   "tris": 43936
   },
   "lod1/ara-f4.glb": {
-   "bytes": 670816,
-   "sha256": "ba61025abd97aa45169ed47a8ca7b369177aefd5c002725df5c92af5b3801baf",
-   "tris": 11324
+   "bytes": 678720,
+   "sha256": "ce8823c2820bb7b1dc7b0a1e4b000fbc18fa51962e9f69c239d8d5ce45c5899c",
+   "tris": 11562
   },
   "ara-f5.glb": {
-   "bytes": 2385084,
-   "sha256": "60b43d336150993c368548382e27c2674b276621b4706d4d286c09260babb926",
-   "tris": 53998
+   "bytes": 2573560,
+   "sha256": "fc5508ad7048c8ba6d40ac54bd845e2623c1dfcb55a3a0a5f4fba7c46ef6c84a",
+   "tris": 53948
   },
   "lod1/ara-f5.glb": {
-   "bytes": 864040,
-   "sha256": "023e336a03ee93213d8005d1c73d9de6d9bea3f45867300455c31def3841106b",
-   "tris": 15736
+   "bytes": 868424,
+   "sha256": "9d7d7ab97f381fbb56f464c3cae7122daf88a0a13a467c7f9c6f74edaba7a1fe",
+   "tris": 15886
   },
   "ara-f6.glb": {
-   "bytes": 2638800,
-   "sha256": "4ed0bff9acfa99a138f0f2ba5f29de1b551e65b5d1141e110f8c7f2105e03c0a",
-   "tris": 58638
+   "bytes": 2789048,
+   "sha256": "920e5b9756f33cb77ad31dbcafff6a9bed7dca449da7a0a80408984b657bce7f",
+   "tris": 58540
   },
   "lod1/ara-f6.glb": {
-   "bytes": 818648,
-   "sha256": "e787e80231d264070d127f2e63ffd7f30a239f09a55d761ff1513716ebf615a3",
-   "tris": 14844
+   "bytes": 822036,
+   "sha256": "7dbd601d45dc1f6580a3b9a9f2789b07ab7c78876c3d2d3851a0df0d7bd0021e",
+   "tris": 14958
   },
   "ara-f7.glb": {
-   "bytes": 2416696,
-   "sha256": "997492f112ac9e004a6352000fff21fb8d1d165eb77b347c355031fdbfd03f3f",
-   "tris": 52412
+   "bytes": 2606608,
+   "sha256": "cec68b65f33cd7567cd34a6c7b29249bbf75b1d23b5e7a8adfee4d7828dbc8cd",
+   "tris": 52194
   },
   "lod1/ara-f7.glb": {
-   "bytes": 758312,
-   "sha256": "0b0bc63c8f1cfdb2fb5bb8b89a17a3737fc0db902145cf22487bdc7c86feb782",
-   "tris": 13418
+   "bytes": 759936,
+   "sha256": "4719a8263f66b4f1bbe8bf9fca06bd0275d1b9d72d4ef8ab17c9a5369e88033f",
+   "tris": 13504
   },
   "ara-f8.glb": {
-   "bytes": 2400116,
-   "sha256": "cf6c0f18f979714894af626cb6740c9a0573f8a4926efbeb4ef28c9cf139c92a",
-   "tris": 52588
+   "bytes": 2584860,
+   "sha256": "0cb27131e6a8f3b4048623559f300582cee3b67dfc1ea82d29dc22b3bf3d40a8",
+   "tris": 52498
   },
   "lod1/ara-f8.glb": {
-   "bytes": 808864,
-   "sha256": "a844cddd0b57c1ffe5071ed0b3f558856fc3c474095c207f788067d91743157e",
-   "tris": 14178
+   "bytes": 815036,
+   "sha256": "fefbf69b99506d16b893c0f5c310e4b42f188e262ccda04062b8e6646a07eefb",
+   "tris": 14362
   }
  }
 }

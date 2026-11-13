@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AVATAR_CATALOG, LOOKS, defaultAvatar, switchBase, validateAvatar, type AvatarConfig } from '../shared/avatarCatalog';
-import { ARA_CHARACTERS, defaultAraAvatar, validateAraAvatar, validateForStyle, type AraAvatarConfig } from '../shared/avatarAra';
+import { ARA_CHARACTERS, defaultAraAvatar, validateAraAvatar, validateForStyle, type AraPresetConfig } from '../shared/avatarAra';
 import { ADMIN, Client, OPERATOR, OTHER_ADMIN, VIEWER, startServer, type TestServer } from './helpers';
 
 /** Lê eventos SSE de /api/live/stream com a sessão do cliente. */
@@ -147,7 +147,7 @@ describe('estilo de avatar da empresa (Ara 3D Gen padrão; MakeHuman opcional do
     const info = (await admin.get<{ style: string; options: Array<{ id: string }> }>('/api/admin/avatar-style')).body;
     expect(info.style).toBe('ara3d');
     expect(info.options.map((o) => o.id)).toEqual(['ara3d', 'makehuman']);
-    const mine = (await operator.get<{ style: string; config: AraAvatarConfig; saved: boolean }>('/api/avatar/me')).body;
+    const mine = (await operator.get<{ style: string; config: AraPresetConfig; saved: boolean }>('/api/avatar/me')).body;
     expect(mine.style).toBe('ara3d');
     expect(mine.saved).toBe(false);
     expect(validateAraAvatar(mine.config)).toEqual([]);
@@ -165,7 +165,7 @@ describe('estilo de avatar da empresa (Ara 3D Gen padrão; MakeHuman opcional do
   });
 
   it('salvar no estilo Ara: personagem da galeria vale; personagem inexistente e configuração de outro estilo são recusados', async () => {
-    const mine = (await operator.get<{ version: number; config: AraAvatarConfig }>('/api/avatar/me')).body;
+    const mine = (await operator.get<{ version: number; config: AraPresetConfig }>('/api/avatar/me')).body;
     const ok = await operator.put<{ version: number; style: string }>('/api/avatar/me', { config: { ...mine.config, character: 'ara-f2' }, baseVersion: mine.version });
     expect(ok.status).toBe(200);
     expect(ok.body.style).toBe('ara3d');
@@ -191,7 +191,7 @@ describe('estilo de avatar da empresa (Ara 3D Gen padrão; MakeHuman opcional do
       expect((await person(admin, ALINE)).status).toBe('online'); // a conexão aberta continua contando depois da troca
       expect((await admin.put('/api/admin/avatar-style', { style: 'ara3d' })).status).toBe(200);
       await watcher.waitFor((e) => e.event === 'snapshot' && e.data.avatarStyle === 'ara3d' && e !== snap0);
-      expect((await operator.get<{ config: AraAvatarConfig }>('/api/avatar/me')).body.config.character).toBe('ara-f2'); // a escolha do Ara continua lá
+      expect((await operator.get<{ config: AraPresetConfig }>('/api/avatar/me')).body.config.character).toBe('ara-f2'); // a escolha do Ara continua lá
       expect((await person(admin, ALINE)).status).toBe('online');
     } finally {
       await admin.put('/api/admin/avatar-style', { style: 'ara3d' });

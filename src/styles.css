@@ -203,3 +203,26 @@ iframe.preview { width: 100%; height: 420px; border: 1px solid var(--line); bord
 .gallery-card img { width: 90px; height: 120px; object-fit: cover; border-radius: 6px; background: #eef1f5; }
 .gallery-card[aria-pressed='true'] { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue) inset; }
 .gallery-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* editor completo do estilo Ara 3D Gen */
+.slider-row { display: grid; grid-template-columns: minmax(96px, 150px) 1fr 44px auto; align-items: center; gap: 8px; font-size: 12px; padding: 2px 0; }
+.slider-row .slider-label { color: var(--ink-2); }
+.slider-row input[type='range'] { width: 100%; accent-color: var(--blue); }
+.slider-row output { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-3); }
+.color-field { display: grid; gap: 4px; font-size: 12px; padding: 2px 0; }
+.color-field .swatches { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.color-field input[type='color'] { width: 28px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; }
+.opt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px; }
+.opt-card { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); cursor: pointer; font: inherit; font-size: 11px; text-align: center; color: var(--ink); }
+.opt-card.text { padding: 8px 6px; }
+.opt-card img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--panel-2); }
+.opt-card[aria-pressed='true'] { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue) inset; background: var(--blue-2); }
+.opt-card:focus-visible, .gallery-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.ara-groups details { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; background: var(--panel); }
+.ara-groups summary { cursor: pointer; font-weight: 600; font-size: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ara-groups summary .count { font-weight: 400; color: var(--ink-3); }
+.preview-status { font-size: 12px; color: var(--ink-3); display: inline-flex; align-items: center; gap: 6px; }
+.preview-status.busy::before { content: ''; width: 10px; height: 10px; border: 2px solid var(--blue); border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.piece-style { display: grid; gap: 4px; padding: 6px 8px; border: 1px dashed var(--line); border-radius: 8px; margin-top: 4px; }
+.piece-style select { font: inherit; font-size: 12px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }

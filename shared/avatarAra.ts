@@ -3,6 +3,7 @@
  * O estilo MakeHuman (editor de peças, shared/avatarCatalog.ts) continua no projeto, desativado por padrão.
  * A lista abaixo precisa bater com tools/avatars-ara/gallery.ts (conferido em tests/live.test.ts contra o manifesto distribuído).
  */
+import { normalizeAraParams, type AraParams } from './araCustom';
 import { AVATAR_CATALOG_VERSION, defaultAvatar, validateAvatar, type AvatarConfig } from './avatarCatalog';
 
 export const AVATAR_STYLES = ['ara3d', 'makehuman'] as const;
@@ -31,14 +32,28 @@ export const ARA_CHARACTERS: readonly AraCharacterInfo[] = [
   { id: 'ara-f8', name: 'Casual jovem', gender: 'female', style: 'casual' },
 ];
 
-/** Aparência no estilo Ara 3D Gen: o personagem da galeria e se o headset fica sempre à mostra. */
-export interface AraAvatarConfig {
+/** Aparência no estilo Ara 3D Gen, forma 1: um personagem pronto da galeria (padrão de quem ainda não personalizou). */
+export interface AraPresetConfig {
   v: typeof AVATAR_CATALOG_VERSION;
   style: 'ara3d';
   character: string;
   headsetAlways: boolean;
 }
+/**
+ * Forma 2: personagem personalizado no editor. `custom` são os parâmetros (a fonte da verdade); `model` é o identificador do
+ * modelo 3D que o SERVIDOR gerou a partir deles (o cliente não escolhe: o servidor ignora o que vier e recalcula).
+ */
+export interface AraCustomConfig {
+  v: typeof AVATAR_CATALOG_VERSION;
+  style: 'ara3d';
+  custom: AraParams;
+  model?: string;
+  headsetAlways: boolean;
+}
+export type AraAvatarConfig = AraPresetConfig | AraCustomConfig;
 export type AnyAvatarConfig = AvatarConfig | AraAvatarConfig;
+export const isAraCustom = (c: unknown): c is AraCustomConfig => isAraConfig(c) && 'custom' in (c as object);
+export const isAraPreset = (c: unknown): c is AraPresetConfig => isAraConfig(c) && 'character' in (c as object);
 export const isAraConfig = (c: unknown): c is AraAvatarConfig => !!c && typeof c === 'object' && (c as { style?: unknown }).style === 'ara3d';
 export const styleOfConfig = (c: AnyAvatarConfig): AvatarStyle => (isAraConfig(c) ? 'ara3d' : 'makehuman');
 export const isAvatarStyle = (s: unknown): s is AvatarStyle => AVATAR_STYLES.includes(s as AvatarStyle);
@@ -50,19 +65,25 @@ const hash = (s: string) => {
 };
 
 /** Personagem padrão determinístico por pessoa (o gênero não é deduzido do nome). */
-export function defaultAraAvatar(seed: string): AraAvatarConfig {
+export function defaultAraAvatar(seed: string): AraPresetConfig {
   return { v: AVATAR_CATALOG_VERSION, style: 'ara3d', character: ARA_CHARACTERS[hash(seed) % ARA_CHARACTERS.length].id, headsetAlways: false };
 }
 
 export function validateAraAvatar(input: unknown): string[] {
-  const c = input as AraAvatarConfig;
+  const c = input as Record<string, unknown>;
   if (!c || typeof c !== 'object') return ['Configuração ausente.'];
   const errors: string[] = [];
   if (c.v !== AVATAR_CATALOG_VERSION) errors.push(`Versão de catálogo ${String(c.v)} não suportada (atual: ${AVATAR_CATALOG_VERSION}).`);
   if (c.style !== 'ara3d') errors.push('Estilo inválido.');
-  if (!ARA_CHARACTERS.some((x) => x.id === c.character)) errors.push('Personagem fora da galeria.');
   if (typeof c.headsetAlways !== 'boolean') errors.push('headsetAlways deve ser verdadeiro ou falso.');
-  const extra = Object.keys(c).filter((k) => !['v', 'style', 'character', 'headsetAlways'].includes(k));
+  const custom = 'custom' in c;
+  if (custom && 'character' in c) errors.push('Use "character" (personagem pronto) ou "custom" (personalizado), não os dois.');
+  else if (custom) {
+    errors.push(...normalizeAraParams(c.custom).errors);
+    if (c.model !== undefined && (typeof c.model !== 'string' || !/^[a-f0-9]{16}$/.test(c.model))) errors.push('Identificador de modelo inválido.');
+  } else if (!ARA_CHARACTERS.some((x) => x.id === c.character)) errors.push('Personagem fora da galeria.');
+  const allowed = custom ? ['v', 'style', 'custom', 'model', 'headsetAlways'] : ['v', 'style', 'character', 'headsetAlways'];
+  const extra = Object.keys(c).filter((k) => !allowed.includes(k));
   if (extra.length) errors.push(`Campos desconhecidos: ${extra.join(', ')}.`);
   return errors;
 }

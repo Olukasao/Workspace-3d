@@ -33,7 +33,9 @@
     "avatars:sheet": "node tools/avatars/sheet.mjs",
     "avatars-ara:build": "node tools/avatars-ara/build.mjs",
     "avatars-ara:process": "tsx tools/avatars-ara/process.ts",
-    "avatars-ara:thumbs": "node tools/avatars-ara/thumbs.mjs"
+    "avatars-ara:thumbs": "node tools/avatars-ara/thumbs.mjs",
+    "avatars-ara:catalog": "tsx tools/avatars-ara/gen-catalog.ts",
+    "e2e:ara-editor": "node tools/e2e/ara-editor.mjs"
   },
   "dependencies": {
     "@gltf-transform/core": "^4.0.10",

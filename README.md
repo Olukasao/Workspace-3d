@@ -77,7 +77,7 @@ No **Editor**, selecione uma mesa e escolha o colaborador no inspetor (seção d
 
 ## Avatares e presença ao vivo
 
-- **Meu avatar** (clique no seu nome, no topo): no estilo padrão (**Ara 3D Gen**), escolha o seu personagem numa galeria de 16 (masculinos e femininos, formais e casuais) e marque se o headset fica sempre à mostra. A pré-visualização gira e mostra as poses. **Salvar** publica para todo mundo na hora; **Cancelar** descarta. Cada pessoa edita só o próprio avatar.
+- **Meu avatar** (clique no seu nome, no topo): no estilo padrão (**Ara 3D Gen**) é um **editor completo**, como o do Ara. Em *Montar*, escolha corpo, idade, origem, pele, olhos, cabelo, barba, brincos, roupas (tecido e cor), sapatos e acessórios, ou comece de um dos 16 personagens prontos. Em *Detalhado*, ajuste mais de 200 controles do corpo e do rosto. A pré-visualização 3D gira e mostra o que você monta. **Salvar** gera o seu avatar no servidor e publica para todo mundo na hora; **Cancelar** descarta. Cada pessoa edita só o próprio avatar.
 - **Administrador → Integrações → Estilo dos avatares:** troca o estilo da empresa entre **Ara 3D Gen** (padrão) e **MakeHuman** (editor de peças: corpo, pele, rosto, cabelo, roupas, sapatos, óculos e cores). A troca vale ao vivo e não apaga a escolha de ninguém.
 - **No modo Operação**, cada colaborador online aparece sentado na cadeira da mesa dele:
   - **digitando** quando escreve no chat interno;
@@ -94,10 +94,11 @@ Detalhes: [docs/avatars-ara.md](docs/avatars-ara.md) (estilo Ara 3D Gen e a esco
 ```bash
 npm run typecheck   # TypeScript estrito (cliente, servidor, ferramentas e testes)
 npm run lint        # ESLint
-npm test            # 76 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
+npm test            # 89 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
 npm run e2e         # 20 verificações no navegador real (Chrome/Edge), pelos fluxos da interface
 npm run e2e:draw    # 7 verificações: construir a estrutura do zero (piso, paredes, janela, porta, puxador)
-npm run e2e:avatars # 10 verificações com duas pessoas em sessões separadas: avatar na mesa, troca de personagem, digitação, atendimento, várias abas, reconexão, troca de estilo pelo admin
+npm run e2e:avatars # 10 verificações com duas pessoas em sessões separadas: avatar na mesa, personagem personalizado, digitação, atendimento, várias abas, reconexão, troca de estilo pelo admin
+npm run e2e:ara-editor # 8 verificações do editor completo de avatar: montar, detalhado, salvar (o servidor gera o modelo), o colega vê, cancelar (E2E_PROD=1 testa a versão compilada)
 npm run perf        # medição com 100 objetos repetidos → test-results/perf-report.json
 npm run perf:avatars      # medição com 25 avatares simultâneos (rode npm run build antes) → test-results/perf-avatars-report.json
 npm run assets:validate   # glTF Validator (Khronos) em todos os GLB + conferência do manifesto
@@ -109,6 +110,7 @@ Pipeline dos avatares do estilo Ara 3D Gen (só para regerar a galeria; precisa 
 npm run avatars-ara:build      # gera os GLB brutos da galeria → .build-tools/ara-raw
 npm run avatars-ara:process    # WebP, LOD1, manifesto e créditos → public/assets/avatars-ara
 npm run avatars-ara:thumbs     # miniaturas da galeria
+npm run avatars-ara:catalog    # catálogo compartilhado (controles, opções, personagens prontos)
 ```
 
 Pipeline do estilo MakeHuman (precisa do Blender com o MPFB2, ver [docs/avatars.md](docs/avatars.md#pipeline-de-assets)):
@@ -138,7 +140,10 @@ src/             React + React Three Fiber
   ops/           modo operacional (lista navegável, painel de contexto, diálogos de ação)
   admin/         trilha, integrações, créditos
 public/assets/   catálogo distribuído: GLB, texturas, miniaturas, manifest.json, CREDITS.md, validation.json
-public/assets/avatars/  corpos e peças dos avatares (GLB), tons de pele, manifest.json, CREDITS.md
+public/assets/avatars/  corpos e peças dos avatares do estilo MakeHuman (GLB), tons de pele, manifest.json, CREDITS.md
+public/assets/avatars-ara/  galeria de 16 personagens prontos do estilo Ara 3D Gen (GLB, LOD1, miniaturas), manifest.json, CREDITS.md
+public/assets/ara-data/  dados dos personagens do Ara (MakeHuman, CC0) usados pelo editor
+vendor/ara3d/    código do gerador Ara 3D Gen (MIT), sem alterações: roda no servidor e no navegador (prévia)
 tools/assets/    pipeline de assets: fetch → process → thumbs → validate → report
 tools/avatars/   pipeline dos avatares: build no Blender (MPFB2) → process → créditos; folhas de contato
 tools/e2e/       roteiro de aceite no navegador, medição de desempenho, capturas de tela
@@ -160,4 +165,4 @@ docs/            reaproveitamento do FigureBox, integrações, assets, decisões
 
 ## Créditos
 
-O editor reaproveita código do FigureBox Planner (commit `f478167`, do mesmo autor). Os modelos 3D são CC0 1.0 e CC-BY 3.0, de Poly Pizza, Kenney/OpenGameArt e Poly Haven; as texturas são CC0, do ambientCG. As atribuições exigidas estão em `public/assets/CREDITS.md` e na tela **Créditos** do produto. Os avatares usam dados CC0 da comunidade MakeHuman: o estilo padrão foi gerado com o Ara 3D Gen (código MIT, não distribuído) e o estilo MakeHuman com o MPFB2 (ferramenta GPL, não distribuída). A lista por arquivo está em `public/assets/avatars-ara/CREDITS.md` e `public/assets/avatars/CREDITS.md`.
+O editor reaproveita código do FigureBox Planner (commit `f478167`, do mesmo autor). Os modelos 3D são CC0 1.0 e CC-BY 3.0, de Poly Pizza, Kenney/OpenGameArt e Poly Haven; as texturas são CC0, do ambientCG. As atribuições exigidas estão em `public/assets/CREDITS.md` e na tela **Créditos** do produto. Os avatares usam dados CC0 da comunidade MakeHuman. O estilo padrão usa o gerador Ara 3D Gen (código MIT, incorporado em `vendor/ara3d`, com a licença junto); o estilo MakeHuman foi feito com o MPFB2 (ferramenta GPL, não distribuída). A lista por arquivo está em `public/assets/avatars-ara/CREDITS.md` e `public/assets/avatars/CREDITS.md`.

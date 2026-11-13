@@ -6,7 +6,7 @@
  * Uma única conexão por aba; o servidor consolida várias abas/dispositivos num avatar por pessoa.
  */
 import { create } from 'zustand';
-import type { AvatarConfig } from '../shared/avatarCatalog';
+import { DEFAULT_AVATAR_STYLE, type AnyAvatarConfig, type AvatarStyle } from '../shared/avatarAra';
 
 export type LiveStatus = 'offline' | 'in_call' | 'typing' | 'online';
 export interface LivePerson {
@@ -14,7 +14,7 @@ export interface LivePerson {
   name: string;
   status: LiveStatus;
   call: { active: boolean; speaking: boolean | null; source: 'demo' | 'real' } | null;
-  appearance: { config: AvatarConfig; version: number } | null;
+  appearance: { config: AnyAvatarConfig; version: number } | null;
   simulated: boolean;
   version: number;
   seq: number;
@@ -23,17 +23,20 @@ export interface LivePerson {
 interface LiveState {
   connected: boolean;
   presenceVisible: boolean;
+  /** estilo de avatar ativo da empresa (o administrador pode trocar; chega no snapshot) */
+  avatarStyle: AvatarStyle;
   people: Record<string, LivePerson>;
   resyncNonce: number;
   seq: number;
   ignoredStale: number;
   apply(p: LivePerson): void;
-  snapshot(s: { seq: number; people: LivePerson[]; presenceVisible: boolean }): void;
+  snapshot(s: { seq: number; people: LivePerson[]; presenceVisible: boolean; avatarStyle?: AvatarStyle }): void;
 }
 
 export const useLive = create<LiveState>((set, get) => ({
   connected: false,
   presenceVisible: false,
+  avatarStyle: DEFAULT_AVATAR_STYLE,
   people: {},
   resyncNonce: 0,
   seq: 0,
@@ -47,7 +50,7 @@ export const useLive = create<LiveState>((set, get) => ({
     set({ people: { ...get().people, [p.employeeId]: p }, seq: Math.max(get().seq, p.seq) });
   },
   snapshot(s) {
-    set({ people: Object.fromEntries(s.people.map((p) => [p.employeeId, p])), seq: s.seq, presenceVisible: s.presenceVisible });
+    set({ people: Object.fromEntries(s.people.map((p) => [p.employeeId, p])), seq: s.seq, presenceVisible: s.presenceVisible, avatarStyle: s.avatarStyle ?? DEFAULT_AVATAR_STYLE });
   },
 }));
 

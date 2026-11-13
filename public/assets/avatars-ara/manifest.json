@@ -1,0 +1,503 @@
+{
+ "schema": 1,
+ "generatedAt": "2026-11-13T11:25:25.888Z",
+ "units": "m",
+ "upAxis": "Y",
+ "front": "+Z",
+ "rig": "Mixamo (jogo, 65 ossos + rosto)",
+ "generator": {
+  "name": "Ara 3D Gen",
+  "url": "https://github.com/olatunde85/3d-gen",
+  "commit": "8db7a6adf61d4de4b2d4b152853d8ac78ed6b761",
+  "license": "MIT (código); exportações sem atribuição obrigatória"
+ },
+ "data": {
+  "name": "MakeHuman system assets",
+  "license": "CC0 1.0",
+  "url": "https://www.makehumancommunity.org"
+ },
+ "characters": [
+  {
+   "id": "ara-m1",
+   "name": "Terno e gravata",
+   "gender": "male",
+   "style": "corporate",
+   "file": "ara-m1.glb",
+   "lod1": "lod1/ara-m1.glb",
+   "tris": 54744,
+   "lod1Tris": 14672,
+   "height": 1.692,
+   "params": {
+    "outfit": "set_suit_tie",
+    "hair": "short04",
+    "shoes": "oxfords",
+    "eyes": "brown",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.62
+   }
+  },
+  {
+   "id": "ara-m2",
+   "name": "Paletó clássico",
+   "gender": "male",
+   "style": "corporate",
+   "file": "ara-m2.glb",
+   "lod1": "lod1/ara-m2.glb",
+   "tris": 55846,
+   "lod1Tris": 14440,
+   "height": 1.705,
+   "params": {
+    "outfit": "male_elegantsuit01",
+    "hair": "short01",
+    "shoes": "oxfords",
+    "eyes": "blackbrown",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.55
+   }
+  },
+  {
+   "id": "ara-m3",
+   "name": "Camisa listrada",
+   "gender": "male",
+   "style": "casual",
+   "file": "ara-m3.glb",
+   "lod1": "lod1/ara-m3.glb",
+   "tris": 37916,
+   "lod1Tris": 8076,
+   "height": 1.71,
+   "params": {
+    "outfit": "male_casualsuit03",
+    "hair": "short02",
+    "shoes": "shoes03",
+    "eyes": "darkbrown",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.45
+   }
+  },
+  {
+   "id": "ara-m4",
+   "name": "Jaqueta casual",
+   "gender": "male",
+   "style": "casual",
+   "file": "ara-m4.glb",
+   "lod1": "lod1/ara-m4.glb",
+   "tris": 39938,
+   "lod1Tris": 8528,
+   "height": 1.691,
+   "params": {
+    "outfit": "male_casualsuit05",
+    "hair": "short03",
+    "shoes": "shoes06",
+    "eyes": "green",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.5
+   }
+  },
+  {
+   "id": "ara-m5",
+   "name": "Camisa azul e jeans",
+   "gender": "male",
+   "style": "casual",
+   "file": "ara-m5.glb",
+   "lod1": "lod1/ara-m5.glb",
+   "tris": 47396,
+   "lod1Tris": 11690,
+   "height": 1.713,
+   "params": {
+    "outfit": "male_casualsuit01",
+    "hair": "afro01",
+    "shoes": "shoes02",
+    "eyes": "blackbrown",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.42
+   }
+  },
+  {
+   "id": "ara-m6",
+   "name": "Terno sênior",
+   "gender": "male",
+   "style": "corporate",
+   "file": "ara-m6.glb",
+   "lod1": "lod1/ara-m6.glb",
+   "tris": 68242,
+   "lod1Tris": 20550,
+   "height": 1.692,
+   "params": {
+    "outfit": "male_elegantsuit01",
+    "hair": "short04",
+    "shoes": "oxfords",
+    "eyes": "grey",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.82
+   }
+  },
+  {
+   "id": "ara-m7",
+   "name": "Camisa e calça",
+   "gender": "male",
+   "style": "casual",
+   "file": "ara-m7.glb",
+   "lod1": "lod1/ara-m7.glb",
+   "tris": 48538,
+   "lod1Tris": 12352,
+   "height": 1.7,
+   "params": {
+    "outfit": "none",
+    "hair": "short01",
+    "shoes": "loafers",
+    "eyes": "brown",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.4
+   }
+  },
+  {
+   "id": "ara-m8",
+   "name": "Terno cinza",
+   "gender": "male",
+   "style": "corporate",
+   "file": "ara-m8.glb",
+   "lod1": "lod1/ara-m8.glb",
+   "tris": 51424,
+   "lod1Tris": 12350,
+   "height": 1.687,
+   "params": {
+    "outfit": "set_suit_tie",
+    "hair": "short04",
+    "shoes": "loafers",
+    "eyes": "darkbrown",
+    "skin": "auto",
+    "gender": 1,
+    "age": 0.48
+   }
+  },
+  {
+   "id": "ara-f1",
+   "name": "Blusa e saia",
+   "gender": "female",
+   "style": "corporate",
+   "file": "ara-f1.glb",
+   "lod1": "lod1/ara-f1.glb",
+   "tris": 42826,
+   "lod1Tris": 10352,
+   "height": 1.73,
+   "params": {
+    "outfit": "female_elegantsuit01",
+    "hair": "bob02",
+    "shoes": "heels",
+    "eyes": "blackbrown",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.6
+   }
+  },
+  {
+   "id": "ara-f2",
+   "name": "Tailleur bege",
+   "gender": "female",
+   "style": "corporate",
+   "file": "ara-f2.glb",
+   "lod1": "lod1/ara-f2.glb",
+   "tris": 54656,
+   "lod1Tris": 14528,
+   "height": 1.725,
+   "params": {
+    "outfit": "set_pantsuit",
+    "hair": "long01",
+    "shoes": "heels",
+    "eyes": "brownlight",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.52
+   }
+  },
+  {
+   "id": "ara-f3",
+   "name": "Tailleur marinho",
+   "gender": "female",
+   "style": "corporate",
+   "file": "ara-f3.glb",
+   "lod1": "lod1/ara-f3.glb",
+   "tris": 55516,
+   "lod1Tris": 14316,
+   "height": 1.729,
+   "params": {
+    "outfit": "set_pantsuit",
+    "hair": "ponytail01",
+    "shoes": "heels",
+    "eyes": "blue",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.45
+   }
+  },
+  {
+   "id": "ara-f4",
+   "name": "Blusa e calça",
+   "gender": "female",
+   "style": "casual",
+   "file": "ara-f4.glb",
+   "lod1": "lod1/ara-f4.glb",
+   "tris": 44246,
+   "lod1Tris": 11324,
+   "height": 1.688,
+   "params": {
+    "outfit": "none",
+    "hair": "long01",
+    "shoes": "loafers",
+    "eyes": "darkbrown",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.45
+   }
+  },
+  {
+   "id": "ara-f5",
+   "name": "Camiseta e jeans",
+   "gender": "female",
+   "style": "casual",
+   "file": "ara-f5.glb",
+   "lod1": "lod1/ara-f5.glb",
+   "tris": 53998,
+   "lod1Tris": 15736,
+   "height": 1.7,
+   "params": {
+    "outfit": "none",
+    "hair": "braid01",
+    "shoes": "sneakers",
+    "eyes": "blackbrown",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.4
+   }
+  },
+  {
+   "id": "ara-f6",
+   "name": "Tailleur cinza",
+   "gender": "female",
+   "style": "corporate",
+   "file": "ara-f6.glb",
+   "lod1": "lod1/ara-f6.glb",
+   "tris": 58638,
+   "lod1Tris": 14844,
+   "height": 1.737,
+   "params": {
+    "outfit": "set_pantsuit",
+    "hair": "bob01",
+    "shoes": "heels",
+    "eyes": "brown",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.5
+   }
+  },
+  {
+   "id": "ara-f7",
+   "name": "Executiva sênior",
+   "gender": "female",
+   "style": "corporate",
+   "file": "ara-f7.glb",
+   "lod1": "lod1/ara-f7.glb",
+   "tris": 52412,
+   "lod1Tris": 13418,
+   "height": 1.73,
+   "params": {
+    "outfit": "set_pantsuit",
+    "hair": "bob02",
+    "shoes": "heels",
+    "eyes": "grey",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.78
+   }
+  },
+  {
+   "id": "ara-f8",
+   "name": "Casual jovem",
+   "gender": "female",
+   "style": "casual",
+   "file": "ara-f8.glb",
+   "lod1": "lod1/ara-f8.glb",
+   "tris": 52588,
+   "lod1Tris": 14178,
+   "height": 1.699,
+   "params": {
+    "outfit": "none",
+    "hair": "long01",
+    "shoes": "sneakers",
+    "eyes": "brown",
+    "skin": "auto",
+    "gender": 0,
+    "age": 0.38
+   }
+  }
+ ],
+ "files": {
+  "ara-m1.glb": {
+   "bytes": 2558616,
+   "sha256": "07b74e872a391bc60944a1665ee907c7367f3b44ab6330ebfccd29ee91b817b3",
+   "tris": 54744
+  },
+  "lod1/ara-m1.glb": {
+   "bytes": 842316,
+   "sha256": "4235e7765818e6b6aa96b70ae479b789f5a09331623db251fe95fa0e172c45b9",
+   "tris": 14672
+  },
+  "ara-m2.glb": {
+   "bytes": 2750420,
+   "sha256": "fb7326d2c83cead78076cd9df03bbe54d8023f3db6ea9f511eabb2b39eecdfc7",
+   "tris": 55846
+  },
+  "lod1/ara-m2.glb": {
+   "bytes": 883492,
+   "sha256": "bf709b8bcffde1130f53ff71f81a24ffaed47f6db233069e64a9c7c810198559",
+   "tris": 14440
+  },
+  "ara-m3.glb": {
+   "bytes": 1779720,
+   "sha256": "cac47925db53391f4a2fff0e4a057303d5d030ea6026aa6935bc74e44ae5d72d",
+   "tris": 37916
+  },
+  "lod1/ara-m3.glb": {
+   "bytes": 484368,
+   "sha256": "1a937b82ff349664eb6b09d60f495a2da6126c8976d60ff77988184571205e76",
+   "tris": 8076
+  },
+  "ara-m4.glb": {
+   "bytes": 1882016,
+   "sha256": "791234291ac96fe3e3102a7416303b44e3bab594658b5f6910b8c10fe83be37b",
+   "tris": 39938
+  },
+  "lod1/ara-m4.glb": {
+   "bytes": 517924,
+   "sha256": "12d35fccd57d895e984be61b35a85c62572793367e27122438b860d5c9bbf2fc",
+   "tris": 8528
+  },
+  "ara-m5.glb": {
+   "bytes": 2431616,
+   "sha256": "961cf04cda0a0874c3cef04aa75054d827d7ad7ec5618769276ec39001f149af",
+   "tris": 47396
+  },
+  "lod1/ara-m5.glb": {
+   "bytes": 740908,
+   "sha256": "5abfcadf5de4c1ad1f52ddfef2023cc8fcf4ab9491fbaeeccffdcc0be1fb5676",
+   "tris": 11690
+  },
+  "ara-m6.glb": {
+   "bytes": 3749528,
+   "sha256": "1ec6d7ef679e0aab2c24320afd7516adfe7d7fb793477eb8e9194613abdb307a",
+   "tris": 68242
+  },
+  "lod1/ara-m6.glb": {
+   "bytes": 1369580,
+   "sha256": "9d09ffa2521e0cc7ac6cbef34a9eaa6c5cf96061fe6e4c8851d7e6b136d877be",
+   "tris": 20550
+  },
+  "ara-m7.glb": {
+   "bytes": 2449804,
+   "sha256": "e8ab9da93dcb06fe9afe12240a7a100bc40acdd2eec7a265fb2044c7e571914e",
+   "tris": 48538
+  },
+  "lod1/ara-m7.glb": {
+   "bytes": 786072,
+   "sha256": "2ac3f70a77d91c74dcaa22ce42d4cdc50809b10d69f661c1e95ef4d76bf9435f",
+   "tris": 12352
+  },
+  "ara-m8.glb": {
+   "bytes": 2364004,
+   "sha256": "dc1730715b2016a17c5e59057b23488f68fa44bb5f47c2eccdd10b9cb3fd3555",
+   "tris": 51424
+  },
+  "lod1/ara-m8.glb": {
+   "bytes": 712620,
+   "sha256": "6bb6cbe671afe3fe4f873e363ad6d77a7968fca52481424dc35f30af3095c043",
+   "tris": 12350
+  },
+  "ara-f1.glb": {
+   "bytes": 1996548,
+   "sha256": "c36d278ffab72b5df9757e7bb29d579e6ba4997bc2ea25fd55f757c120fd9de9",
+   "tris": 42826
+  },
+  "lod1/ara-f1.glb": {
+   "bytes": 621928,
+   "sha256": "f2e44f81064a2de992279f3e88551a415f6f4cf8d417a90d5f7034871129eec0",
+   "tris": 10352
+  },
+  "ara-f2.glb": {
+   "bytes": 2470464,
+   "sha256": "b430579e13b2b6887fd3990f016aa267a112731ff68e395c7e5cbdfe18c08215",
+   "tris": 54656
+  },
+  "lod1/ara-f2.glb": {
+   "bytes": 808928,
+   "sha256": "11a996dfe3beab0a8a2b2d6a989adf1d77105d5bcb92f5e241b02a1bb9ebd2b7",
+   "tris": 14528
+  },
+  "ara-f3.glb": {
+   "bytes": 2660436,
+   "sha256": "d268f72a7432f0cf91dc68841484aa33882d5e1391b5a2f6be0773df9ae8105d",
+   "tris": 55516
+  },
+  "lod1/ara-f3.glb": {
+   "bytes": 859116,
+   "sha256": "239395ae049f1f37511ee237a7a8649edcd1caf08fd2802fb116feecd218a62d",
+   "tris": 14316
+  },
+  "ara-f4.glb": {
+   "bytes": 2043692,
+   "sha256": "fd4622317a35a2c34a975319f43918490027e9d6788db382b156b4ff6b4e7085",
+   "tris": 44246
+  },
+  "lod1/ara-f4.glb": {
+   "bytes": 670816,
+   "sha256": "ba61025abd97aa45169ed47a8ca7b369177aefd5c002725df5c92af5b3801baf",
+   "tris": 11324
+  },
+  "ara-f5.glb": {
+   "bytes": 2385084,
+   "sha256": "60b43d336150993c368548382e27c2674b276621b4706d4d286c09260babb926",
+   "tris": 53998
+  },
+  "lod1/ara-f5.glb": {
+   "bytes": 864040,
+   "sha256": "023e336a03ee93213d8005d1c73d9de6d9bea3f45867300455c31def3841106b",
+   "tris": 15736
+  },
+  "ara-f6.glb": {
+   "bytes": 2638800,
+   "sha256": "4ed0bff9acfa99a138f0f2ba5f29de1b551e65b5d1141e110f8c7f2105e03c0a",
+   "tris": 58638
+  },
+  "lod1/ara-f6.glb": {
+   "bytes": 818648,
+   "sha256": "e787e80231d264070d127f2e63ffd7f30a239f09a55d761ff1513716ebf615a3",
+   "tris": 14844
+  },
+  "ara-f7.glb": {
+   "bytes": 2416696,
+   "sha256": "997492f112ac9e004a6352000fff21fb8d1d165eb77b347c355031fdbfd03f3f",
+   "tris": 52412
+  },
+  "lod1/ara-f7.glb": {
+   "bytes": 758312,
+   "sha256": "0b0bc63c8f1cfdb2fb5bb8b89a17a3737fc0db902145cf22487bdc7c86feb782",
+   "tris": 13418
+  },
+  "ara-f8.glb": {
+   "bytes": 2400116,
+   "sha256": "cf6c0f18f979714894af626cb6740c9a0573f8a4926efbeb4ef28c9cf139c92a",
+   "tris": 52588
+  },
+  "lod1/ara-f8.glb": {
+   "bytes": 808864,
+   "sha256": "a844cddd0b57c1ffe5071ed0b3f558856fc3c474095c207f788067d91743157e",
+   "tris": 14178
+  }
+ }
+}

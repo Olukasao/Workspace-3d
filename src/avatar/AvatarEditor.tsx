@@ -7,7 +7,8 @@ import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-
 import { Canvas } from '@react-three/fiber';
 import { RotateCcw, Save } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { AVATAR_CATALOG, FACES, LOOKS, PALETTES, SKIN_TONES, switchBase, validateAvatar, type AvatarBase, type AvatarConfig, type AvatarSlot } from '../../shared/avatarCatalog';
+import { ARA_CHARACTERS, isAraConfig, validateForStyle, type AnyAvatarConfig, type AvatarStyle } from '../../shared/avatarAra';
+import { AVATAR_CATALOG, FACES, LOOKS, PALETTES, SKIN_TONES, switchBase, type AvatarBase, type AvatarConfig, type AvatarSlot } from '../../shared/avatarCatalog';
 import type { SessionUser } from '../../shared/types';
 import { api, ApiError, errorText } from '../api';
 import { Avatar } from '../three/avatar/Avatar';
@@ -35,14 +36,14 @@ function Station() {
 }
 
 export function AvatarEditor({ user }: { user: SessionUser }) {
-  const [saved, setSaved] = useState<{ config: AvatarConfig; version: number; saved: boolean } | null>(null);
-  const [draft, setDraft] = useState<AvatarConfig | null>(null);
+  const [saved, setSaved] = useState<{ config: AnyAvatarConfig; version: number; saved: boolean; style: AvatarStyle } | null>(null);
+  const [draftAny, setDraft] = useState<AnyAvatarConfig | null>(null);
   const [pose, setPose] = useState<'stand' | 'sit'>('stand');
   const [preview, setPreview] = useState<'idle' | 'typing' | 'call'>('idle');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const load = () =>
-    api.get<{ config: AvatarConfig; version: number; saved: boolean }>('/api/avatar/me').then(
+    api.get<{ config: AnyAvatarConfig; version: number; saved: boolean; style: AvatarStyle }>('/api/avatar/me').then(
       (r) => {
         setSaved(r);
         setDraft(r.config);
@@ -53,10 +54,13 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
     void load();
   }, []);
 
-  const dirty = useMemo(() => !!draft && !!saved && JSON.stringify(draft) !== JSON.stringify(saved.config), [draft, saved]);
-  const errors = draft ? validateAvatar(draft) : [];
-  if (err && !draft) return <div className="page"><div className="notice warn">{err}</div></div>;
-  if (!draft || !saved) return <div className="loading">Carregando seu avatar…</div>;
+  const dirty = useMemo(() => !!draftAny && !!saved && JSON.stringify(draftAny) !== JSON.stringify(saved.config), [draftAny, saved]);
+  const errors = draftAny && saved ? validateForStyle(saved.style, draftAny) : [];
+  if (err && !draftAny) return <div className="page"><div className="notice warn">{err}</div></div>;
+  if (!draftAny || !saved) return <div className="loading">Carregando seu avatar…</div>;
+  const ara = isAraConfig(draftAny) ? draftAny : null;
+  // `draft` só é usado nos controles do estilo MakeHuman (renderizados apenas quando `ara` é nulo)
+  const draft = draftAny as AvatarConfig;
 
   const set = (patch: Partial<AvatarConfig>) => setDraft({ ...draft, ...patch });
   const items = (slot: AvatarSlot) => AVATAR_CATALOG.filter((i) => i.slot === slot && i.bases.includes(draft.base));
@@ -66,8 +70,8 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
     setBusy(true);
     setErr(null);
     try {
-      const r = await api.put<{ version: number; config: AvatarConfig }>('/api/avatar/me', { config: draft, baseVersion: saved.version });
-      setSaved({ config: r.config, version: r.version, saved: true });
+      const r = await api.put<{ version: number; config: AnyAvatarConfig }>('/api/avatar/me', { config: draftAny, baseVersion: saved.version });
+      setSaved({ config: r.config, version: r.version, saved: true, style: saved.style });
       setDraft(r.config);
       toast('Avatar salvo. Seus colegas já veem a nova aparência.');
     } catch (e) {
@@ -107,7 +111,7 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
             <Lightformer form="rect" intensity={2} position={[0, 4, 2]} scale={[6, 4, 1]} />
           </Environment>
           {pose === 'sit' && <Station />}
-          <Avatar seat={{ x: 0, z: 0, rotY: 0 }} config={draft} pose={posed} label={user.name} fixedLod={0} />
+          <Avatar seat={{ x: 0, z: 0, rotY: 0 }} config={draftAny} pose={posed} label={user.name} fixedLod={0} />
           <ContactShadows position={[0, 0.001, 0]} opacity={0.35} scale={4} blur={2.4} far={2} />
           <OrbitControls target={[0, pose === 'sit' ? 0.85 : 1.0, pose === 'sit' ? 0.2 : 0]} autoRotate autoRotateSpeed={0.9} enablePan={false} minDistance={1.4} maxDistance={4.5} maxPolarAngle={Math.PI / 1.9} />
         </Canvas>
@@ -138,6 +142,30 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
           {err && <div className="notice bad" role="alert">{err}</div>}
           {errors.length > 0 && <div className="notice warn">{errors.join(' ')}</div>}
         </div>
+        {ara && (
+          <div className="side-body" data-style="ara3d">
+            {(['male', 'female'] as const).map((g) => (
+              <div className="stack" key={g}>
+                <h3>{g === 'male' ? 'Personagens masculinos' : 'Personagens femininos'}</h3>
+                <div className="gallery-grid" role="radiogroup" aria-label={g === 'male' ? 'Personagens masculinos' : 'Personagens femininos'}>
+                  {ARA_CHARACTERS.filter((c) => c.gender === g).map((c) => (
+                    <button key={c.id} className="gallery-card" role="radio" aria-checked={ara.character === c.id} aria-pressed={ara.character === c.id} data-character={c.id} onClick={() => setDraft({ ...ara, character: c.id })}>
+                      <img src={`/assets/avatars-ara/thumbs/${c.id}.webp`} alt="" width={90} height={120} loading="lazy" />
+                      <span>{c.name}</span>
+                      <span className="muted">{c.style === 'casual' ? 'casual' : 'corporativo'}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="stack">
+              <h3>Acessórios</h3>
+              <label className="check"><input type="checkbox" checked={ara.headsetAlways} onChange={(e) => setDraft({ ...ara, headsetAlways: e.target.checked })} /> Usar o headset sempre (ele entra sozinho durante atendimentos)</label>
+              <p className="muted">Estilo de avatar escolhido pelo administrador da empresa: Ara 3D Gen (personagens prontos).</p>
+            </div>
+          </div>
+        )}
+        {!ara && (
         <div className="side-body">
           <div className="stack">
             <h3>Corpo-base</h3>
@@ -197,6 +225,7 @@ export function AvatarEditor({ user }: { user: SessionUser }) {
             <label className="check"><input type="checkbox" checked={draft.headsetAlways} onChange={(e) => set({ headsetAlways: e.target.checked })} /> Usar o headset sempre (ele entra sozinho durante atendimentos)</label>
           </div>
         </div>
+        )}
       </aside>
     </div>
   );

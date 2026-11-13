@@ -15,5 +15,6 @@
     "noEmit": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "server", "shared", "tools", "tests", "vite.config.ts"]
+  "include": ["src", "server", "shared", "tools", "tests", "vite.config.ts"],
+  "exclude": ["tools/avatars-ara/gallery.ts"]
 }

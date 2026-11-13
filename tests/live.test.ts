@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AVATAR_CATALOG, LOOKS, defaultAvatar, switchBase, validateAvatar, type AvatarConfig } from '../shared/avatarCatalog';
+import { ARA_CHARACTERS, defaultAraAvatar, validateAraAvatar, validateForStyle, type AraAvatarConfig } from '../shared/avatarAra';
 import { ADMIN, Client, OPERATOR, OTHER_ADMIN, VIEWER, startServer, type TestServer } from './helpers';
 
 /** Lê eventos SSE de /api/live/stream com a sessão do cliente. */
@@ -100,7 +101,13 @@ describe('catálogo de avatares', () => {
   });
 });
 
-describe('aparência persistida', () => {
+describe('aparência persistida (estilo MakeHuman)', () => {
+  beforeAll(async () => {
+    expect((await admin.put('/api/admin/avatar-style', { style: 'makehuman' })).status).toBe(200);
+  });
+  afterAll(async () => {
+    await admin.put('/api/admin/avatar-style', { style: 'ara3d' });
+  });
   it('só o próprio colaborador edita; outro colaborador (nem admin) não edita o meu avatar', async () => {
     const mine = (await operator.get<{ config: AvatarConfig; version: number }>('/api/avatar/me')).body;
     const changed = { ...mine.config, topColor: 'vinho' };
@@ -132,6 +139,85 @@ describe('aparência persistida', () => {
       st.close();
       op.close();
     }
+  });
+});
+
+describe('estilo de avatar da empresa (Ara 3D Gen padrão; MakeHuman opcional do admin)', () => {
+  it('o padrão é Ara 3D Gen e a aparência inicial é um personagem da galeria, estável por pessoa', async () => {
+    const info = (await admin.get<{ style: string; options: Array<{ id: string }> }>('/api/admin/avatar-style')).body;
+    expect(info.style).toBe('ara3d');
+    expect(info.options.map((o) => o.id)).toEqual(['ara3d', 'makehuman']);
+    const mine = (await operator.get<{ style: string; config: AraAvatarConfig; saved: boolean }>('/api/avatar/me')).body;
+    expect(mine.style).toBe('ara3d');
+    expect(mine.saved).toBe(false);
+    expect(validateAraAvatar(mine.config)).toEqual([]);
+    expect(mine.config).toEqual(defaultAraAvatar(OTAVIO)); // o gênero não é deduzido do nome: é sorteado pelo ID
+    const cat = (await operator.get<{ style: string; ara: unknown[] }>('/api/avatar/catalog')).body;
+    expect(cat.style).toBe('ara3d');
+    expect(cat.ara).toHaveLength(ARA_CHARACTERS.length);
+  });
+
+  it('só o administrador troca o estilo; valor inválido é recusado; operador não consegue', async () => {
+    expect((await operator.put('/api/admin/avatar-style', { style: 'makehuman' })).status).toBe(403);
+    expect((await viewer.put('/api/admin/avatar-style', { style: 'makehuman' })).status).toBe(403);
+    expect((await admin.put('/api/admin/avatar-style', { style: 'pixel' })).status).toBe(400);
+    expect((await operator.get('/api/admin/avatar-style')).status).toBe(403);
+  });
+
+  it('salvar no estilo Ara: personagem da galeria vale; personagem inexistente e configuração de outro estilo são recusados', async () => {
+    const mine = (await operator.get<{ version: number; config: AraAvatarConfig }>('/api/avatar/me')).body;
+    const ok = await operator.put<{ version: number; style: string }>('/api/avatar/me', { config: { ...mine.config, character: 'ara-f2' }, baseVersion: mine.version });
+    expect(ok.status).toBe(200);
+    expect(ok.body.style).toBe('ara3d');
+    expect((await operator.put('/api/avatar/me', { config: { ...mine.config, character: 'ara-zzz' }, baseVersion: ok.body.version })).status).toBe(422);
+    expect((await operator.put('/api/avatar/me', { config: defaultAvatar(OTAVIO), baseVersion: ok.body.version })).status).toBe(422); // config do MakeHuman no estilo Ara
+    expect((await operator.put('/api/avatar/me', { config: { ...mine.config, extra: 1 }, baseVersion: ok.body.version })).status).toBe(422);
+    expect((await admin.put(`/api/avatar/employees/${OTAVIO}`, { config: mine.config, baseVersion: ok.body.version })).status).toBe(403); // nem o admin edita o de outra pessoa
+  });
+
+  it('o admin troca o estilo ao vivo: todos recebem snapshot novo; trocar não apaga a escolha de nenhum estilo', async () => {
+    const watcher = await stream(s.url, admin);
+    try {
+      const snap0 = await watcher.waitFor((e) => e.event === 'snapshot');
+      expect(snap0.data.avatarStyle).toBe('ara3d');
+      expect((await person(admin, OTAVIO)).appearance?.config).toMatchObject({ style: 'ara3d', character: 'ara-f2' });
+      expect((await admin.put('/api/admin/avatar-style', { style: 'makehuman' })).status).toBe(200);
+      const snap1 = await watcher.waitFor((e) => e.event === 'snapshot' && e.data.avatarStyle === 'makehuman');
+      const otavio = (snap1.data.people as Array<{ employeeId: string; appearance: { config: Record<string, unknown> } | null }>).find((p) => p.employeeId === OTAVIO)!;
+      expect(otavio.appearance?.config?.style).not.toBe('ara3d'); // no MakeHuman vale o que ele salvou lá (ou nada)
+      const mh = (await operator.get<{ style: string; config: Record<string, unknown> }>('/api/avatar/me')).body;
+      expect(mh.style).toBe('makehuman');
+      expect(validateForStyle('makehuman', mh.config)).toEqual([]);
+      expect((await person(admin, ALINE)).status).toBe('online'); // a conexão aberta continua contando depois da troca
+      expect((await admin.put('/api/admin/avatar-style', { style: 'ara3d' })).status).toBe(200);
+      await watcher.waitFor((e) => e.event === 'snapshot' && e.data.avatarStyle === 'ara3d' && e !== snap0);
+      expect((await operator.get<{ config: AraAvatarConfig }>('/api/avatar/me')).body.config.character).toBe('ara-f2'); // a escolha do Ara continua lá
+      expect((await person(admin, ALINE)).status).toBe('online');
+    } finally {
+      await admin.put('/api/admin/avatar-style', { style: 'ara3d' });
+      watcher.close();
+    }
+  });
+
+  it('a troca é por empresa: o administrador de outra empresa não muda o estilo desta', async () => {
+    expect((await other.put('/api/admin/avatar-style', { style: 'makehuman' })).status).toBe(200);
+    expect((await admin.get<{ style: string }>('/api/admin/avatar-style')).body.style).toBe('ara3d');
+    expect((await other.get<{ style: string }>('/api/admin/avatar-style')).body.style).toBe('makehuman');
+    await other.put('/api/admin/avatar-style', { style: 'ara3d' });
+  });
+
+  it('a galeria distribuída bate com a lista compartilhada: todo personagem tem GLB, LOD1 e miniatura, com origem e licença', () => {
+    const dir = path.join(import.meta.dirname, '../public/assets/avatars-ara');
+    const m = JSON.parse(readFileSync(path.join(dir, 'manifest.json'), 'utf8')) as { characters: Array<{ id: string; name: string; gender: string; style: string; file: string; lod1: string }>; generator: { license: string }; data: { license: string } };
+    expect(m.characters.map((c) => [c.id, c.name, c.gender, c.style])).toEqual(ARA_CHARACTERS.map((c) => [c.id, c.name, c.gender, c.style]));
+    for (const c of m.characters) {
+      expect(existsSync(path.join(dir, c.file)), c.file).toBe(true);
+      expect(existsSync(path.join(dir, c.lod1)), c.lod1).toBe(true);
+      expect(existsSync(path.join(dir, 'thumbs', c.id + '.webp')), 'miniatura ' + c.id).toBe(true);
+    }
+    expect(m.generator.license).toMatch(/MIT/);
+    expect(m.data.license).toMatch(/CC0/);
+    for (const g of ['male', 'female']) for (const st of ['casual', 'corporate']) expect(ARA_CHARACTERS.some((c) => c.gender === g && c.style === st), g + ' ' + st).toBe(true);
   });
 });
 

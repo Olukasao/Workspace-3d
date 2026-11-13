@@ -10,12 +10,14 @@
  *    (SPEAKING_TTL_MS). Reconciliado periodicamente com a fonte.
  * Estado derivado, nesta prioridade: OFFLINE > EM ATENDIMENTO > DIGITANDO > ONLINE.
  *
- * A aparência (avatar) é persistida à parte (tabela avatar_profiles) e só viaja junto para o cliente desenhar.
+ * A aparência (avatar) é persistida à parte (tabela avatar_choices, uma linha por colaborador e estilo) e só viaja junto
+ * para o cliente desenhar. O estilo ativo é um ajuste da empresa (company_settings.avatar_style), trocado pelo administrador.
  * Cada atualização leva `seq` (global, crescente) e `version` por pessoa; o cliente ignora eventos atrasados.
  */
 import type { Response } from 'express';
 import type { SessionUser } from '../shared/types';
-import type { Db } from './db/driver';
+import { DEFAULT_AVATAR_STYLE, isAvatarStyle, type AvatarStyle } from '../shared/avatarAra';
+import { one, type Db } from './db/driver';
 
 export type LiveStatus = 'offline' | 'in_call' | 'typing' | 'online';
 
@@ -94,6 +96,7 @@ export class LiveHub {
   private timer: ReturnType<typeof setInterval> | null = null;
   private reconcileTimer: ReturnType<typeof setInterval> | null = null;
   private simTimer: ReturnType<typeof setInterval> | null = null;
+  private styles = new Map<string, AvatarStyle>(); // cache do estilo ativo por empresa
 
   constructor(
     private db: Db,
@@ -120,17 +123,52 @@ export class LiveHub {
     this.clients.clear();
   }
 
+  /** Estilo de avatar ativo da empresa (padrão: Ara 3D Gen). */
+  async avatarStyle(companyId: string): Promise<AvatarStyle> {
+    const hit = this.styles.get(companyId);
+    if (hit) return hit;
+    const row = await one<{ setting_value: string }>(this.db, "SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = 'avatar_style'", [companyId]);
+    const style = isAvatarStyle(row?.setting_value) ? row!.setting_value : DEFAULT_AVATAR_STYLE;
+    this.styles.set(companyId, style);
+    return style;
+  }
+
+  /** Troca o estilo da empresa: esquece o estado em memória e manda a todos um snapshot novo (aparências do novo estilo). */
+  async setAvatarStyle(companyId: string, style: AvatarStyle, userId: string) {
+    const now = Date.now();
+    await this.db.tx(async (tx) => {
+      const cur = await one<{ setting_value: string }>(tx, "SELECT setting_value FROM company_settings WHERE company_id = ? AND setting_key = 'avatar_style'", [companyId]);
+      if (cur) await tx.exec("UPDATE company_settings SET setting_value = ?, updated_by = ?, updated_at = ? WHERE company_id = ? AND setting_key = 'avatar_style'", [style, userId, now, companyId]);
+      else await tx.exec("INSERT INTO company_settings (company_id, setting_key, setting_value, updated_by, updated_at) VALUES (?, 'avatar_style', ?, ?, ?)", [companyId, style, userId, now]);
+    });
+    this.styles.set(companyId, style);
+    for (const [k, p] of this.people) if (p.companyId === companyId) this.people.delete(k);
+    // conexões abertas continuam contadas: quem tem SSE aberto volta a ser online ao reler a pessoa
+    for (const c of this.clients.values()) {
+      if (c.user.companyId !== companyId) continue;
+      if (c.user.employeeId) {
+        const p = await this.person(companyId, c.user.employeeId);
+        if (p) {
+          p.connections.add(c.id);
+          p.offlineAt = null;
+        }
+      }
+      send(c.res, 'snapshot', await this.snapshot(c.user, c.canSeePresence));
+    }
+  }
+
   private key = (companyId: string, employeeId: string) => `${companyId}:${employeeId}`;
 
   private async person(companyId: string, employeeId: string): Promise<PersonState | null> {
     const k = this.key(companyId, employeeId);
     let p = this.people.get(k);
     if (p) return p;
+    const style = await this.avatarStyle(companyId);
     const row = (await this.db.query<{ name: string; active: number; config_json: string | null; version: number | null; has_user: number }>(
       `SELECT e.name, e.active, a.config_json, a.version, (SELECT COUNT(*) FROM users u WHERE u.employee_id = e.id AND u.active = 1) AS has_user
-         FROM employees e LEFT JOIN avatar_profiles a ON a.employee_id = e.id AND a.company_id = e.company_id
+         FROM employees e LEFT JOIN avatar_choices a ON a.employee_id = e.id AND a.company_id = e.company_id AND a.style = ?
         WHERE e.id = ? AND e.company_id = ?`,
-      [employeeId, companyId],
+      [style, employeeId, companyId],
     ))[0];
     if (!row || row.active !== 1) return null;
     // outra chamada pode ter criado a pessoa enquanto a consulta rodava: reaproveita (senão perderia as conexões)
@@ -232,7 +270,7 @@ export class LiveHub {
   }
 
   /** Snapshot inicial da empresa (presença só para quem pode ver). */
-  async snapshot(user: SessionUser, canSeePresence: boolean): Promise<{ seq: number; people: LivePerson[]; config: { graceMs: number; typingTtlMs: number }; presenceVisible: boolean }> {
+  async snapshot(user: SessionUser, canSeePresence: boolean): Promise<{ seq: number; people: LivePerson[]; config: { graceMs: number; typingTtlMs: number }; presenceVisible: boolean; avatarStyle: AvatarStyle }> {
     const rows = await this.db.query<{ id: string }>('SELECT id FROM employees WHERE company_id = ? AND active = 1', [user.companyId]);
     const people: LivePerson[] = [];
     if (canSeePresence) {
@@ -241,7 +279,7 @@ export class LiveHub {
         if (p) people.push({ ...this.view(p), version: p.version, seq: this.seq });
       }
     }
-    return { seq: this.seq, people, config: { graceMs: this.cfg.graceMs, typingTtlMs: this.cfg.typingTtlMs }, presenceVisible: canSeePresence };
+    return { seq: this.seq, people, config: { graceMs: this.cfg.graceMs, typingTtlMs: this.cfg.typingTtlMs }, presenceVisible: canSeePresence, avatarStyle: await this.avatarStyle(user.companyId) };
   }
 
   // ---------- sinais (sempre do PRÓPRIO colaborador) ----------

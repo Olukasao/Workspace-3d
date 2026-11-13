@@ -4,7 +4,8 @@
  * window.renderAvatar({ config, mode, activity, speaking, view, t, zoom }) → data URL PNG.
  */
 import { ACESFilmicToneMapping, AmbientLight, BoxGeometry, Color, DirectionalLight, Group, HemisphereLight, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, Scene, SRGBColorSpace, Vector3, WebGLRenderer } from 'three';
-import type { AvatarConfig } from '../../shared/avatarCatalog';
+import { isAraConfig, type AnyAvatarConfig } from '../../shared/avatarAra';
+import { buildAraAvatar } from '../three/avatar/ara';
 import { buildAvatar, type BuiltAvatar } from '../three/avatar/assets';
 import { AvatarRig, STATION, type PoseState } from '../three/avatar/rig';
 
@@ -51,7 +52,7 @@ const camera = new PerspectiveCamera(28, W / H, 0.05, 50);
 let current: { key: string; av: BuiltAvatar; rig: AvatarRig } | null = null;
 
 interface Req {
-  config: AvatarConfig;
+  config: AnyAvatarConfig;
   mode?: PoseState['mode'];
   activity?: PoseState['activity'];
   speaking?: boolean | null;
@@ -70,7 +71,7 @@ async function renderAvatar(req: Req): Promise<{ png: string; missing: string[] 
   const state: PoseState = { mode: req.mode ?? 'stand', activity: req.activity ?? 'idle', speaking: req.speaking ?? null };
   if (!current || current.key !== key) {
     current?.av.dispose();
-    const av = await buildAvatar(req.config, req.lod ?? 0);
+    const av = isAraConfig(req.config) ? await buildAraAvatar(req.config, req.lod ?? 0) : await buildAvatar(req.config, req.lod ?? 0);
     holder.add(av.root);
     current = { key, av, rig: new AvatarRig(av, state) };
   }

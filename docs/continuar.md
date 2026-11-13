@@ -26,18 +26,19 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 | Construir a estrutura do zero (piso, parede, porta, janela, esticar parede) | pronto, `npm run e2e:draw` 7/7 |
 | Paredes piscando nos cantos (z-fighting) | corrigido |
 | Mesa com posição fixa (vincular colaborador à mesa) | pronto |
-| Avatares personalizáveis (MakeHuman + MPFB) | pronto: editor "Meu avatar", persistência no servidor, 8 looks, poses por IK |
+| Avatares: **Ara 3D Gen (padrão)** e MakeHuman + MPFB (desativado) | pronto: galeria de 16 personagens, escolha do estilo pelo admin em Integrações (ao vivo, por empresa), persistência por colaborador e estilo, poses por IK |
 | Presença ao vivo (SSE): offline, online, digitando, em atendimento, fala | pronto, com sinais de demonstração para atendimento e fala |
-| Testes automáticos (`npm test`) | 70/70, typecheck e lint limpos |
-| `npm run e2e:avatars` | 9/9 na última rodada isolada |
+| Testes automáticos (`npm test`) | 76/76, typecheck e lint limpos |
+| `npm run e2e:avatars` | 10/10 (inclui a troca de estilo pelo admin) |
 | `npm run e2e:draw` | 7/7 |
 | `npm run e2e` | 20/20 com o modo leve e tempo limite de 60 s (uma rodada; antes oscilava entre 17 e 18 de 20). Ver "Instabilidade do e2e" |
-| Desempenho com 25 avatares | medido: 37 FPS (câmera próxima) e 49 (afastada) numa GPU integrada |
+| Desempenho com 25 avatares | Ara: 32 FPS (câmera próxima, mín. 8) e 30 (afastada); MakeHuman: 37 e 49. O Ara é mais pesado (ver docs/avatars-ara.md) |
 | Documentação | `README.md`, `docs/avatars.md`, `docs/integrations.md`, `docs/verification.md`, `docs/production-gaps.md` |
 
 ## Decisões tomadas (não refazer sem motivo)
 
-- **Avatar ativo: MakeHuman + MPFB2 (Blender).** Foi avaliado trocar para o Quaternius (Universal Base Characters + Universal Animation Library, CC0, low-poly). **O usuário decidiu ficar com o MakeHuman + MPFB.** O Quaternius foi descartado e o download foi apagado. Se um dia voltar a ideia: os pacotes `[Standard]` gratuitos estão em https://quaternius.itch.io/universal-base-characters (122 MB) e https://quaternius.itch.io/universal-animation-library (15 MB).
+- **Estilo de avatar ativo: Ara 3D Gen. O MakeHuman + MPFB2 fica guardado e desativado**, e o administrador escolhe entre os dois em Integrações. O usuário rejeitou o visual do MakeHuman e pediu o Ara 3D Gen "no lugar do atual", mantendo o atual salvo. Foi avaliado antes o Quaternius (Universal Base Characters), descartado. O **bobba_client não foi integrado**: os avatares dele são do Habbo (copyright da Sulake, e o projeto nem os inclui) e o código é GPL-3.0.
+- **Ara 3D Gen é o mesmo corpo do MakeHuman** (pacote `makehuman_system_assets`, CC0): muda o gerador, as roupas procedurais, os sapatos e o formato (galeria de personagens prontos, sem editor de peças). Se o visual ainda desagradar, a saída é outra fonte de assets, de outro estilo (cartoon, low-poly, pixel isométrico original).
 - **MakeHuman/MPFB só existem na hora de gerar os modelos.** O produto distribui apenas `.glb` e `.webp` em `public/assets/avatars/` (21,6 MB, já no git). Roda em qualquer navegador com WebGL, inclusive dentro de um Electron. O MPFB é GPL e não é distribuído. Os modelos exportados são CC0.
 - **Electron:** o usuário mencionou um app Electron, mas **não achei nenhum** nas pastas do computador do trabalho (`Documents/GitHub`, `Documents/Codex`, `Desktop/PROJECTA`, `Downloads/Projecta` e outras). Não existe empacotamento Electron neste projeto. Pendente: descobrir qual é o app, ou decidir empacotar o Office 3D.
 - **Peças fora do catálogo:** camisetas e blusas casuais do pacote do sistema do MakeHuman têm o logotipo do MakeHuman estampado, e ficaram fora. `process.ts` só distribui o que está em `shared/avatarCatalog.ts`.
@@ -46,10 +47,11 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 ## Pendências (em ordem)
 
 1. **Confirmar a estabilidade do `npm run e2e`**: rodar mais 2 ou 3 vezes seguidas. Passou 20/20 uma vez depois da correção abaixo.
-2. **Descobrir o app Electron** do usuário (ver acima) e conferir como ele carrega `public/assets/avatars` e se a política de segurança (CSP) dele permite `.glb` e `.webp`.
-3. **Fontes reais dos sinais de presença** (só quando houver acesso): digitação e presença do Workscape, ciclo de chamada e atividade de voz da telefonia (`CALL_PROVIDER`), barramento compartilhado para mais de um processo de servidor. Detalhes em `docs/integrations.md`.
-4. **MariaDB nunca foi executado** (não havia nenhum na máquina do trabalho). O código e o SQL estão prontos.
-5. Itens de produção em `docs/production-gaps.md`.
+2. **Decidir o que fazer com o estilo Ara:** é mais pesado que o MakeHuman (ver docs/avatars-ara.md, "Como melhorar": atlas de materiais, texturas compartilhadas, cache). E, se o usuário quiser editar cores e rosto no Ara, é preciso rodar o gerador no navegador (cerca de 85 MB de dados).
+3. **Descobrir o app Electron** do usuário (ver acima) e conferir como ele carrega `public/assets/avatars` e se a política de segurança (CSP) dele permite `.glb` e `.webp`.
+4. **Fontes reais dos sinais de presença** (só quando houver acesso): digitação e presença do Workscape, ciclo de chamada e atividade de voz da telefonia (`CALL_PROVIDER`), barramento compartilhado para mais de um processo de servidor. Detalhes em `docs/integrations.md`.
+5. **MariaDB nunca foi executado** (não havia nenhum na máquina do trabalho). O código e o SQL estão prontos.
+6. Itens de produção em `docs/production-gaps.md`.
 
 ## Instabilidade do e2e (investigada em 13/11/2026)
 
@@ -87,7 +89,7 @@ Verificações: `npm run typecheck`, `npm run lint`, `npm test`, `npm run e2e`, 
 ### O que NÃO vai pelo git
 
 - `.env` e `data/` (banco local, com o que você desenhar no editor): crie de novo com `cp .env.example .env` e `npm run db:reset`. **Se quiser levar a planta que desenhou, copie `data/office3d.sqlite` à parte.** Não apague `data/` sem copiar antes.
-- `.build-tools/` (cerca de 2 GB): Blender 4.2.9 portátil, MPFB 2.0.18 e os pacotes de recursos do MakeHuman. **Só precisa disso para regerar os modelos dos avatares** (`npm run avatars:build`). Para usar o produto, os modelos já estão em `public/assets/avatars/`. Como reinstalar: `docs/avatars.md`, seção "Pipeline de assets". Os pacotes vêm de `https://files.makehumancommunity.org/asset_packs/<pacote>/<pacote>_cc0.zip` (`makehuman_system_assets`, `suits01`, `glasses01`, `bodyparts05`) e de `https://files.makehumancommunity.org/functional/visemes01.zip`.
+- `.build-tools/` (cerca de 3 GB): `ara3d/` (clone do Ara 3D Gen com seus dados, 1,2 GB; **gera a galeria do estilo padrão**, `npm run avatars-ara:build`), `ara-raw/` (GLB brutos) e, do estilo MakeHuman, Blender 4.2.9 portátil, MPFB 2.0.18 e os pacotes de recursos (`npm run avatars:build`). **Só precisa disso para regerar modelos.** Como reinstalar o Ara: `docs/avatars-ara.md`, seção "Pipeline" (`git clone https://github.com/olatunde85/3d-gen.git .build-tools/ara3d`, `npm install`, `npm run setup-assets`). Para usar o produto, os modelos já estão em `public/assets/avatars-ara/` e `public/assets/avatars/`. Como reinstalar o do MakeHuman: `docs/avatars.md`, seção "Pipeline de assets". Os pacotes vêm de `https://files.makehumancommunity.org/asset_packs/<pacote>/<pacote>_cc0.zip` (`makehuman_system_assets`, `suits01`, `glasses01`, `bodyparts05`) e de `https://files.makehumancommunity.org/functional/visemes01.zip`.
 - `assets-src/originals/` (modelos 3D originais): só é necessário para regerar o catálogo de móveis (`npm run assets:process`). Os resultados já estão em `public/assets/`.
 - `node_modules/`, `dist/`, `test-results/`.
 

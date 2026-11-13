@@ -8,8 +8,9 @@ import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { Frustum, Matrix4, OrthographicCamera, Sphere, Vector3, type Group } from 'three';
-import { defaultAvatar, type AvatarConfig } from '../../../shared/avatarCatalog';
-import type { LivePerson } from '../../live';
+import { defaultForStyle, isAraConfig, styleOfConfig, type AnyAvatarConfig } from '../../../shared/avatarAra';
+import { useLive, type LivePerson } from '../../live';
+import { buildAraAvatar } from './ara';
 import { buildAvatar, type BuiltAvatar } from './assets';
 import { AvatarRig, type PoseState } from './rig';
 
@@ -28,8 +29,11 @@ export function poseFor(p: Pick<LivePerson, 'status' | 'call'>): PoseState {
   return { mode: 'sit', activity: p.status === 'in_call' ? 'call' : p.status === 'typing' ? 'typing' : 'idle', speaking: p.call?.speaking ?? null };
 }
 
-export const Avatar = memo(function Avatar({ person, seat, config: forced, pose: forcedPose, label, fixedLod }: { person?: LivePerson; seat: Seat; config?: AvatarConfig; pose?: PoseState; label?: string; fixedLod?: 0 | 1 }) {
-  const config = forced ?? person?.appearance?.config ?? defaultAvatar(person?.employeeId ?? 'demo');
+export const Avatar = memo(function Avatar({ person, seat, config: forced, pose: forcedPose, label, fixedLod }: { person?: LivePerson; seat: Seat; config?: AnyAvatarConfig; pose?: PoseState; label?: string; fixedLod?: 0 | 1 }) {
+  const style = useLive((s) => s.avatarStyle);
+  const stored = person?.appearance?.config;
+  // aparência salva de outro estilo (ex.: o admin acabou de trocar) não vale: usa o padrão do estilo ativo até a pessoa escolher
+  const config: AnyAvatarConfig = forced ?? (stored && styleOfConfig(stored) === style ? stored : defaultForStyle(style, person?.employeeId ?? 'demo'));
   const key = JSON.stringify(config);
   const pose = forcedPose ?? (person ? poseFor(person) : { mode: 'sit' as const, activity: 'idle' as const, speaking: null });
   const poseRef = useRef(pose);
@@ -45,7 +49,7 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
 
   useEffect(() => {
     let alive = true;
-    buildAvatar(config, lod).then(
+    (isAraConfig(config) ? buildAraAvatar(config, lod) : buildAvatar(config, lod)).then(
       (av) => {
         if (!alive) return av.dispose();
         setFailed(null);

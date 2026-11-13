@@ -506,8 +506,9 @@ function DiagnosticHooks() {
           o.getWorldPosition(p);
           // ossos principais no mundo (conferir pose: mãos no teclado, cabeça acima do encosto)
           const joints: Record<string, number[]> = {};
-          for (const n of ['head', 'hand_l', 'hand_r', 'pelvis']) {
-            const b = o.getObjectByName(n);
+          const NAMES: Record<string, string[]> = { head: ['head', 'Head'], hand_l: ['hand_l', 'LeftHand'], hand_r: ['hand_r', 'RightHand'], pelvis: ['pelvis', 'Hips'] }; // MakeHuman | Mixamo (Ara 3D Gen)
+          for (const [n, alts] of Object.entries(NAMES)) {
+            const b = alts.map((x) => o.getObjectByName(x)).find(Boolean);
             if (b) joints[n] = b.getWorldPosition(new Vector3()).toArray().map((x) => Math.round(x * 100) / 100);
           }
           out.push({ employeeId: o.name.slice(7), x: Math.round(p.x * 100) / 100, z: Math.round(p.z * 100) / 100, visible: o.visible, items: meshes, joints, ...(o.userData.avatar ?? {}) });

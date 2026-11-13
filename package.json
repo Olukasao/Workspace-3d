@@ -30,7 +30,10 @@
     "perf:avatars": "node tools/e2e/perf-avatars.mjs",
     "avatars:build": "node tools/avatars/build.mjs",
     "avatars:process": "tsx tools/avatars/process.ts",
-    "avatars:sheet": "node tools/avatars/sheet.mjs"
+    "avatars:sheet": "node tools/avatars/sheet.mjs",
+    "avatars-ara:build": "node tools/avatars-ara/build.mjs",
+    "avatars-ara:process": "tsx tools/avatars-ara/process.ts",
+    "avatars-ara:thumbs": "node tools/avatars-ara/thumbs.mjs"
   },
   "dependencies": {
     "@gltf-transform/core": "^4.0.10",

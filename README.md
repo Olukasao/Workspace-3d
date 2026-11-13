@@ -77,7 +77,8 @@ No **Editor**, selecione uma mesa e escolha o colaborador no inspetor (seção d
 
 ## Avatares e presença ao vivo
 
-- **Meu avatar** (clique no seu nome, no topo): monte o seu avatar com corpo, pele, rosto, cabelo, barba, roupas, sapatos e óculos, ou parta de um look pronto (casual ou corporativo). A pré-visualização gira e mostra as poses. **Salvar** publica para todo mundo na hora; **Cancelar** descarta. Cada pessoa edita só o próprio avatar.
+- **Meu avatar** (clique no seu nome, no topo): no estilo padrão (**Ara 3D Gen**), escolha o seu personagem numa galeria de 16 (masculinos e femininos, formais e casuais) e marque se o headset fica sempre à mostra. A pré-visualização gira e mostra as poses. **Salvar** publica para todo mundo na hora; **Cancelar** descarta. Cada pessoa edita só o próprio avatar.
+- **Administrador → Integrações → Estilo dos avatares:** troca o estilo da empresa entre **Ara 3D Gen** (padrão) e **MakeHuman** (editor de peças: corpo, pele, rosto, cabelo, roupas, sapatos, óculos e cores). A troca vale ao vivo e não apaga a escolha de ninguém.
 - **No modo Operação**, cada colaborador online aparece sentado na cadeira da mesa dele:
   - **digitando** quando escreve no chat interno;
   - **em atendimento**, com headset e balão "Em atendimento" ou "•••" enquanto fala;
@@ -86,23 +87,31 @@ No **Editor**, selecione uma mesa e escolha o colaborador no inspetor (seção d
 - Nada do conteúdo da conversa chega ao escritório: só o sinal "digitando sim/não".
 - **Demonstração:** o botão de presença no topo liga e desliga um atendimento e o sinal de fala da sua própria pessoa. Os colegas sem conta são simulados.
 
-Detalhes: [docs/avatars.md](docs/avatars.md) (catálogo, pipeline, licenças, desempenho) e [docs/integrations.md](docs/integrations.md#presença-ao-vivo-e-avatares) (sinais, segurança e o que falta das integrações reais).
+Detalhes: [docs/avatars-ara.md](docs/avatars-ara.md) (estilo Ara 3D Gen e a escolha do estilo), [docs/avatars.md](docs/avatars.md) (estilo MakeHuman: catálogo, pipeline, licenças, desempenho) e [docs/integrations.md](docs/integrations.md#presença-ao-vivo-e-avatares) (sinais, segurança e o que falta das integrações reais).
 
 ## Verificações
 
 ```bash
 npm run typecheck   # TypeScript estrito (cliente, servidor, ferramentas e testes)
 npm run lint        # ESLint
-npm test            # 70 testes: cena, operações do editor, desenho livre, API e presença/avatares (servidor real + SQLite em memória)
+npm test            # 76 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
 npm run e2e         # 20 verificações no navegador real (Chrome/Edge), pelos fluxos da interface
 npm run e2e:draw    # 7 verificações: construir a estrutura do zero (piso, paredes, janela, porta, puxador)
-npm run e2e:avatars # 9 verificações com duas pessoas em sessões separadas: avatar na mesa, troca de roupa, digitação, atendimento, várias abas, reconexão
+npm run e2e:avatars # 10 verificações com duas pessoas em sessões separadas: avatar na mesa, troca de personagem, digitação, atendimento, várias abas, reconexão, troca de estilo pelo admin
 npm run perf        # medição com 100 objetos repetidos → test-results/perf-report.json
 npm run perf:avatars      # medição com 25 avatares simultâneos (rode npm run build antes) → test-results/perf-avatars-report.json
 npm run assets:validate   # glTF Validator (Khronos) em todos os GLB + conferência do manifesto
 ```
 
-Pipeline dos avatares (só para regerar os modelos; precisa do Blender com o MPFB2, ver [docs/avatars.md](docs/avatars.md#pipeline-de-assets)):
+Pipeline dos avatares do estilo Ara 3D Gen (só para regerar a galeria; precisa do clone do Ara 3D Gen, ver [docs/avatars-ara.md](docs/avatars-ara.md#pipeline)):
+
+```bash
+npm run avatars-ara:build      # gera os GLB brutos da galeria → .build-tools/ara-raw
+npm run avatars-ara:process    # WebP, LOD1, manifesto e créditos → public/assets/avatars-ara
+npm run avatars-ara:thumbs     # miniaturas da galeria
+```
+
+Pipeline do estilo MakeHuman (precisa do Blender com o MPFB2, ver [docs/avatars.md](docs/avatars.md#pipeline-de-assets)):
 
 ```bash
 npm run avatars:build     # Blender sem interface → .build-tools/avatars-raw
@@ -145,9 +154,10 @@ docs/            reaproveitamento do FigureBox, integrações, assets, decisões
 - [docs/verification.md](docs/verification.md): resultado das verificações e da medição de desempenho
 - [docs/production-gaps.md](docs/production-gaps.md): o que falta para produção
 - [docs/continuar.md](docs/continuar.md): onde paramos, decisões, pendências e como continuar de outro computador
-- [docs/avatars.md](docs/avatars.md): avatares (catálogo, persistência, pipeline, licenças, clipping, desempenho com 25 avatares, lacunas)
+- [docs/avatars-ara.md](docs/avatars-ara.md): avatares do estilo Ara 3D Gen (padrão), escolha do estilo pelo admin, pipeline, licenças, desempenho e lacunas
+- [docs/avatars.md](docs/avatars.md): avatares do estilo MakeHuman (desativado por padrão): catálogo, pipeline, licenças, clipping, desempenho, lacunas
 - [docs/characters-roadmap.md](docs/characters-roadmap.md): roteiro antigo de personagens, substituído pelos avatares
 
 ## Créditos
 
-O editor reaproveita código do FigureBox Planner (commit `f478167`, do mesmo autor). Os modelos 3D são CC0 1.0 e CC-BY 3.0, de Poly Pizza, Kenney/OpenGameArt e Poly Haven; as texturas são CC0, do ambientCG. As atribuições exigidas estão em `public/assets/CREDITS.md` e na tela **Créditos** do produto. Os avatares usam recursos CC0 da comunidade MakeHuman, preparados com o MPFB2 (ferramenta GPL, não distribuída). A lista por arquivo está em `public/assets/avatars/CREDITS.md`.
+O editor reaproveita código do FigureBox Planner (commit `f478167`, do mesmo autor). Os modelos 3D são CC0 1.0 e CC-BY 3.0, de Poly Pizza, Kenney/OpenGameArt e Poly Haven; as texturas são CC0, do ambientCG. As atribuições exigidas estão em `public/assets/CREDITS.md` e na tela **Créditos** do produto. Os avatares usam dados CC0 da comunidade MakeHuman: o estilo padrão foi gerado com o Ara 3D Gen (código MIT, não distribuído) e o estilo MakeHuman com o MPFB2 (ferramenta GPL, não distribuída). A lista por arquivo está em `public/assets/avatars-ara/CREDITS.md` e `public/assets/avatars/CREDITS.md`.

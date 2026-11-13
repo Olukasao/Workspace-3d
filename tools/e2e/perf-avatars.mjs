@@ -91,7 +91,7 @@ async function measure(label, { zoomOut }) {
   let list = [];
   for (;;) {
     list = await ours();
-    if (list.filter((a) => a.items?.length > 3).length >= N - 2 || Date.now() - t1 > 90000) break; // a simulação pode tirar 1–2 do ar
+    if (list.filter((a) => a.items?.length >= 1).length >= N - 2 || Date.now() - t1 > 90000) break; // a simulação pode tirar 1–2 do ar
     await p.waitForTimeout(500);
   }
   const avatarsReadyMs = Date.now() - t0;
@@ -111,7 +111,7 @@ async function measure(label, { zoomOut }) {
   const net = await p.evaluate(() => {
     const r = performance.getEntriesByType('resource');
     const sum = (f) => r.filter(f).reduce((s, e) => s + (e.transferSize || e.encodedBodySize || 0), 0);
-    return { totalKB: Math.round(sum(() => true) / 1024), avatarsKB: Math.round(sum((e) => e.name.includes('/assets/avatars/')) / 1024), avatarFiles: r.filter((e) => e.name.includes('/assets/avatars/')).length };
+    return { totalKB: Math.round(sum(() => true) / 1024), avatarsKB: Math.round(sum((e) => e.name.includes('/assets/avatars')) / 1024), avatarFiles: r.filter((e) => e.name.includes('/assets/avatars')).length };
   });
   await c.close();
   const fps = samples.map((s) => s.fps).filter(Boolean).sort((a, b) => a - b);

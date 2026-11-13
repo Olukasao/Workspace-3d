@@ -53,7 +53,8 @@ Princípios aplicados a todas:
 | `GET /api/live/stream` (SSE), `GET /api/live/snapshot` | operador, admin (visualizador recebe lista vazia) | Presença ao vivo da empresa: `snapshot` ao conectar, depois `person` (incremental, com versão) e `resync` |
 | `POST /api/live/typing` | quem tem colaborador | `{ state: "start" ou "stop" }`: só o booleano, sempre da própria sessão |
 | `POST /api/live/call`, `POST /api/live/speaking` | quem tem colaborador | Ciclo de atendimento e indicador de fala **de demonstração** (409 com `CALL_PROVIDER` real) |
-| `GET /api/avatar/catalog`, `GET` e `PUT /api/avatar/me`, `PUT /api/avatar/employees/:id` | quem tem colaborador | Catálogo e aparência do próprio avatar. `baseVersion` desatualizada → 409; item fora do catálogo → 422; avatar de outra pessoa → 403, inclusive para administrador |
+| `GET /api/avatar/catalog`, `GET` e `PUT /api/avatar/me`, `PUT /api/avatar/employees/:id` | quem tem colaborador | Estilo ativo, catálogos e aparência do próprio avatar **no estilo ativo da empresa**. `baseVersion` desatualizada → 409; item fora do catálogo ou configuração de outro estilo → 422; avatar de outra pessoa → 403, inclusive para administrador |
+| `GET` e `PUT /api/admin/avatar-style` | admin | Estilo de avatar da empresa (`ara3d` padrão, ou `makehuman`). A troca vai ao vivo para todos (evento `snapshot` com `avatarStyle`) e entra na trilha. Ver [avatars-ara.md](avatars-ara.md) |
 
 ## Presença ao vivo e avatares
 

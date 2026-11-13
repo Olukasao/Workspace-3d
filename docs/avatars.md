@@ -1,4 +1,6 @@
-# Avatares
+# Avatares: estilo MakeHuman (editor de peças)
+
+> **Este é o estilo MakeHuman + MPFB, hoje desativado por padrão.** O estilo ativo da empresa é o **Ara 3D Gen** ([avatars-ara.md](avatars-ara.md)), e o administrador escolhe entre os dois em Integrações → Estilo dos avatares. Tudo abaixo continua valendo e funcionando quando o MakeHuman é o estilo escolhido.
 
 Cada colaborador tem um avatar 3D, personalizado por ele mesmo, sentado na cadeira da mesa vinculada a ele e animado pelo estado de presença ao vivo. Este documento cobre catálogo, persistência, pipeline de assets, licenças, animação, desempenho e lacunas. As regras de presença e os sinais estão em [integrations.md](integrations.md#presença-ao-vivo-e-avatares).
 

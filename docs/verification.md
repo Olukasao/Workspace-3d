@@ -6,12 +6,12 @@ Executadas em 12/11/2026 no ambiente descrito no fim deste documento. Os relató
 |---|---|---|
 | Tipagem (estrita) | `npm run typecheck` | ✅ sem erros |
 | Lint | `npm run lint` | ✅ sem erros |
-| Testes de cena, editor, desenho, API e presença | `npm test` | ✅ **70/70** (cena 8 · operações do editor 12 · desenho livre 6 · API 32 · presença e avatares 12) |
+| Testes de cena, editor, desenho, API e presença | `npm test` | ✅ **76/76** (cena 8 · operações do editor 12 · desenho livre 6 · API 32 · presença, avatares e estilos 18) |
 | Aceite no navegador real | `npm run e2e` | ✅ **20/20** com `?leve` e tempo limite de 60 s (275 s, 0 erros de página). Antes dessa correção oscilava entre 17 e 18 de 20 por lentidão da renderização por software, e não por defeito do produto (ver [continuar.md](continuar.md#instabilidade-do-e2e-investigada-em-13112026)). **Uma rodada só depois da correção**: falta repetir para confirmar a estabilidade |
 | glTF Validator (Khronos) | `npm run assets:validate` | ✅ 52 modelos, **0 erros**, 4 avisos (espaço tangente gerado) |
 | Construir a estrutura do zero | `npm run e2e:draw` | ✅ **7/7** (plano vazio → piso arrastado → 4 paredes ponto a ponto → janela e porta → esticar parede → publicar) |
 | Build de produção | `npm run build` | ✅ (blocos: app 231 KB, r3f 387 KB, three 684 KB; gzip 71 + 125 + 176 KB) |
-| Desempenho com 25 avatares | `npm run perf:avatars` | ✅ 37 FPS de mediana com a câmera próxima e 49 com ela afastada, 160 texturas na GPU (ver [avatars.md](avatars.md#desempenho-com-25-avatares-npm-run-perfavatars)) |
+| Desempenho com 25 avatares | `npm run perf:avatars` | ✅ Estilo Ara (padrão): 32 FPS de mediana com a câmera próxima (mín. 8) e 30 com ela afastada, 900 texturas na GPU. Estilo MakeHuman: 37 e 49, 160 texturas. O Ara é mais pesado (ver [avatars-ara.md](avatars-ara.md#desempenho-com-25-avatares-npm-run-perfavatars)) |
 | Clipping dos avatares | `npm run avatars:sheet` | ✅ 8 looks × 6 poses conferidos; 2 problemas corrigidos e 1 aceito (ver [avatars.md](avatars.md#validação-de-clipping)) |
 | Produção sob CSP | `npm run build && npm start` + navegador | ✅ sem violações no console; asset inexistente → 404 |
 | Caminho local | `npm run db:reset` e `npm run dev` | ✅ migração + seed; API, Vite e proxy respondendo |
@@ -81,17 +81,18 @@ No navegador real, com o mouse: esvazia o rascunho, arrasta um piso de 8 × 6 m 
 
 ## Avatares ao vivo com duas pessoas (`npm run e2e:avatars`)
 
-Duas sessões de navegador separadas, pelos fluxos normais da interface: **A** é o operador Otávio (Mesa 05) e **B** é a administradora observando a cena. Tolerância de offline reduzida para 3 s e validade da digitação para 4 s, só para o teste.
+**Resultado: 10/10, 0 erros de página.** Duas sessões de navegador separadas, pelos fluxos normais da interface: **A** é o operador Otávio (Mesa 05) e **B** é a administradora observando a cena. Tolerância de offline reduzida para 3 s e validade da digitação para 4 s, só para o teste.
 
 1. **Offline:** sem avatar; a Mesa 05 continua visível e atribuída ao Otávio.
-2. **Online:** o avatar aparece na sessão B, sem recarregar, exatamente no assento da Mesa 05.
-3. **Troca de roupa:** a edição não salva fica só na pré-visualização de A. Depois de salvar, o terno aparece em B sem recarregar.
+2. **Online:** o avatar aparece na sessão B, sem recarregar, exatamente no assento da Mesa 05, com as mãos na altura do teclado.
+3. **Troca de personagem:** a escolha não salva fica só na pré-visualização de A (a galeria mostra 16 personagens, com miniaturas). Depois de salvar, o personagem novo aparece em B sem recarregar.
 4. **Digitação no chat interno:** a pose de digitação aparece em B. Ao sair do campo, volta ao trabalho, sem enviar mensagem.
 5. **Atendimento:** headset equipado e balão "Em atendimento", que vira "•••" com o sinal de fala.
 6. **Prioridade:** digitar durante a chamada continua "em atendimento". Ao encerrar, o estado é recalculado.
 7. **Duas sessões do mesmo colaborador:** fechar uma mantém o avatar. Fechar a última remove o avatar depois da tolerância, e não antes.
 8. **Reconexão:** A volta com a aparência salva. B recarrega e vê um único avatar, sem duplicata.
-9. **Autorização:** a administradora tenta salvar o avatar do Otávio pela API e recebe 403.
+9. **Troca de estilo pelo admin:** em Integrações, a administradora troca para MakeHuman (a sessão B passa a mostrar o avatar MakeHuman) e volta para Ara 3D Gen (o personagem escolhido reaparece), sem recarregar e sem avatar duplicado.
+10. **Autorização:** a administradora tenta salvar o avatar do Otávio pela API e recebe 403.
 
 **Defeitos encontrados por este roteiro e corrigidos:**
 

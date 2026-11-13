@@ -5,15 +5,17 @@
  * - POST /api/live/typing     { state: 'start' | 'stop' } — só o booleano, do próprio usuário
  * - POST /api/live/call       { action: 'start' | 'end', speakingSignal?: boolean } — ciclo de atendimento (demo)
  * - POST /api/live/speaking   { speaking: boolean } — indicador booleano de fala (demo)
- * - GET  /api/avatar/catalog  catálogo de peças por slot
+ * - GET  /api/avatar/catalog  estilo ativo da empresa + galeria Ara 3D Gen + catálogo de peças do MakeHuman
+ * - GET  /api/admin/avatar-style  estilo ativo e opções (admin); PUT { style } troca o estilo da empresa, ao vivo para todos
  * - GET  /api/avatar/me       aparência do próprio colaborador
  * - PUT  /api/avatar/me       { config, baseVersion } — salva (versão para gravação concorrente)
  * - PUT  /api/avatar/employees/:id  só aceita o próprio colaborador (ninguém edita o avatar de outra pessoa)
  */
 import type { Router } from 'express';
-import { AVATAR_CATALOG, AVATAR_CATALOG_VERSION, defaultAvatar, validateAvatar, type AvatarConfig } from '../../shared/avatarCatalog';
+import { AVATAR_CATALOG, AVATAR_CATALOG_VERSION } from '../../shared/avatarCatalog';
+import { ARA_CHARACTERS, AVATAR_STYLES, AVATAR_STYLE_LABEL, defaultForStyle, isAvatarStyle, validateForStyle, type AnyAvatarConfig } from '../../shared/avatarAra';
 import type { AppContext } from '../app';
-import { currentUser } from '../auth';
+import { currentUser, requireRole } from '../auth';
 import { one } from '../db/driver';
 import { HttpError, audit, correlationId, h } from '../http';
 
@@ -79,11 +81,28 @@ export function liveRoutes(r: Router, ctx: AppContext) {
   }));
 
   // ---------- aparência ----------
-  r.get('/avatar/catalog', (_req, res) => res.json({ version: AVATAR_CATALOG_VERSION, catalog: AVATAR_CATALOG }));
+  r.get('/avatar/catalog', h(async (_req, res) => {
+    const user = currentUser(res);
+    res.json({ version: AVATAR_CATALOG_VERSION, style: await live.avatarStyle(user.companyId), ara: ARA_CHARACTERS, catalog: AVATAR_CATALOG });
+  }));
+
+  // ---------- estilo de avatar da empresa (opção do administrador) ----------
+  const styleInfo = async (companyId: string) => ({ style: await live.avatarStyle(companyId), options: AVATAR_STYLES.map((id) => ({ id, label: AVATAR_STYLE_LABEL[id] })) });
+  r.get('/admin/avatar-style', requireRole('admin'), h(async (_req, res) => res.json(await styleInfo(currentUser(res).companyId))));
+  r.put('/admin/avatar-style', requireRole('admin'), h(async (req, res) => {
+    const user = currentUser(res);
+    const style = (req.body as { style?: unknown })?.style;
+    if (!isAvatarStyle(style)) throw new HttpError(400, 'bad_request', 'Estilo inválido. Use: ' + AVATAR_STYLES.join(', ') + '.');
+    const before = await live.avatarStyle(user.companyId);
+    if (before !== style) await live.setAvatarStyle(user.companyId, style, user.id);
+    await audit(db, { user, action: 'avatar.style', targetType: 'company', targetId: user.companyId, result: 'completed', mode: 'real', detail: { from: before, to: style }, correlationId: correlationId(res) });
+    res.json(await styleInfo(user.companyId));
+  }));
 
   const loadMine = async (companyId: string, employeeId: string) => {
-    const row = await one<{ config_json: string; version: number; updated_at: number }>(db, 'SELECT config_json, version, updated_at FROM avatar_profiles WHERE employee_id = ? AND company_id = ?', [employeeId, companyId]);
-    return row ? { config: JSON.parse(row.config_json) as AvatarConfig, version: Number(row.version), updatedAt: Number(row.updated_at), saved: true } : { config: defaultAvatar(employeeId), version: 0, updatedAt: 0, saved: false };
+    const style = await live.avatarStyle(companyId);
+    const row = await one<{ config_json: string; version: number; updated_at: number }>(db, 'SELECT config_json, version, updated_at FROM avatar_choices WHERE employee_id = ? AND company_id = ? AND style = ?', [employeeId, companyId, style]);
+    return row ? { style, config: JSON.parse(row.config_json) as AnyAvatarConfig, version: Number(row.version), updatedAt: Number(row.updated_at), saved: true } : { style, config: defaultForStyle(style, employeeId), version: 0, updatedAt: 0, saved: false };
   };
 
   r.get('/avatar/me', h(async (_req, res) => {
@@ -98,21 +117,22 @@ export function liveRoutes(r: Router, ctx: AppContext) {
     if (!user.employeeId || user.employeeId !== employeeId) throw new HttpError(403, 'forbidden', 'Você só pode editar o seu próprio avatar.');
     const { config, baseVersion } = (body ?? {}) as { config?: unknown; baseVersion?: unknown };
     if (!Number.isInteger(baseVersion)) throw new HttpError(400, 'bad_request', 'Informe a versão-base do avatar.');
-    const errors = validateAvatar(config);
-    if (errors.length) throw new HttpError(422, 'invalid_avatar', 'A configuração do avatar tem itens fora do catálogo.', { details: errors });
+    const style = await live.avatarStyle(user.companyId);
+    const errors = validateForStyle(style, config);
+    if (errors.length) throw new HttpError(422, 'invalid_avatar', 'A configuração do avatar tem itens fora do catálogo do estilo ativo.', { details: errors });
     const json = JSON.stringify(config);
     const now = Date.now();
     const out = await db.tx(async (tx) => {
-      const cur = await one<{ version: number }>(tx, 'SELECT version FROM avatar_profiles WHERE employee_id = ? AND company_id = ?', [employeeId, user.companyId]);
+      const cur = await one<{ version: number }>(tx, 'SELECT version FROM avatar_choices WHERE employee_id = ? AND company_id = ? AND style = ?', [employeeId, user.companyId, style]);
       const curVersion = Number(cur?.version ?? 0);
       if (curVersion !== baseVersion) throw new HttpError(409, 'avatar_conflict', 'Seu avatar foi salvo em outra aba ou dispositivo. Recarregue para continuar.', { currentVersion: curVersion });
-      if (cur) await tx.exec('UPDATE avatar_profiles SET config_json = ?, catalog_version = ?, version = version + 1, updated_by = ?, updated_at = ? WHERE employee_id = ? AND company_id = ? AND version = ?', [json, AVATAR_CATALOG_VERSION, user.id, now, employeeId, user.companyId, curVersion]);
-      else await tx.exec('INSERT INTO avatar_profiles (employee_id, company_id, config_json, catalog_version, version, updated_by, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?)', [employeeId, user.companyId, json, AVATAR_CATALOG_VERSION, user.id, now]);
+      if (cur) await tx.exec('UPDATE avatar_choices SET config_json = ?, catalog_version = ?, version = version + 1, updated_by = ?, updated_at = ? WHERE employee_id = ? AND company_id = ? AND style = ? AND version = ?', [json, AVATAR_CATALOG_VERSION, user.id, now, employeeId, user.companyId, style, curVersion]);
+      else await tx.exec('INSERT INTO avatar_choices (employee_id, style, company_id, config_json, catalog_version, version, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)', [employeeId, style, user.companyId, json, AVATAR_CATALOG_VERSION, user.id, now]);
       return curVersion + 1;
     });
     await live.appearanceChanged(user.companyId, employeeId, config, out);
     await audit(db, { user, action: 'avatar.save', targetType: 'employee', targetId: employeeId, result: 'completed', mode: 'real', detail: { version: out }, correlationId: correlationId(resLocals) });
-    return { version: out, config, updatedAt: now };
+    return { version: out, style, config, updatedAt: now };
   };
 
   r.put('/avatar/me', h(async (req, res) => {

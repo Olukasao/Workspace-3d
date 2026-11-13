@@ -1,3 +1,4 @@
+import type { AvatarStyle } from '../../shared/avatarAra';
 import { useCallback, useEffect, useState } from 'react';
 import type { AuditEntry, IntegrationStatus } from '../../shared/types';
 import { api, errorText } from '../api';
@@ -49,6 +50,38 @@ export function AuditPage() {
 
 const STATE: Record<IntegrationStatus['state'], [string, string]> = { ok: ['ok', 'Disponível'], not_configured: ['neutral', 'Não configurado'], unavailable: ['bad', 'Indisponível'] };
 
+/** Opção do administrador: estilo dos avatares da empresa. A troca vale ao vivo para quem está com o escritório aberto. */
+function AvatarStyleCard() {
+  const [info, setInfo] = useState<{ style: AvatarStyle; options: Array<{ id: AvatarStyle; label: string }> } | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    api.get<{ style: AvatarStyle; options: Array<{ id: AvatarStyle; label: string }> }>('/api/admin/avatar-style').then(setInfo, (e) => toast(errorText(e)));
+  }, []);
+  const choose = async (style: AvatarStyle) => {
+    if (!info || info.style === style) return;
+    setBusy(true);
+    try {
+      setInfo(await api.put<{ style: AvatarStyle; options: Array<{ id: AvatarStyle; label: string }> }>('/api/admin/avatar-style', { style }));
+      toast('Estilo dos avatares trocado. Quem está com o escritório aberto já vê a mudança.');
+    } catch (e) {
+      toast(errorText(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="card" data-testid="avatar-style-card">
+      <h3>Estilo dos avatares</h3>
+      <p className="muted">Vale para a empresa toda. Trocar não apaga nada: cada pessoa guarda a escolha que fez em cada estilo e volta a ela se o estilo anterior for reativado.</p>
+      <div className="tabs" role="radiogroup" aria-label="Estilo dos avatares">
+        {info?.options.map((o) => (
+          <button key={o.id} role="radio" aria-checked={info.style === o.id} aria-pressed={info.style === o.id} disabled={busy} data-avatar-style={o.id} onClick={() => void choose(o.id)}>{o.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function IntegrationsPage({ demoMode }: { demoMode: boolean }) {
   const [list, setList] = useState<IntegrationStatus[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -88,6 +121,7 @@ export function IntegrationsPage({ demoMode }: { demoMode: boolean }) {
             </tbody>
           </table>
         </div>
+        <AvatarStyleCard />
         {demoMode && <div className="notice demo">“Simular falha” existe só no modo demonstração: serve para conferir que o mapa e a edição continuam funcionando quando um provedor cai.</div>}
       </div>
     </main>
@@ -120,8 +154,10 @@ function avatarCredits(m: AvatarManifestCredits): AvatarCredit[] {
 export function CreditsPage() {
   const [m, setM] = useState<{ models: ManifestModel[]; textures: ManifestTexture[] } | null>(null);
   const [av, setAv] = useState<AvatarCredit[] | null>(null);
+  const [ara, setAra] = useState<{ commit: string; count: number } | null>(null);
   useEffect(() => {
     fetch('/assets/manifest.json').then((r) => r.json()).then(setM, () => setM({ models: [], textures: [] }));
+    fetch('/assets/avatars-ara/manifest.json').then((r) => r.json()).then((x: { generator: { commit: string }; characters: unknown[] }) => setAra({ commit: x.generator.commit, count: x.characters.length }), () => setAra(null));
     fetch('/assets/avatars/manifest.json').then((r) => r.json()).then((x: AvatarManifestCredits) => setAv(avatarCredits(x)), () => setAv([]));
   }, []);
   return (
@@ -160,7 +196,9 @@ export function CreditsPage() {
           </table>
         </div>
         <div>
-          <h3>Avatares</h3>
+          <h3>Avatares: estilo Ara 3D Gen (padrão)</h3>
+          <p className="muted">{ara ? `${ara.count} personagens` : 'Personagens'} gerados com o <a href="https://github.com/olatunde85/3d-gen" target="_blank" rel="noopener noreferrer">Ara 3D Gen</a> (código MIT{ara ? `, commit ${ara.commit.slice(0, 7)}` : ''}). Corpos, rostos, cabelos, roupas e sapatos vêm dos dados do MakeHuman, CC0 1.0. Os personagens exportados podem ser usados sem atribuição. A animação é procedural, do próprio Office 3D. Lista por arquivo em <span className="mono">public/assets/avatars-ara/CREDITS.md</span>.</p>
+          <h3>Avatares: estilo MakeHuman (desativado, escolhível pelo administrador)</h3>
           <p className="muted">Corpos, roupas, cabelos, peles e acessórios da comunidade <a href="https://www.makehumancommunity.org" target="_blank" rel="noopener noreferrer">MakeHuman</a> (CC0 1.0), preparados no Blender com o MPFB2 (ferramenta GPL-3.0, usada só na construção e não distribuída). O headset é geometria original do projeto. Lista por arquivo, com as alterações, em <span className="mono">public/assets/avatars/CREDITS.md</span>.</p>
         </div>
         <div className="card" style={{ padding: 0, overflow: 'auto' }}>

@@ -127,6 +127,8 @@ export interface BuiltAvatar {
   lod: 0 | 1;
   height: number;
   missing: string[];
+  /** nome do morph usado pelo rig → nome real no modelo (estilos com outra nomenclatura) */
+  morphAlias?: Record<string, string>;
   dispose(): void;
 }
 
@@ -311,8 +313,9 @@ function trimShoesUnderHem(parent: Object3D, bottomId: string, shoesId: string):
 
 /** Influência de um morph (por nome) em todas as malhas do avatar que o tenham. */
 export function setMorph(av: BuiltAvatar, name: string, value: number) {
+  const real = av.morphAlias?.[name] ?? name;
   for (const mesh of av.morphMeshes) {
-    const i = mesh.morphTargetDictionary?.[name];
+    const i = mesh.morphTargetDictionary?.[real];
     if (i !== undefined && mesh.morphTargetInfluences) mesh.morphTargetInfluences[i] = value;
   }
 }

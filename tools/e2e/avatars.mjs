@@ -1,6 +1,7 @@
 /**
  * Aceite dos avatares ao vivo, com duas pessoas em sessões de navegador separadas (fluxos normais da aplicação).
- * A = operador (Otávio, Mesa 05) · B = administradora observando a cena.
+ * A = operador (Otávio, Mesa 05) · B = administradora observando a cena. Estilo padrão: Ara 3D Gen (galeria de personagens);
+ * um passo troca para MakeHuman pela tela do admin e volta, conferindo que a outra sessão acompanha ao vivo.
  * Uso: npm run e2e:avatars   → test-results/avatars-report.json + capturas
  */
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
@@ -23,6 +24,7 @@ let A = null;
 let B = null;
 const errors = [];
 const OTAVIO = 'emp_otavio';
+let TARGET = 'ara-m2'; // personagem escolhido no passo de troca (diferente do padrão do Otávio)
 
 async function check(name, fn) {
   try {
@@ -86,29 +88,33 @@ A = (await session('operator', 'A')).page;
 await check('online: o avatar ocupa a cadeira da mesa vinculada (na outra sessão, sem recarregar)', async () => {
   const [a] = await until(async () => {
     const list = await otavioOn(B);
-    return list.length && list[0].items?.length > 3 ? list : null;
+    return list.length && list[0].items?.length >= 1 ? list : null;
   }, 'avatar do Otávio na sessão B');
   assert(Math.abs(a.x - seat.x) < 0.02 && Math.abs(a.z - seat.z) < 0.02, `posição ${a.x}; ${a.z} ≠ assento ${seat.x}; ${seat.z}`);
   assert(a.activity === 'idle', `atividade ${a.activity}`);
   await B.waitForTimeout(1500);
   await shot(B, '01-online');
-  return `avatar em ${a.x}; ${a.z} (assento da Mesa 05), ${a.items.length} malhas`;
+  assert(Object.keys(a.joints ?? {}).length === 4, 'sem esqueleto (cabeça, mãos, quadril)');
+  assert(Math.abs(a.joints.hand_l[1] - 0.81) < 0.08 && Math.abs(a.joints.hand_r[1] - 0.81) < 0.08, `mãos fora do teclado: ${JSON.stringify(a.joints)}`);
+  return `avatar em ${a.x}; ${a.z} (assento da Mesa 05), personagem ${a.items[0]}, mãos no teclado`;
 });
 
-await check('troca de roupa: salvar no "Meu avatar" aparece na outra sessão; edição não salva fica só no preview', async () => {
+await check('troca de personagem: salvar no "Meu avatar" aparece na outra sessão; escolha não salva fica só no preview', async () => {
   const before = (await otavioOn(B))[0].appearance;
+  const current = (await otavioOn(B))[0].items[0];
+  TARGET = current === 'ara-m2' ? 'ara-m6' : 'ara-m2';
   await A.click('[data-testid="my-avatar"]');
-  await A.waitForSelector('[data-base="male"]');
-  await A.click('[data-base="male"]'); // troca de corpo pela interface (aparência padrão é sorteada, sem deduzir gênero)
-  await A.waitForSelector('[data-look="m-corp"]');
-  await A.click('[data-look="m-corp"]');
+  await A.waitForSelector('[data-character]');
+  assert((await A.locator('[data-character]').count()) === 16, 'galeria deve ter 16 personagens');
+  assert((await A.locator('img[src*="/thumbs/"]').first().evaluate((img) => img.complete && img.naturalWidth > 0)), 'miniatura não carregou');
+  await A.click(`[data-character="${TARGET}"]`);
   await A.waitForTimeout(2500);
-  assert((await otavioOn(B))[0].appearance === before, 'edição não salva vazou para a outra sessão');
+  assert((await otavioOn(B))[0].appearance === before, 'escolha não salva vazou para a outra sessão');
   await A.click('[data-testid="avatar-save"]');
-  await until(async () => (await otavioOn(B))[0]?.items?.includes('top.toigo_male_suit_tie_and_jacket'), 'terno na sessão B');
+  await until(async () => (await otavioOn(B))[0]?.items?.includes(TARGET), `personagem ${TARGET} na sessão B`);
   await B.waitForTimeout(2000);
-  await shot(B, '02-terno');
-  return 'terno com gravata visível na sessão B sem recarregar';
+  await shot(B, '02-personagem');
+  return `${TARGET} visível na sessão B sem recarregar`;
 });
 
 await check('digitação no chat interno ativa a animação; parar volta ao trabalho', async () => {
@@ -182,19 +188,44 @@ await check('duas sessões do mesmo colaborador: fechar uma mantém; fechar a ú
 
 await check('reconexão recupera aparência e estado, sem avatar duplicado', async () => {
   A = (await session('operator', 'A3')).page;
-  await until(async () => (await otavioOn(B))[0]?.items?.includes('top.toigo_male_suit_tie_and_jacket'), 'avatar com a aparência salva', 25000);
+  await until(async () => (await otavioOn(B))[0]?.items?.includes(TARGET), 'avatar com a aparência salva', 25000);
   await B.reload();
   await B.waitForFunction(() => window.__office3d?.avatars, null, { timeout: 30000 });
   await B.locator('[role="option"]', { hasText: 'Mesa 05' }).first().click();
   const list = await until(async () => {
     const l = await otavioOn(B);
-    return l.length && l[0].activity && l[0].items?.includes('top.toigo_male_suit_tie_and_jacket') ? l : null;
+    return l.length && l[0].activity && l[0].items?.includes(TARGET) ? l : null;
   }, 'avatar após recarregar a sessão B');
   assert(list.length === 1, `${list.length} avatares do Otávio`);
   assert(list[0].activity === 'idle', `estado ${list[0].activity}`);
   await B.waitForTimeout(1500);
   await shot(B, '05-reconexao');
-  return '1 avatar, terno salvo, trabalhando';
+  return '1 avatar, personagem salvo, trabalhando';
+});
+
+await check('o admin troca o estilo dos avatares (Integrações): a outra sessão acompanha ao vivo, e voltar restaura a escolha de cada pessoa', async () => {
+  const goOps = async () => {
+    await B.locator('nav.tabs button', { hasText: 'Operação' }).click();
+    await B.locator('[role="option"]', { hasText: 'Mesa 05' }).first().click();
+  };
+  const setStyle = async (id) => {
+    await B.locator('nav.tabs button', { hasText: 'Integrações' }).click();
+    await B.click(`[data-avatar-style="${id}"]`);
+    await B.waitForSelector(`[data-avatar-style="${id}"][aria-pressed="true"]`);
+  };
+  await setStyle('makehuman');
+  await goOps();
+  const mh = await until(async () => {
+    const l = await otavioOn(B);
+    return l.length === 1 && l[0].items?.length > 3 && !l[0].items.some((n) => n.startsWith('ara-')) ? l : null;
+  }, 'avatar MakeHuman na sessão B', 30000);
+  await shot(B, '06-estilo-makehuman');
+  await setStyle('ara3d');
+  await goOps();
+  await until(async () => (await otavioOn(B))[0]?.items?.includes(TARGET), 'a escolha do Ara volta ao reativar o estilo', 30000);
+  assert((await otavioOn(B)).length === 1, 'avatar duplicado depois da troca');
+  await shot(B, '07-estilo-ara');
+  return `MakeHuman (${mh[0].items.length} peças) e de volta ao Ara (${TARGET}), 1 avatar, sem recarregar`;
 });
 
 await check('outro colaborador não consegue editar o meu avatar', async () => {

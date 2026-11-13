@@ -19,9 +19,9 @@ export function pickAnim(moving: boolean, seated: boolean, status: LiveStatus): 
   if (moving) return { name: 'walk', fps: 9 };
   if (seated) {
     if (status === 'in_call') return { name: 'sittalk', fps: 4 };
-    if (status === 'typing') return { name: 'type', fps: 9 };
+    if (status === 'typing') return { name: 'type', fps: 5 };
     if (status === 'away') return { name: 'sit', fps: 1 };
-    return { name: 'type', fps: 3 }; // trabalhando no computador
+    return { name: 'type', fps: 2 }; // trabalhando no computador
   }
   if (status === 'in_call') return { name: 'talk', fps: 4 };
   return { name: 'idle', fps: 1 };

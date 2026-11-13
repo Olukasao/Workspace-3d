@@ -78,6 +78,8 @@ try {
   await O.waitForSelector('[data-testid="avatar-editor-2d"]');
   await O.click('[data-testid="tab-roupa"]'); await O.waitForTimeout(3500); await O.screenshot({ path: 'test-results/ws-avatar2d.png' });
   await O.click('[data-testid="tab-chapeus"]'); await O.waitForTimeout(2500); await O.screenshot({ path: 'test-results/ws-avatar2d-chapeus.png' });
+  for (const [an, dr] of [['sit', 'up'], ['sit', 'down'], ['type', 'up'], ['sittalk', 'left']]) { await O.click(`[data-testid="anim-${an}"]`); await O.click(`[data-testid="dir-${dr}"]`); await O.waitForTimeout(400); await O.locator('.av2d-previewbox').screenshot({ path: path.join(ROOT, `test-results/ws-prev-${an}-${dr}.png`) }); }
+  await O.click('[data-testid="anim-idle"]'); await O.click('[data-testid="dir-down"]');
   await O.click('[data-testid="tab-cabelo"]');
   await O.evaluate(() => { const b = [...document.querySelectorAll('[data-testid^="hair-"]')].find((x) => x.getAttribute('aria-pressed') !== 'true' && x.dataset.testid !== 'hair-none'); b.click(); });
   await O.click('[data-testid="haircolor-blonde"]');

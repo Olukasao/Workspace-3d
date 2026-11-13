@@ -9,7 +9,7 @@ import { loadLpcManifest } from './lpc';
 
 type Facing = 'down' | 'left' | 'right' | 'up';
 const VIEW: Record<Facing, string> = { down: 'front', up: 'back', left: 'left', right: 'right' };
-interface View { img: HTMLImageElement; ax: number; ay: number }
+export interface View { img: HTMLImageElement; ax: number; ay: number }
 
 const BASE = '/assets/office-pixel';
 const PROPS = ['office_desk', 'computer', 'office_chair', 'filing_cabinet', 'office_plant', 'tall_plant', 'water_cooler'] as const;
@@ -141,6 +141,8 @@ export function packFurniture(a: AssetDef, rot: number, fw: number, fh: number):
 
 /** Pisos do pacote (madeira, carpete cinza, vinil cinza) lado a lado, ou null. */
 export const packFloors = () => floors;
+/** Cadeira de escritório do pacote vista de uma direção (a prévia do avatar a desenha atrás de quem está sentado). */
+export const packChair = (d: Facing): View | null => props.get('office_chair')?.[d] ?? null;
 
 /** Número de ladrilhos de parede do pacote (8 colunas × 4 linhas, 25 usados), anexados ao fim do tileset. */
 export const PACK_WALL_TILES = 25;

@@ -407,19 +407,27 @@ function composeLpc(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasElement | 
   out.height = FH * 4;
   const g = out.getContext('2d')!;
   g.imageSmoothingEnabled = false;
-  const put = (dir: Dir, col: number, anim: 'walk' | 'idle' | 'sit', src: number, dy = 0) => {
+  // `shift`: a parte de cima (acima da linha `split`) desce 1 px, o resto fica parado; assim o corpo respira ou balança a cabeça sem pular
+  const put = (dir: Dir, col: number, anim: 'walk' | 'idle' | 'sit', src: number, shift = 0, split = 0) => {
     const lr = lpcRow(dir);
-    g.drawImage(sheets[anim]!, src * LPC_FRAME, lr * LPC_FRAME, LPC_FRAME, LPC_FRAME, col * FW, ROW[dir] * FH + dy, FW, FH);
-    if (headset) drawLpcHeadset(g, col * FW, ROW[dir] * FH + dy, dir, headBox(cfg, anim, src, lr));
+    const ox = col * FW;
+    const oy = ROW[dir] * FH;
+    const sheet = sheets[anim]!;
+    if (shift && split) {
+      g.drawImage(sheet, src * LPC_FRAME, lr * LPC_FRAME + split, LPC_FRAME, LPC_FRAME - split, ox, oy + split, FW, FH - split);
+      g.drawImage(sheet, src * LPC_FRAME, lr * LPC_FRAME, LPC_FRAME, split, ox, oy + shift, FW, split);
+    } else g.drawImage(sheet, src * LPC_FRAME, lr * LPC_FRAME, LPC_FRAME, LPC_FRAME, ox, oy, FW, FH);
+    if (headset) drawLpcHeadset(g, ox, oy + (shift && split ? shift : 0), dir, headBox(cfg, anim, src, lr));
   };
+  const SIT = 2; // quadro do LPC com as pernas para baixo (pose de cadeira); os quadros 0 e 1 são sentados no chão
   for (const dir of ['down', 'left', 'right', 'up'] as const) {
     for (let i = 0; i < 8; i++) put(dir, ANIMS.walk.start + i, 'walk', i + 1);
     put(dir, ANIMS.idle.start, 'idle', 0);
-    put(dir, ANIMS.sit.start, 'sit', 0);
+    put(dir, ANIMS.sit.start, 'sit', SIT);
     for (let i = 0; i < 2; i++) {
-      put(dir, ANIMS.type.start + i, 'sit', 0, i ? -1 : 0);
-      put(dir, ANIMS.talk.start + i, 'idle', i, 0);
-      put(dir, ANIMS.sittalk.start + i, 'sit', 0, i ? -1 : 0);
+      put(dir, ANIMS.type.start + i, 'sit', SIT, i, 46); // digitando: o tronco sobe e desce 1 px
+      put(dir, ANIMS.talk.start + i, 'idle', i); // falando em pé: as duas poses do parado (respiração)
+      put(dir, ANIMS.sittalk.start + i, 'sit', SIT, i, 34); // falando sentado: a cabeça acena 1 px
     }
   }
   for (const k of Object.keys(sheets)) (sheets[k as keyof typeof sheets] as HTMLCanvasElement).width = 0;

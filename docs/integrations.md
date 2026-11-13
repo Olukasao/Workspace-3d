@@ -18,8 +18,9 @@ Princípios aplicados a todas:
 | `DEMO_MODE` | `true` / `false` | `true` cria contas e dados fictícios e libera "Simular falha" e painéis em `/demo/…` |
 | `CHAT_PROVIDER` | `demo` / `workscape` | Chat e presença |
 | `TRANSFER_PROVIDER` | `demo` / `workscape` | Transferência de atendimento |
-| `REMOTE_PROVIDER` | `demo` / `anydesk` | Acesso remoto |
+| `REMOTE_PROVIDER` | `demo` / `anydesk` / `rustdesk` / `both` | Acesso remoto. `both` aceita os dois: o produto vem do cadastro de cada dispositivo (`remote_provider`) |
 | `ANYDESK_LAUNCH` | `manual` / `uri` | `manual` mostra o endereço autorizado; `uri` também devolve o link `anydesk:` (depois de validado) |
+| `RUSTDESK_LAUNCH` | `manual` / `uri` | `manual` mostra o ID e o comando `rustdesk.exe --connect <ID>`; `uri` também devolve `rustdesk://connection/new/<ID>` (só depois de validado no ambiente gerenciado) |
 | `PRINT_PROVIDER` | `demo` / `ipp` / `none` | Envio direto à impressora (o diálogo do navegador sempre existe) |
 | `WORKSCAPE_BASE_URL`, `WORKSCAPE_TOKEN` | — | Reservadas para o adaptador Workscape |
 | `WORKSPACE_PRESENCE_TOKEN` | vazio | Segredo do sinal "Workspace aberto" (ver a seção abaixo); vazio desliga a recepção |
@@ -144,6 +145,14 @@ O Workspace avisa por `PUT /api/integrations/workspace-presence`, sem sessão de
 Resposta: `{ "accepted": n, "ignored": m }` (ids desconhecidos ou inativos são ignorados). Só o fato de estar aberto trafega: nenhum conteúdo de conversa. Sem token configurado o endereço responde 409.
 
 Quem está com o Office 3D aberto mas sem o Workspace aberto não entra no mapa: a tela 2D mostra o aviso e ele só observa (`GET /api/office2d/:id/positions`).
+
+## TV do escritório 2D: gerenciar pelo acesso remoto
+
+No escritório 2D, **clicar numa TV** (pendurada na parede) abre uma **área de dispositivos**, no estilo do catálogo do AnyDesk: lista com busca de todos os dispositivos do inventário que têm acesso remoto cadastrado (computadores e players de TV; impressoras ficam de fora), cada um com tipo, local e produto (AnyDesk ou RustDesk). O dispositivo ligado àquela TV vem marcado como "Desta TV" e pré-selecionado, mas a pessoa escolhe qualquer um que possa usar; os sem permissão aparecem desabilitados, com o motivo. Ao conectar, o servidor registra o pedido na trilha e devolve o ID e o comando oficial (ou o link, em `uri`); o operador abre o cliente oficial. **Nada conecta sozinho**: o consentimento e a senha ficam no AnyDesk ou no RustDesk, o sistema nunca guarda senha nem executa comandos, e o ID passa por validação estrita (nada que pareça opção de linha de comando). Na demonstração só se registra o pedido.
+
+- **Dispositivo da TV (opcional):** o administrador escolhe qual dispositivo vem marcado para cada TV no editor do escritório 2D (TV selecionada → "Dispositivo desta TV"). Vale na hora, sem publicar o layout, e fica na tabela `object2d_devices` (migração 005). Não limita a escolha: é só o padrão da lista.
+- **Permissão:** administrador (todos os dispositivos), ou operador com concessão do dispositivo (`remote_access_grants`, a mesma do 3D). Visualizador não executa. A permissão é reavaliada no servidor a cada pedido, para o dispositivo que foi escolhido.
+- **Cadastro do dispositivo:** `remote_provider` = `anydesk` ou `rustdesk` e `remote_address` com o endereço (AnyDesk: 9 a 10 dígitos ou alias `nome@namespace`; RustDesk: 9 a 10 dígitos ou ID personalizado de 6 a 32 caracteres).
 
 ## Painéis de TV e CAD
 

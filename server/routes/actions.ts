@@ -70,7 +70,7 @@ export function actionRoutes(r: Router, { db, cfg, integrations }: AppContext) {
       await db.exec('INSERT INTO remote_access_requests (id, company_id, device_id, object_id, requested_by, provider, mode, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [requestId, user.companyId, b.device_id!, objectId, user.id, b.remote_provider ?? 'none', mode, out.status, Date.now()]);
       await audit(db, { user, action: 'remote.request', targetType: 'device', targetId: b.device_id!, objectId, result: out.status, mode, detail: { requestId, provider: b.remote_provider }, correlationId: cid });
       // no modo demonstração o endereço não é devolvido: nada é aberto
-      res.json({ requestId, mode, status: out.status, device: { id: b.device_id, name: b.device_name }, note: out.note, address: mode === 'real' ? out.address : undefined, command: mode === 'real' ? out.command : undefined, launchUrl: mode === 'real' ? out.launchUrl : undefined, object: object.name, correlationId: cid });
+      res.json({ requestId, mode, status: out.status, provider: b.remote_provider, device: { id: b.device_id, name: b.device_name }, note: out.note, address: mode === 'real' ? out.address : undefined, command: mode === 'real' ? out.command : undefined, launchUrl: mode === 'real' ? out.launchUrl : undefined, object: object.name, correlationId: cid });
     } catch (e) {
       await audit(db, { user, action: 'remote.request', targetType: 'device', targetId: b.device_id ?? '-', objectId, result: 'failed', mode, detail: { error: (e as Error).message }, correlationId: cid });
       throw e;

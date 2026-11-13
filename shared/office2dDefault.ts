@@ -91,6 +91,7 @@ export function defaultLayout2D(): Layout2D {
   put('plant_big', 40, 19);
   put('plant', 18, 25);
   put('server_rack', 40, 25);
+  put('tv', 22, 2); // TV de avisos do atendimento, na parede (a última peça: não muda o id das demais)
 
   return {
     v: 1, cols, rows, floor, walls, objects, stations,

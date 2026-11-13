@@ -2,7 +2,7 @@ import type { IntegrationStatus } from '../../shared/types';
 import type { Config } from '../config';
 import type { Db } from '../db/driver';
 import { DemoChat, DemoPresence, DemoPrint, DemoRemoteAccess, DemoTransfer } from './demo';
-import { AnyDeskRemoteAccess, IppPrint, NoPrint, WorkscapeChat, WorkscapePresence, WorkscapeTransfer } from './real';
+import { IppPrint, RealRemoteAccess, NoPrint, WorkscapeChat, WorkscapePresence, WorkscapeTransfer } from './real';
 import { ProviderUnavailable, type ChatProvider, type PresenceProvider, type PrintProvider, type RemoteAccessProvider, type ServiceId, type TransferProvider } from './types';
 
 const LABELS: Record<ServiceId, string> = { chat: 'Chat', presence: 'Presença', remote: 'Acesso remoto', transfer: 'Transferência de atendimento', print: 'Fila de impressão' };
@@ -22,7 +22,7 @@ export class Integrations {
   ) {
     this.chat = cfg.chatProvider === 'demo' ? new DemoChat(db) : new WorkscapeChat(cfg);
     this.presence = cfg.chatProvider === 'demo' ? new DemoPresence() : new WorkscapePresence();
-    this.remote = cfg.remoteProvider === 'demo' ? new DemoRemoteAccess() : new AnyDeskRemoteAccess(cfg.anydeskLaunch);
+    this.remote = cfg.remoteProvider === 'demo' ? new DemoRemoteAccess() : new RealRemoteAccess(cfg.remoteProvider, cfg.anydeskLaunch, cfg.rustdeskLaunch);
     this.transfer = cfg.transferProvider === 'demo' ? new DemoTransfer(db) : new WorkscapeTransfer();
     this.print = cfg.printProvider === 'demo' ? new DemoPrint() : cfg.printProvider === 'ipp' ? new IppPrint() : new NoPrint();
   }

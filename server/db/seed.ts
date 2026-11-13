@@ -123,6 +123,7 @@ export async function seed(db: Db): Promise<{ created: boolean }> {
     ['dev_pc_noc_01', 'PC-NOC-01', 'pc', 'NOC, posto 01', 'anydesk', '100 000 011', 1],
     ['dev_player_noc_01', 'PLAYER-NOC-01', 'tv_player', 'NOC, TV de rede', 'anydesk', '100 000 021', 1],
     ['dev_player_reuniao', 'PLAYER-REUNIAO', 'tv_player', 'Sala de reunião', 'anydesk', '100 000 022', 1],
+    ['dev_player_atendimento', 'PLAYER-ATENDIMENTO', 'tv_player', 'Atendimento, TV de avisos', 'rustdesk', '200 000 031', 1],
     ['dev_prn_at_01', 'IMP-ATD-01', 'printer', 'Atendimento, junto à janela', null, null, 1],
   ];
   for (const [id, name, kind, location, provider, address, active] of devices) {
@@ -146,8 +147,13 @@ export async function seed(db: Db): Promise<{ created: boolean }> {
   // tv_reuniao fica sem painel: demonstra o estado "não configurado"
 
   // ---- permissões de acesso remoto do operador (por dispositivo) ----
-  for (const dev of ['dev_pc_at_01', 'dev_pc_at_02', 'dev_player_noc_01']) {
+  for (const dev of ['dev_pc_at_01', 'dev_pc_at_02', 'dev_player_noc_01', 'dev_player_atendimento']) {
     await db.exec('INSERT INTO remote_access_grants (user_id, device_id, company_id) VALUES (?, ?, ?)', ['usr_operador', dev, ACME]);
+  }
+
+  // ---- TVs do escritório 2D (penduradas na parede): o player de cada uma. O operador só tem permissão na do atendimento (RustDesk) ----
+  for (const [objectId, dev] of [['o40', 'dev_player_reuniao'], ['o66', 'dev_player_atendimento']]) {
+    await db.exec('INSERT INTO object2d_devices (company_id, office_id, object_id, device_id, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?)', [ACME, 'off_sede_1', objectId, dev, 'usr_admin', now]);
   }
 
   // ---- atendimentos simulados do operador ----

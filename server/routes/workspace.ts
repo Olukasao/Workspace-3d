@@ -9,6 +9,11 @@
  * - POST /api/admin/office2d/:officeId/publish           publica o rascunho: todos os conectados recebem na hora
  * - PUT  /api/admin/office2d/:officeId/seats/:stationId  vincula (ou desvincula) um colaborador a uma estação
  * - POST /api/office2d/:officeId/chat/open               abre a conversa direta com um colega (cartão da pessoa no 2D)
+ * - GET  /api/office2d/:officeId/objects/:objectId/remote          TV do 2D: dispositivo vinculado e se o usuário pode conectar
+ * - GET  /api/office2d/:officeId/objects/:objectId/remote/devices  lista de dispositivos para escolher (como o catálogo do AnyDesk), com a permissão de cada um
+ * - POST /api/office2d/:officeId/objects/:objectId/remote/request  { deviceId?, confirm } prepara a conexão com o dispositivo escolhido (AnyDesk ou RustDesk); nunca conecta sozinho
+ * - GET  /api/admin/office2d/:officeId/devices                     administrador: dispositivos para vincular e o vínculo de cada objeto
+ * - PUT  /api/admin/office2d/:officeId/objects/:objectId/device    { deviceId | null } vincula um dispositivo a uma TV do layout
  * - GET  /api/admin/office2d/:officeId/tiled             exporta o layout no formato JSON do Tiled
  */
 import type { Router } from 'express';
@@ -18,7 +23,7 @@ import { defaultLayout2D } from '../../shared/office2dDefault';
 import type { AppContext } from '../app';
 import { currentUser, requireRole } from '../auth';
 import { one } from '../db/driver';
-import { HttpError, audit, correlationId, h } from '../http';
+import { HttpError, audit, correlationId, h, newId } from '../http';
 import { loadOffice } from '../office';
 
 export function workspaceRoutes(r: Router, ctx: AppContext) {
@@ -190,6 +195,136 @@ export function workspaceRoutes(r: Router, ctx: AppContext) {
     await office2d.seatsChanged(user.companyId, officeId);
     await audit(db, { user, action: 'office2d.seat', targetType: 'station', targetId: req.params.stationId, result: 'completed', mode: 'real', detail: { employeeId }, correlationId: correlationId(res) });
     res.json({ seats: await seatList(user.companyId, officeId) });
+  }));
+
+  // ---------- TV do 2D: acesso remoto ao dispositivo que mostra a tela ----------
+  // O vínculo (objeto do layout → dispositivo gerenciado) e a permissão (administrador ou concessão do dispositivo) são reavaliados no servidor.
+  // A conexão em si, o consentimento e a autenticação acontecem no AnyDesk ou no RustDesk: aqui nada é executado nem conectado sozinho.
+  const TV_KINDS = ['tv_player', 'pc', 'tv'];
+  type User = ReturnType<typeof currentUser>;
+  const layoutOf = async (companyId: string, officeId: string, preferDraft: boolean): Promise<Layout2D> => {
+    const [draft, published] = await Promise.all([draftRow(companyId, officeId, 'draft'), draftRow(companyId, officeId, 'published')]);
+    const src = preferDraft ? (draft ?? published) : (published ?? draft);
+    return src ? (JSON.parse(src.layout_json) as Layout2D) : defaultLayout2D();
+  };
+  const tvObject = async (user: User, officeId: string, objectId: string, preferDraft: boolean) => {
+    await loadOffice(db, user, officeId);
+    const o = (await layoutOf(user.companyId, officeId, preferDraft)).objects.find((x) => x.id === objectId);
+    if (!o || o.asset !== 'tv') throw new HttpError(404, 'not_found', 'TV não encontrada neste layout.');
+    return o;
+  };
+  interface TvDevice { device_id: string; name: string; kind: string; remote_provider: string | null; remote_address: string | null; active: number }
+  const tvDevice = (user: User, officeId: string, objectId: string) =>
+    one<TvDevice>(
+      db,
+      'SELECT b.device_id, d.name, d.kind, d.remote_provider, d.remote_address, d.active FROM object2d_devices b JOIN managed_devices d ON d.id = b.device_id AND d.company_id = b.company_id WHERE b.company_id = ? AND b.office_id = ? AND b.object_id = ?',
+      [user.companyId, officeId, objectId],
+    );
+  /** Estado da ação "gerenciar a TV" para o usuário (a mesma função vale na hora de pedir). */
+  const tvState = async (user: User, officeId: string, objectId: string) => {
+    const dev = await tvDevice(user, officeId, objectId);
+    const no = (state: 'forbidden' | 'not_configured', reason: string) => ({ state, reason, dev: null as TvDevice | null });
+    if (user.role === 'viewer') return no('forbidden', 'O perfil de visualizador não executa ações.');
+    if (!dev || dev.active !== 1) return no('not_configured', dev ? 'O dispositivo vinculado a esta TV está inativo.' : 'Nenhum dispositivo está vinculado a esta TV. O administrador vincula no editor do escritório.');
+    if (!dev.remote_provider || !dev.remote_address) return no('not_configured', 'O dispositivo da TV não tem acesso remoto cadastrado (AnyDesk ou RustDesk).');
+    if (user.role !== 'admin' && !(await one(db, 'SELECT 1 AS ok FROM remote_access_grants WHERE user_id = ? AND company_id = ? AND device_id = ?', [user.id, user.companyId, dev.device_id]))) return no('forbidden', 'Você não tem permissão de acesso remoto para o dispositivo desta TV.');
+    return { state: 'ready' as const, reason: undefined, dev };
+  };
+
+  r.get('/office2d/:officeId/objects/:objectId/remote', h(async (req, res) => {
+    const user = currentUser(res);
+    await requireMode2d(user.companyId);
+    const obj = await tvObject(user, req.params.officeId, req.params.objectId, false);
+    const st = await tvState(user, req.params.officeId, obj.id);
+    res.json({ state: st.state, reason: st.reason, mode: integrations.remote.mode, device: st.dev ? { id: st.dev.device_id, name: st.dev.name, provider: st.dev.remote_provider } : null });
+  }));
+
+  // Lista de dispositivos para escolher (como o catálogo "Meus dispositivos" do AnyDesk): todo dispositivo com acesso remoto cadastrado,
+  // cada um com o que o usuário pode fazer nele. O dispositivo ligado à TV vem marcado, mas qualquer um permitido pode ser escolhido.
+  interface RemoteRow { id: string; name: string; kind: string; location: string | null; remote_provider: string | null; remote_address: string | null; active: number }
+  const usable = async (user: User, d: Pick<RemoteRow, 'id' | 'active' | 'remote_provider' | 'remote_address'>, granted?: Set<string>): Promise<string | null> => {
+    if (user.role === 'viewer') return 'O perfil de visualizador não executa ações.';
+    if (d.active !== 1) return 'O dispositivo está inativo.';
+    if (!d.remote_provider || !d.remote_address) return 'O dispositivo não tem acesso remoto cadastrado (AnyDesk ou RustDesk).';
+    const g = granted ?? new Set((await db.query<{ device_id: string }>('SELECT device_id FROM remote_access_grants WHERE user_id = ? AND company_id = ?', [user.id, user.companyId])).map((x) => x.device_id));
+    if (user.role !== 'admin' && !g.has(d.id)) return 'Você não tem permissão de acesso remoto para este dispositivo.';
+    return null;
+  };
+
+  r.get('/office2d/:officeId/objects/:objectId/remote/devices', h(async (req, res) => {
+    const user = currentUser(res);
+    await requireMode2d(user.companyId);
+    const obj = await tvObject(user, req.params.officeId, req.params.objectId, false);
+    const [rows, grants, bound] = await Promise.all([
+      db.query<RemoteRow>("SELECT id, name, kind, location, remote_provider, remote_address, active FROM managed_devices WHERE company_id = ? AND active = 1 AND remote_provider IS NOT NULL AND kind <> 'printer' ORDER BY name", [user.companyId]),
+      db.query<{ device_id: string }>('SELECT device_id FROM remote_access_grants WHERE user_id = ? AND company_id = ?', [user.id, user.companyId]),
+      tvDevice(user, req.params.officeId, obj.id),
+    ]);
+    const granted = new Set(grants.map((g) => g.device_id));
+    const devices = [];
+    for (const d of rows) {
+      const reason = await usable(user, d, granted);
+      devices.push({ id: d.id, name: d.name, kind: d.kind, location: d.location, provider: d.remote_provider, canConnect: !reason, reason: reason ?? undefined, bound: d.id === bound?.device_id });
+    }
+    devices.sort((a, b) => Number(b.bound) - Number(a.bound) || Number(b.canConnect) - Number(a.canConnect) || a.name.localeCompare(b.name));
+    res.json({ mode: integrations.remote.mode, devices });
+  }));
+
+  r.post('/office2d/:officeId/objects/:objectId/remote/request', h(async (req, res) => {
+    const user = currentUser(res);
+    const cid = correlationId(res);
+    await requireMode2d(user.companyId);
+    const obj = await tvObject(user, req.params.officeId, req.params.objectId, false);
+    const body = (req.body ?? {}) as { deviceId?: unknown; confirm?: unknown };
+    // sem deviceId vale o dispositivo ligado à TV; com deviceId, o que a pessoa escolheu na lista (e que ela tem permissão de usar)
+    const bound = await tvDevice(user, req.params.officeId, obj.id);
+    const deviceId = typeof body.deviceId === 'string' ? body.deviceId : bound?.device_id;
+    if (!deviceId) throw new HttpError(409, 'not_configured', 'Nenhum dispositivo está vinculado a esta TV: escolha um dispositivo na lista.');
+    const dev = await one<RemoteRow>(db, 'SELECT id, name, kind, location, remote_provider, remote_address, active FROM managed_devices WHERE id = ? AND company_id = ?', [deviceId, user.companyId]);
+    if (!dev || dev.kind === 'printer') throw new HttpError(404, 'not_found', 'Dispositivo não encontrado.');
+    const reason = await usable(user, dev);
+    if (reason) throw new HttpError(user.role === 'viewer' || /permiss/.test(reason) ? 403 : 409, /permiss|visualizador/.test(reason) ? 'forbidden' : 'not_configured', reason);
+    if (body.confirm !== true) throw new HttpError(400, 'confirmation_required', 'O acesso remoto precisa de confirmação explícita.');
+    const mode = integrations.remote.mode;
+    try {
+      integrations.ensureUp('remote');
+      const out = await integrations.remote.prepare({ id: dev.id, name: dev.name, remoteProvider: dev.remote_provider, remoteAddress: dev.remote_address });
+      const requestId = newId('rar');
+      await db.exec('INSERT INTO remote_access_requests (id, company_id, device_id, object_id, requested_by, provider, mode, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [requestId, user.companyId, dev.id, obj.id, user.id, dev.remote_provider ?? 'none', mode, out.status, Date.now()]);
+      await audit(db, { user, action: 'remote.request', targetType: 'device', targetId: dev.id, objectId: obj.id, result: out.status, mode, detail: { requestId, provider: dev.remote_provider, origin: 'office2d', chosen: typeof body.deviceId === 'string' }, correlationId: cid });
+      // na demonstração o endereço não é devolvido: nada é aberto
+      res.json({ requestId, mode, status: out.status, provider: dev.remote_provider, device: { id: dev.id, name: dev.name }, note: out.note, address: mode === 'real' ? out.address : undefined, command: mode === 'real' ? out.command : undefined, launchUrl: mode === 'real' ? out.launchUrl : undefined, correlationId: cid });
+    } catch (e) {
+      await audit(db, { user, action: 'remote.request', targetType: 'device', targetId: dev.id, objectId: obj.id, result: 'failed', mode, detail: { error: (e as Error).message, origin: 'office2d' }, correlationId: cid });
+      throw e;
+    }
+  }));
+
+  r.get('/admin/office2d/:officeId/devices', requireRole('admin'), h(async (req, res) => {
+    const user = currentUser(res);
+    await loadOffice(db, user, req.params.officeId);
+    const devices = await db.query<{ id: string; name: string; kind: string; location: string | null; remote_provider: string | null; active: number }>('SELECT id, name, kind, location, remote_provider, active FROM managed_devices WHERE company_id = ? AND active = 1 ORDER BY name', [user.companyId]);
+    const links = await db.query<{ object_id: string; device_id: string }>('SELECT object_id, device_id FROM object2d_devices WHERE company_id = ? AND office_id = ?', [user.companyId, req.params.officeId]);
+    res.json({ devices: devices.filter((d) => TV_KINDS.includes(d.kind)).map((d) => ({ id: d.id, name: d.name, kind: d.kind, location: d.location, remoteProvider: d.remote_provider })), links: Object.fromEntries(links.map((l) => [l.object_id, l.device_id])) });
+  }));
+
+  r.put('/admin/office2d/:officeId/objects/:objectId/device', requireRole('admin'), h(async (req, res) => {
+    const user = currentUser(res);
+    const officeId = req.params.officeId;
+    const obj = await tvObject(user, officeId, req.params.objectId, true);
+    const deviceId = (req.body as { deviceId?: unknown })?.deviceId ?? null;
+    if (deviceId !== null && typeof deviceId !== 'string') throw new HttpError(400, 'bad_request', 'deviceId deve ser um id ou null.');
+    if (deviceId) {
+      const dev = await one<{ kind: string }>(db, 'SELECT kind FROM managed_devices WHERE id = ? AND company_id = ? AND active = 1', [deviceId, user.companyId]);
+      if (!dev) throw new HttpError(404, 'not_found', 'Dispositivo não encontrado.');
+      if (!TV_KINDS.includes(dev.kind)) throw new HttpError(422, 'wrong_kind', 'A TV só pode ser vinculada a um PC ou a um player de TV.');
+    }
+    await db.tx(async (tx) => {
+      await tx.exec('DELETE FROM object2d_devices WHERE company_id = ? AND office_id = ? AND object_id = ?', [user.companyId, officeId, obj.id]);
+      if (deviceId) await tx.exec('INSERT INTO object2d_devices (company_id, office_id, object_id, device_id, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?)', [user.companyId, officeId, obj.id, deviceId, user.id, Date.now()]);
+    });
+    await audit(db, { user, action: 'office2d.tvDevice', targetType: 'object', targetId: obj.id, result: 'completed', mode: 'real', detail: { deviceId }, correlationId: correlationId(res) });
+    res.json({ ok: true, deviceId });
   }));
 
   r.get('/admin/office2d/:officeId/tiled', requireRole('admin'), h(async (req, res) => {

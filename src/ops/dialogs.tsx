@@ -86,6 +86,7 @@ interface RemoteResult {
   requestId: string;
   mode: 'demo' | 'real';
   status: string;
+  provider?: string | null;
   device: { name: string };
   note: string;
   address?: string;
@@ -131,11 +132,11 @@ export function RemoteDialog({ officeId, object, user, onClose }: { officeId: st
           <div className={`notice ${res.mode === 'demo' ? 'demo' : 'ok'}`} role="status">{res.note}</div>
           {res.address && (
             <dl className="kv">
-              <dt>Endereço AnyDesk</dt><dd className="mono">{res.address}</dd>
+              <dt>{res.provider === 'rustdesk' ? 'ID RustDesk' : 'Endereço AnyDesk'}</dt><dd className="mono">{res.address}</dd>
               <dt>Comando oficial</dt><dd className="mono">{res.command}</dd>
             </dl>
           )}
-          {res.launchUrl && <a className="btn primary" href={res.launchUrl}>Abrir o AnyDesk</a>}
+          {res.launchUrl && <a className="btn primary" href={res.launchUrl}>Abrir o {res.provider === 'rustdesk' ? 'RustDesk' : 'AnyDesk'}</a>}
           <p className="muted">Registro {res.requestId} · ref. {res.correlationId.slice(0, 8)}</p>
         </div>
       )}

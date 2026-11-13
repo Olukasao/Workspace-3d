@@ -28,6 +28,8 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
   const [, setRev] = useState(0);
   const [employees, setEmployees] = useState<Dir[]>([]);
   const [seats, setSeats] = useState<Record<string, string>>({});
+  const [tvDevices, setTvDevices] = useState<Array<{ id: string; name: string; kind: string; remoteProvider: string | null }>>([]);
+  const [tvLinks, setTvLinks] = useState<Record<string, string>>({});
   const toolRef = useRef<Tool>(tool);
   toolRef.current = tool;
   const layoutRef = useRef<Layout2D | null>(null);
@@ -57,6 +59,7 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
       (e) => !dead && setErr(errorText(e)),
     );
     api.get<{ employees: Dir[] }>('/api/directory').then((r) => !dead && setEmployees(r.employees), () => undefined);
+    api.get<{ devices: typeof tvDevices; links: Record<string, string> }>(`/api/admin/office2d/${officeId}/devices`).then((r) => !dead && (setTvDevices(r.devices), setTvLinks(r.links)), () => undefined);
     return () => {
       dead = true;
     };
@@ -108,6 +111,21 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
     scene()?.reload(layoutRef.current!);
     setSel(null);
     setMsg({ kind: 'ok', text: r.isDefault ? 'Voltou ao layout padrão.' : 'Alterações descartadas.' });
+  };
+  /** Vincula (ou desvincula) o dispositivo da TV selecionada; vale na hora, sem publicar o layout (a TV precisa existir no rascunho salvo). */
+  const linkTv = async (objectId: string, deviceId: string) => {
+    try {
+      await api.put(`/api/admin/office2d/${officeId}/objects/${objectId}/device`, { deviceId: deviceId || null });
+      setTvLinks((l) => {
+        const n = { ...l };
+        if (deviceId) n[objectId] = deviceId;
+        else delete n[objectId];
+        return n;
+      });
+      setMsg({ kind: 'ok', text: deviceId ? 'Dispositivo da TV vinculado.' : 'Dispositivo da TV desvinculado.' });
+    } catch (e) {
+      setMsg({ kind: 'bad', text: `${errorText(e)} Se a TV é nova, salve o rascunho antes de vincular.` });
+    }
   };
   const assign = async (stationId: string, employeeId: string) => {
     try {
@@ -194,7 +212,15 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
                     {employees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
                   </select>
                 </label>
-              ) : <span className="muted">Sem estação.</span>}
+              ) : selObj.asset !== 'tv' ? <span className="muted">Sem estação.</span> : null}
+              {selObj.asset === 'tv' && (
+                <label className="muted">Dispositivo desta TV (acesso remoto)
+                  <select value={tvLinks[selObj.id] ?? ''} onChange={(e) => void linkTv(selObj.id, e.target.value)} data-testid="tv-device-select">
+                    <option value="">— nenhum —</option>
+                    {tvDevices.map((d) => <option key={d.id} value={d.id}>{d.name}{d.remoteProvider ? ` · ${d.remoteProvider === 'rustdesk' ? 'RustDesk' : d.remoteProvider === 'anydesk' ? 'AnyDesk' : d.remoteProvider}` : ' · sem acesso remoto'}</option>)}
+                  </select>
+                </label>
+              )}
             </>
           ) : <p className="muted">Clique num móvel para ver os detalhes.</p>}
         </section>

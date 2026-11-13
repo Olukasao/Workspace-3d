@@ -21,6 +21,8 @@ export interface SceneBridge {
   onSelect: (s: { employeeId: string; sx: number; sy: number } | null) => void;
   onHint: (text: string | null) => void;
   isTyping: () => boolean;
+  /** Clique numa TV do escritório: abre o painel para gerenciá-la por acesso remoto. */
+  onTv: (objectId: string) => void;
 }
 
 type KeyMap = Record<'W' | 'A' | 'S' | 'D' | 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'E' | 'SPACE', Phaser.Input.Keyboard.Key>;
@@ -35,6 +37,7 @@ export class OfficeScene extends Phaser.Scene {
   private sentSig = '';
   private hint: string | null = null;
   private drag: { x: number; y: number } | null = null;
+  private manualCam = false;
 
   constructor(private bridge: SceneBridge) {
     super('office');
@@ -83,6 +86,19 @@ export class OfficeScene extends Phaser.Scene {
     (window as unknown as { __office2d?: unknown }).__office2d = {
       looks: () => Object.fromEntries([...this.people].map(([id, pv]) => [id, pv.look])),
       looseSeats: () => looseSeats(this.layout).map((s) => ({ id: s.id, dir: s.dir })),
+      // testes: leva a câmera até uma TV e devolve o ponto dela na tela (para clicar de verdade)
+      focusTv: (id: string) => {
+        const b = this.view.objects.get(id)?.getBounds();
+        if (b) {
+          this.manualCam = true; // a câmera para de seguir a própria pessoa
+          this.cameras.main.centerOn(b.centerX, b.centerY);
+        }
+      },
+      tvPoint: (id: string) => {
+        const b = this.view.objects.get(id)?.getBounds();
+        const cam = this.cameras.main;
+        return b ? { x: (b.centerX - cam.worldView.x) * cam.zoom, y: (b.centerY - cam.worldView.y) * cam.zoom } : null;
+      },
       goSit: (seatId: string) => {
         const sp = this.seatPoint(seatId);
         if (sp && this.routeTo(sp.cx, sp.cy)) this.pendingSit = seatId;
@@ -153,6 +169,14 @@ export class OfficeScene extends Phaser.Scene {
       if (seat && this.routeTo(seat.cx, seat.cy)) this.pendingSit = st.id;
       return;
     }
+    // 2a) TV (pendurada na parede): abre o painel de gerenciamento remoto do dispositivo dela
+    for (const o of this.layout.objects) {
+      if (o.asset !== 'tv') continue;
+      const img = this.view.objects.get(o.id);
+      if (!img || !img.getBounds().contains(w.x, w.y)) continue;
+      this.bridge.onTv(o.id);
+      return;
+    }
     // 2b) cadeira solta (reunião, copa) → andar até ela e sentar virado para o lado dela
     for (const s of looseSeats(this.layout)) {
       const img = this.view.objects.get(s.id.slice('chair:'.length));
@@ -218,7 +242,7 @@ export class OfficeScene extends Phaser.Scene {
     this.updateHint();
     const cam = this.cameras.main;
     const mine = this.people.get(this.bridge.employeeId ?? '');
-    if (mine && !cam.panEffect.isRunning) cam.centerOn(mine.x, mine.y - 8);
+    if (mine && !cam.panEffect.isRunning && !this.manualCam) cam.centerOn(mine.x, mine.y - 8);
   }
 
   /**

@@ -11,6 +11,7 @@ import { STATUS_COLOR, STATUS_LABEL } from '../../../avatar/PresenceDemo';
 import { api, errorText } from '../../../api';
 import { useLive, type LiveStatus } from '../../../live';
 import { ChatDialog } from '../../../ops/dialogs';
+import { TvRemoteDialog } from './TvRemoteDialog';
 import { Net2D } from './net2d';
 import { OfficeScene, type SceneBridge } from './OfficeScene';
 import { PhaserHost, createGame } from './PhaserHost';
@@ -29,6 +30,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
   const [hint, setHint] = useState<string | null>(null);
   const [card, setCard] = useState<{ employeeId: string; sx: number; sy: number } | null>(null);
   const [chat, setChat] = useState<{ id: string; name: string } | null>(null);
+  const [tv, setTv] = useState<string | null>(null);
   const [directory, setDirectory] = useState<Record<string, DirEntry>>({});
   const [, setTick] = useState(0);
   const game = useRef<Phaser.Game | null>(null);
@@ -60,7 +62,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [net]);
 
-  const bridge = useMemo<SceneBridge | null>(() => (net ? { net, employeeId: user.employeeId ?? null, onSelect: setCard, onHint: setHint, isTyping } : null), [net, user.employeeId]);
+  const bridge = useMemo<SceneBridge | null>(() => (net ? { net, employeeId: user.employeeId ?? null, onSelect: setCard, onHint: setHint, isTyping, onTv: setTv } : null), [net, user.employeeId]);
   const scene = () => game.current?.scene.getScene('office') as OfficeScene | undefined;
 
   if (err) return <div className="page"><div className="notice bad">{err}</div></div>;
@@ -138,6 +140,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
           </ul>
         </section>
       </aside>
+      {tv && <TvRemoteDialog officeId={officeId} objectId={tv} onClose={() => setTv(null)} />}
       {chat && officeId && <ChatDialog direct officeId={officeId} object={{ objectId: '', seat: { employee: { id: chat.id, name: chat.name } } } as never} onClose={() => setChat(null)} />}
     </div>
   );

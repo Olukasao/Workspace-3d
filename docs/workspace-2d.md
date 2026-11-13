@@ -49,6 +49,8 @@ Regras do briefing mantidas: nenhuma tecla, texto ou nome de conversa vai para o
 
 Editor → no modo 2D abre o editor do layout: pintar piso, paredes, apagar, colocar/mover/girar/remover móveis (26 do catálogo), definir entradas, vincular colaborador a cada estação. **Salvar rascunho** (com versão-base: 409 se outro administrador salvou antes) e **Publicar**: todos os conectados recebem o layout novo ao vivo (as pessoas que estavam num lugar que deixou de existir são realocadas; vínculos de estações removidas caem). Toda mesa com computador vira uma estação automaticamente. O servidor valida o layout inteiro (`validateLayout`) antes de gravar: limites, sobreposição, móvel sobre parede, estações com lugar para sentar.
 
+**TV na parede:** a TV, o quadro branco e o quadro podem ficar sobre a parede, e as paredes externas aparecem com duas alturas. Clicar numa TV abre a área de dispositivos (busca e lista, como o catálogo do AnyDesk) para escolher qual gerenciar por AnyDesk ou RustDesk (ver `docs/integrations.md`, "TV do escritório 2D"); no editor, o administrador define qual dispositivo vem marcado em cada TV.
+
 **Mesas e cadeiras por pessoa:** Configurações → *Mesas e cadeiras (2D)* lista cada pessoa com a mesa dela (a cadeira é a da mesa); cada escolha vale na hora, sem publicar o layout. Escolher a mesa de outra pessoa a passa para a nova dona. No editor também dá para vincular por mesa.
 
 Vínculo de pessoas às estações 2D fica em tabela própria (`seat2d_assignments`), separado das mesas do 3D.

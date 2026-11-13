@@ -124,6 +124,33 @@ try {
   ok(seatedAt === target.id, `sentou na cadeira solta ${target.id} (${target.dir})`);
   await O.waitForTimeout(800); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-cadeira-solta.png') });
 
+  // clique na TV: área de dispositivos (como o catálogo do AnyDesk); o da TV vem marcado, o operador escolhe outro que tem permissão
+  await O.evaluate(() => window.__office2d.focusTv('o66'));
+  await O.waitForTimeout(700);
+  const tvPt = await O.evaluate(() => window.__office2d.tvPoint('o66'));
+  const tvBox = await O.locator('.office2d-canvas canvas').boundingBox();
+  await O.mouse.click(tvBox.x + tvPt.x, tvBox.y + tvPt.y);
+  await O.waitForSelector('[data-testid="tv-device-dev_player_atendimento"]');
+  ok((await O.getAttribute('[data-testid="tv-device-dev_player_atendimento"]', 'aria-selected')) === 'true', 'clicar na TV abre a lista de dispositivos com o da TV marcado');
+  ok(!(await O.locator('[data-testid^="tv-device-dev_prn"]').count()), 'impressora não aparece na lista (não tem acesso remoto)');
+  await O.fill('[data-testid="tv-search"]', 'PC-ATD');
+  await O.click('[data-testid="tv-device-dev_pc_at_01"]');
+  await O.screenshot({ path: path.join(ROOT, 'test-results/ws-tv.png') });
+  await O.click('[data-testid="tv-connect"]');
+  await O.waitForSelector('[data-testid="tv-result"]');
+  const tvTxt = await O.locator('[data-testid="tv-result"]').innerText();
+  ok(/PC-ATD-01/.test(tvTxt) && /Demonstração|demonstra/i.test(tvTxt) && !/anydesk\.exe/.test(tvTxt), 'conexão ao dispositivo escolhido só registrada na demonstração (nenhum comando nem ID exposto)');
+  await O.click('[data-testid="tv-close"]');
+  // a TV da reunião vem com um dispositivo que o operador não pode usar: a linha aparece desabilitada, com o motivo
+  await O.evaluate(() => window.__office2d.focusTv('o40'));
+  await O.waitForTimeout(700);
+  const tvPt2 = await O.evaluate(() => window.__office2d.tvPoint('o40'));
+  await O.mouse.click(tvBox.x + tvPt2.x, tvBox.y + tvPt2.y);
+  await O.waitForSelector('[data-testid="tv-device-dev_player_reuniao"]');
+  ok(await O.locator('[data-testid="tv-device-dev_player_reuniao"]').isDisabled(), 'dispositivo sem permissão aparece desabilitado na lista');
+  ok(/permiss/i.test(await O.locator('[data-testid="tv-device-dev_player_reuniao"]').innerText()), 'a linha explica a falta de permissão');
+  await O.click('[data-testid="tv-close"]');
+
   // 6) editor 2D: administrador coloca um tapete e publica; o operador recebe o layout novo ao vivo
   await A.locator('nav.tabs button', { hasText: 'Editor' }).click();
   await A.waitForSelector('[data-testid="editor2d"]', { timeout: 60000 });

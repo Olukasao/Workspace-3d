@@ -98,7 +98,7 @@ Detalhes: [docs/avatars-ara.md](docs/avatars-ara.md) (estilo Ara 3D Gen e a esco
 ```bash
 npm run typecheck   # TypeScript estrito (cliente, servidor, ferramentas e testes)
 npm run lint        # ESLint
-npm test            # 124 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
+npm test            # 139 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
 npm run e2e         # 20 verificações no navegador real (Chrome/Edge), pelos fluxos da interface
 npm run e2e:draw    # 7 verificações: construir a estrutura do zero (piso, paredes, janela, porta, puxador)
 npm run e2e:avatars # 10 verificações com duas pessoas em sessões separadas: avatar na mesa, personagem personalizado, digitação, atendimento, várias abas, reconexão, troca de estilo pelo admin

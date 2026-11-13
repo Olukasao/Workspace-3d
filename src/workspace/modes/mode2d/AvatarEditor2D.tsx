@@ -49,7 +49,15 @@ function Preview({ cfg }: { cfg: Avatar2DConfig }) {
 }
 
 /** Miniatura: o personagem de frente com a peça `patch` aplicada (as demais peças são as escolhidas agora). */
-function Thumb({ cfg, patch, ready }: { cfg: Avatar2DConfig; patch: Partial<Avatar2DConfig>; ready: boolean }) {
+/** Recorte (no quadro de 64×64) que mostra a peça: cabeça, rosto, tronco, pernas ou pés, ampliado. */
+const CROP: Record<'hair' | 'facial' | 'shirt' | 'pants' | 'shoes', [number, number, number]> = {
+  hair: [16, 8, 32],
+  facial: [20, 20, 24],
+  shirt: [16, 30, 32],
+  pants: [17, 40, 28],
+  shoes: [18, 42, 24],
+};
+function Thumb({ cfg, patch, ready, field }: { cfg: Avatar2DConfig; patch: Partial<Avatar2DConfig>; ready: boolean; field: keyof typeof CROP }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const body = JSON.stringify({ ...cfg, ...patch, glasses: false, headsetAlways: false });
   useEffect(() => {
@@ -61,9 +69,10 @@ function Thumb({ cfg, patch, ready }: { cfg: Avatar2DConfig; patch: Partial<Avat
     g.clearRect(0, 0, c.width, c.height);
     if (!lpcLoaded(t, ['idle'])) return;
     const sheet = composeAnim(t, 'idle');
-    if (sheet) g.drawImage(sheet, 0, lpcRow('down') * 64 + 10, 64, 46, 0, 0, 64, 46); // da cabeça aos joelhos
-  }, [body, ready]);
-  return <canvas ref={ref} width={64} height={46} className="av2d-thumb" aria-hidden="true" />;
+    const [sx, sy, sz] = CROP[field];
+    if (sheet) g.drawImage(sheet, sx, lpcRow('down') * 64 + sy, sz, sz, 0, 0, 64, 64);
+  }, [body, ready, field]);
+  return <canvas ref={ref} width={64} height={64} className="av2d-thumb" aria-hidden="true" />;
 }
 
 type Field = 'hair' | 'shirt' | 'pants' | 'shoes' | 'facial';
@@ -74,7 +83,7 @@ function Choice({ label, ids, names, value, onPick, testid, cfg, field, ready }:
       <div className="av2d-thumbs">
         {ids.map((id) => (
           <button key={id} className={`av2d-opt ${id === value ? 'on' : ''}`} title={names[id] ?? id} aria-label={names[id] ?? id} aria-pressed={id === value} onClick={() => onPick(id)} data-testid={`${testid}-${id}`}>
-            {id === 'none' ? <span className="av2d-none">Nenhum</span> : <Thumb cfg={cfg} patch={{ [field]: id }} ready={ready} />}
+            {id === 'none' ? <span className="av2d-none">Nenhum</span> : <Thumb cfg={cfg} patch={{ [field]: id }} ready={ready} field={field} />}
           </button>
         ))}
       </div>

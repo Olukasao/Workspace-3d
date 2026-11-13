@@ -57,6 +57,11 @@ export class PersonView {
     this.bubble = scene.add.text(0, 0, '', { fontFamily: 'system-ui, sans-serif', fontSize: '9px', color: '#1c2028', backgroundColor: '#ffffff', padding: { x: 3, y: 1 } }).setOrigin(0.5, 1).setDepth(100001).setVisible(false);
   }
 
+  /** Assinatura da aparência em uso (diagnóstico e testes). */
+  get look() {
+    return this.cfgSig;
+  }
+
   setName(name: string) {
     if (name !== this.name) {
       this.name = name;

@@ -79,7 +79,10 @@ export class OfficeScene extends Phaser.Scene {
       this.net.on('layout', () => this.reloadLayout()),
       this.net.on('corrected', (r) => this.snapTo(r as { x: number; y: number; dir: Dir; seat: string | null })),
     ];
+    // diagnóstico: aparência em uso por pessoa (window.__office2d.looks())
+    (window as unknown as { __office2d?: unknown }).__office2d = { looks: () => Object.fromEntries([...this.people].map(([id, pv]) => [id, pv.look])) };
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      delete (window as unknown as { __office2d?: unknown }).__office2d;
       offs.forEach((off) => off());
       for (const pv of this.people.values()) pv.destroy();
       this.people.clear();

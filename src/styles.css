@@ -279,7 +279,7 @@ iframe.preview { width: 100%; height: 420px; border: 1px solid var(--line); bord
 
 .av2d-thumbs { display: flex; flex-wrap: wrap; gap: 4px; }
 .av2d-group.wide { grid-column: 1 / -1; }
-.av2d-opt { width: 68px; height: 52px; padding: 0; border: 1px solid var(--line, rgba(0,0,0,.2)); border-radius: 6px; background: #eef0f4; cursor: pointer; display: grid; place-items: center; }
+.av2d-opt { width: 68px; height: 68px; padding: 0; border: 1px solid var(--line, rgba(0,0,0,.2)); border-radius: 6px; background: #eef0f4; cursor: pointer; display: grid; place-items: center; }
 .av2d-opt.on { outline: 2px solid var(--blue); background: #fff; }
-.av2d-thumb { width: 64px; height: 46px; image-rendering: pixelated; }
+.av2d-thumb { width: 64px; height: 64px; image-rendering: pixelated; }
 .av2d-none { font-size: 11px; color: var(--muted, #667085); }

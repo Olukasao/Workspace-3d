@@ -76,8 +76,13 @@ try {
   // 5) avatar 2D: operador edita o cabelo e salva
   await O.click('[data-testid="my-avatar"]');
   await O.waitForSelector('[data-testid="avatar-editor-2d"]');
-  await O.waitForTimeout(3500); await O.screenshot({ path: 'test-results/ws-avatar2d.png' });
+  await O.waitForTimeout(3500); await O.evaluate(() => document.querySelector('[data-testid="shirt-torso_clothes_tshirt"]')?.scrollIntoView()); await O.waitForTimeout(500); await O.screenshot({ path: 'test-results/ws-avatar2d.png' });
   await O.evaluate(() => { const b = [...document.querySelectorAll('[data-testid^="hair-"]')].find((x) => x.getAttribute('aria-pressed') !== 'true' && x.dataset.testid !== 'hair-none'); b.click(); });
+  await O.click('[data-testid="shirtcolor-red"]');
+  await O.click('[data-testid="pantscolor-navy"]');
+  await O.click('[data-testid="haircolor-blonde"]');
+  await O.check('[data-testid="glasses"]');
+  await O.check('[data-testid="headset"]');
   await O.click('[data-testid="avatar2d-save"]');
   await O.waitForSelector('[data-testid="avatar2d-msg"]');
   ok(/salvo/i.test(await O.locator('[data-testid="avatar2d-msg"]').innerText()), 'avatar 2D salvo');
@@ -85,6 +90,13 @@ try {
   ok(mine.config?.style === 'sprite2d' && mine.saved === true, 'avatar 2D guardado no servidor (estilo sprite2d)');
   await O.locator('nav.tabs button', { hasText: 'Operação' }).click();
   await O.waitForSelector('[data-testid="office2d"]');
+  // a aparência salva aparece na operação, para o próprio usuário e para o colega (sem recarregar)
+  const hairNow = mine.config.hair;
+  const seen = async (P, who) => { try { await P.waitForFunction(([id, h]) => (window.__office2d?.looks()[id] ?? '').includes(`"hair":"${h}"`), [who, hairNow], { timeout: 15000 }); return true; } catch { return false; } };
+  ok(await seen(O, 'emp_otavio'), 'avatar salvo aparece na própria operação');
+  await O.waitForTimeout(1500);
+  await O.screenshot({ path: path.join(ROOT, 'test-results/ws-depois-salvar.png') });
+  ok(await seen(A, 'emp_otavio'), 'avatar salvo aparece para o colega na operação');
 
   // 6) editor 2D: administrador coloca um tapete e publica; o operador recebe o layout novo ao vivo
   await A.locator('nav.tabs button', { hasText: 'Editor' }).click();

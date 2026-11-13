@@ -14,6 +14,8 @@
  * - POST /api/office2d/:officeId/objects/:objectId/remote/request  { deviceId?, confirm } prepara a conexão com o dispositivo escolhido (AnyDesk ou RustDesk); nunca conecta sozinho
  * - GET  /api/office2d/:officeId/objects/:objectId/printers          impressora do 2D: lista de impressoras para escolher
  * - POST /api/office2d/:officeId/objects/:objectId/print/jobs      corpo = PDF; envia à fila da impressora escolhida (?deviceId=&fileName=&confirm=true)
+ * - GET  /api/office2d/:officeId/tv-content                          o que cada TV mostra na tela do mapa
+ * - PUT  /api/admin/office2d/:officeId/objects/:objectId/tv-content  { kind: notice|queue|dashboard|null, title, body, url } define o conteúdo (ao vivo)
  * - GET  /api/admin/office2d/:officeId/devices                     administrador: dispositivos para vincular e o vínculo de cada objeto
  * - PUT  /api/admin/office2d/:officeId/objects/:objectId/device    { deviceId | null } vincula um dispositivo a uma TV do layout
  * - GET  /api/admin/office2d/:officeId/tiled             exporta o layout no formato JSON do Tiled
@@ -27,7 +29,7 @@ import type { AppContext } from '../app';
 import { currentUser, requireRole } from '../auth';
 import { one } from '../db/driver';
 import { HttpError, audit, correlationId, h, idempotent, newId, str } from '../http';
-import { loadOffice } from '../office';
+import { allowedUrl, loadOffice } from '../office';
 
 export function workspaceRoutes(r: Router, ctx: AppContext) {
   const { db, live, office2d, integrations } = ctx;
@@ -301,6 +303,48 @@ export function workspaceRoutes(r: Router, ctx: AppContext) {
       await audit(db, { user, action: 'remote.request', targetType: 'device', targetId: dev.id, objectId: obj.id, result: 'failed', mode, detail: { error: (e as Error).message, origin: 'office2d' }, correlationId: cid });
       throw e;
     }
+  }));
+
+  // ---------- conteúdo da tela da TV no mapa ----------
+  // Três tipos: aviso do dia (texto), equipe do atendimento (contagem calculada da presença no navegador, nada guardado) e painel (endereço
+  // validado como no 3D). Todos leem; só o administrador edita, e a mudança chega ao mapa de todos na hora.
+  const TV_CONTENT = ['notice', 'queue', 'dashboard'];
+  interface TvContentRow { object_id: string; kind: string; title: string; body: string | null; url: string | null }
+  const toContent = (c: TvContentRow) => ({ objectId: c.object_id, kind: c.kind, title: c.title, body: c.body ?? '', url: c.kind === 'dashboard' ? c.url ?? undefined : undefined });
+
+  r.get('/office2d/:officeId/tv-content', h(async (req, res) => {
+    const user = currentUser(res);
+    await loadOffice(db, user, req.params.officeId);
+    const rows = await db.query<TvContentRow>('SELECT object_id, kind, title, body, url FROM object2d_tv_content WHERE company_id = ? AND office_id = ?', [user.companyId, req.params.officeId]);
+    res.json({ content: Object.fromEntries(rows.map((c) => [c.object_id, toContent(c)])) });
+  }));
+
+  r.put('/admin/office2d/:officeId/objects/:objectId/tv-content', requireRole('admin'), h(async (req, res) => {
+    const user = currentUser(res);
+    const officeId = req.params.officeId;
+    const obj = await tvObject(user, officeId, req.params.objectId, true);
+    const b = (req.body ?? {}) as { kind?: unknown; title?: unknown; body?: unknown; url?: unknown };
+    if (b.kind === null || b.kind === undefined || b.kind === '') {
+      await db.exec('DELETE FROM object2d_tv_content WHERE company_id = ? AND office_id = ? AND object_id = ?', [user.companyId, officeId, obj.id]);
+    } else {
+      if (typeof b.kind !== 'string' || !TV_CONTENT.includes(b.kind)) throw new HttpError(400, 'bad_request', `kind deve ser ${TV_CONTENT.join(', ')} ou vazio.`);
+      const kind: string = b.kind;
+      const title = str(b.title, 80)?.trim();
+      if (!title) throw new HttpError(400, 'bad_request', 'Informe um título (até 80 caracteres).');
+      const body = str(b.body, 500)?.trim() ?? '';
+      let url: string | null = null;
+      if (kind === 'dashboard') {
+        url = allowedUrl(b.url, ctx.cfg.dashboardAllowedHosts, ctx.cfg.demoMode);
+        if (!url) throw new HttpError(422, 'invalid_url', 'Endereço do painel não permitido: só https de hosts autorizados (DASHBOARD_ALLOWED_HOSTS) ou, na demonstração, caminhos /demo/.');
+      }
+      await db.tx(async (tx) => {
+        await tx.exec('DELETE FROM object2d_tv_content WHERE company_id = ? AND office_id = ? AND object_id = ?', [user.companyId, officeId, obj.id]);
+        await tx.exec('INSERT INTO object2d_tv_content (company_id, office_id, object_id, kind, title, body, url, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [user.companyId, officeId, obj.id, kind, title, body, url, user.id, Date.now()]);
+      });
+    }
+    await audit(db, { user, action: 'office2d.tvContent', targetType: 'object', targetId: obj.id, objectId: obj.id, result: 'completed', mode: 'real', detail: { kind: b.kind ?? null }, correlationId: correlationId(res) });
+    live.broadcast(user.companyId, 'tv2d', { officeId, objectId: obj.id }, false);
+    res.json({ ok: true });
   }));
 
   // ---------- impressora do 2D: escolher a impressora na lista e mandar o PDF para a fila dela ----------

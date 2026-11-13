@@ -7,6 +7,8 @@ import type Phaser from 'phaser';
 import { Download, Eraser, Hand, MapPin, MousePointer2, Paintbrush, RotateCw, Save, Send, Square, Trash2, Undo2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ASSET_CATEGORIES, ASSETS, FLOORS, ASSET_BY_ID, type Layout2D } from '../../../../shared/office2d';
+import { TvContentForm } from './TvContentForm';
+import type { TvContent } from './net2d';
 import { api, errorText, type ApiError } from '../../../api';
 import { EditorScene, type Tool } from './EditorScene';
 import { PhaserHost, createGame } from './PhaserHost';
@@ -30,6 +32,7 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
   const [seats, setSeats] = useState<Record<string, string>>({});
   const [tvDevices, setTvDevices] = useState<Array<{ id: string; name: string; kind: string; remoteProvider: string | null }>>([]);
   const [tvLinks, setTvLinks] = useState<Record<string, string>>({});
+  const [tvContents, setTvContents] = useState<Record<string, TvContent>>({});
   const toolRef = useRef<Tool>(tool);
   toolRef.current = tool;
   const layoutRef = useRef<Layout2D | null>(null);
@@ -59,6 +62,7 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
       (e) => !dead && setErr(errorText(e)),
     );
     api.get<{ employees: Dir[] }>('/api/directory').then((r) => !dead && setEmployees(r.employees), () => undefined);
+    api.get<{ content: Record<string, TvContent> }>(`/api/office2d/${officeId}/tv-content`).then((r) => !dead && setTvContents(r.content), () => undefined);
     api.get<{ devices: typeof tvDevices; links: Record<string, string> }>(`/api/admin/office2d/${officeId}/devices`).then((r) => !dead && (setTvDevices(r.devices), setTvLinks(r.links)), () => undefined);
     return () => {
       dead = true;
@@ -220,6 +224,23 @@ export function Editor2DView({ officeId, onReady }: { officeId: string; onReady:
                     {tvDevices.filter((d) => (selObj.asset === 'printer') === (d.kind === 'printer')).map((d) => <option key={d.id} value={d.id}>{d.name}{d.kind === 'printer' ? '' : d.remoteProvider ? ` · ${d.remoteProvider === 'rustdesk' ? 'RustDesk' : d.remoteProvider === 'anydesk' ? 'AnyDesk' : d.remoteProvider}` : ' · sem acesso remoto'}</option>)}
                   </select>
                 </label>
+              )}
+              {selObj.asset === 'tv' && (
+                <TvContentForm
+                  officeId={officeId}
+                  objectId={selObj.id}
+                  current={tvContents[selObj.id]}
+                  onSaved={(c) => {
+                    setTvContents((m) => {
+                      const n = { ...m };
+                      if (c) n[selObj.id] = c;
+                      else delete n[selObj.id];
+                      return n;
+                    });
+                    setMsg({ kind: 'ok', text: c ? 'Conteúdo da TV salvo: já aparece no mapa de todos.' : 'A TV ficou sem conteúdo.' });
+                  }}
+                  onError={(text) => setMsg({ kind: 'bad', text: `${text} Se a TV é nova, salve o rascunho antes.` })}
+                />
               )}
             </>
           ) : <p className="muted">Clique num móvel para ver os detalhes.</p>}

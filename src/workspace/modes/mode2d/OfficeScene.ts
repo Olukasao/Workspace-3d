@@ -12,6 +12,7 @@ import { useLive } from '../../../live';
 import { LayoutView } from './layoutView';
 import type { Net2D } from './net2d';
 import { PersonView } from './PersonView';
+import { teamOf } from './team';
 
 export const SPEED = 110;
 
@@ -38,6 +39,8 @@ export class OfficeScene extends Phaser.Scene {
   private hint: string | null = null;
   private drag: { x: number; y: number } | null = null;
   private manualCam = false;
+  private readonly tvTexts = new Map<string, Phaser.GameObjects.Text>();
+  private tvAt = 0;
 
   constructor(private bridge: SceneBridge) {
     super('office');
@@ -80,6 +83,7 @@ export class OfficeScene extends Phaser.Scene {
 
     const offs = [
       this.net.on('layout', () => this.reloadLayout()),
+      this.net.on('tv', () => this.refreshTvs()),
       this.net.on('corrected', (r) => this.snapTo(r as { x: number; y: number; dir: Dir; seat: string | null })),
     ];
     // diagnóstico: aparência em uso por pessoa (window.__office2d.looks())
@@ -93,6 +97,16 @@ export class OfficeScene extends Phaser.Scene {
           this.manualCam = true; // a câmera para de seguir a própria pessoa
           this.cameras.main.centerOn(b.centerX, b.centerY);
         }
+      },
+      // testes: centraliza uma pessoa e devolve o ponto dela na tela
+      personPoint: (id: string) => {
+        const pv = this.people.get(id);
+        if (!pv) return null;
+        this.manualCam = true;
+        const cam = this.cameras.main;
+        cam.centerOn(pv.x, pv.y - 16);
+        cam.preRender();
+        return { x: (pv.x - cam.worldView.x) * cam.zoom, y: (pv.y - 16 - cam.worldView.y) * cam.zoom };
       },
       tvPoint: (id: string) => {
         const b = this.view.objects.get(id)?.getBounds();
@@ -130,6 +144,8 @@ export class OfficeScene extends Phaser.Scene {
     if (this.gone) return;
     const data = this.net.data!;
     this.view.setLayout(data.layout);
+    for (const t of this.tvTexts.values()) t.destroy(); // as TVs foram recriadas: o texto delas também
+    this.tvTexts.clear();
     this.cameras.main.setBounds(0, 0, this.view.width, this.view.height);
     this.path = [];
   }
@@ -240,9 +256,48 @@ export class OfficeScene extends Phaser.Scene {
     if (this.net.me && !this.autoFollow()) this.updateLocal(dt);
     this.syncPeople(t, dt);
     this.updateHint();
+    if (time - this.tvAt > 1000) {
+      this.tvAt = time;
+      this.refreshTvs();
+    }
     const cam = this.cameras.main;
     const mine = this.people.get(this.bridge.employeeId ?? '');
     if (mine && !cam.panEffect.isRunning && !this.manualCam) cam.centerOn(mine.x, mine.y - 8);
+  }
+
+  /** Escreve na tela de cada TV o que o administrador configurou (aviso, equipe ao vivo ou o título do painel). */
+  private refreshTvs() {
+    if (this.gone || !this.view) return;
+    const content = this.net.tvContent;
+    let team: { free: number; call: number; away: number } | null = null;
+    for (const o of this.layout.objects) {
+      if (o.asset !== 'tv') continue;
+      const c = content[o.id];
+      const img = this.view.objects.get(o.id);
+      let t = this.tvTexts.get(o.id);
+      if (!c || !img) {
+        t?.destroy();
+        this.tvTexts.delete(o.id);
+        continue;
+      }
+      if (c.kind === 'queue' && !team) {
+        const live = useLive.getState().people;
+        const g = teamOf([...this.net.positions.keys()], live);
+        team = { free: g.free.length, call: g.call.length, away: g.away.length };
+      }
+      // a tela pintada tem 54×18 px: título curto e uma ou duas linhas; o conteúdo inteiro aparece ao clicar
+      const cut = (v: string, n: number) => (v.length > n ? `${v.slice(0, n - 1)}…` : v);
+      const text = c.kind === 'queue' && team ? `${cut(c.title, 18)}
+Disp ${team.free} Atd ${team.call} Aus ${team.away}` : c.kind === 'notice' ? `${cut(c.title, 18)}
+${cut(c.body.replace(/\s+/g, ' '), 34)}` : `${cut(c.title, 18)}
+Painel`;
+      if (!t || !t.scene) {
+        // a tela da TV pintada no mapa fica a 30 px do topo da imagem (64 px de altura), com 54 px de largura útil
+        t = this.add.text(img.x + 7, img.y - 64 + 31, '', { fontFamily: 'monospace', fontSize: '5px', color: '#d7ecff', wordWrap: { width: 52 }, lineSpacing: 0, maxLines: 3, resolution: 4 }).setDepth(img.depth + 0.5);
+        this.tvTexts.set(o.id, t);
+      }
+      if (t.text !== text) t.setText(text);
+    }
   }
 
   /**

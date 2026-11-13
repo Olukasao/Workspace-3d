@@ -7,6 +7,7 @@ import type { Dir, Layout2D } from '../../../../shared/office2d';
 import { api } from '../../../api';
 import { onLiveEvent } from '../../../live';
 
+export interface TvContent { objectId: string; kind: 'notice' | 'queue' | 'dashboard'; title: string; body: string; url?: string }
 export interface Pos2D { id: string; officeId: string; x: number; y: number; dir: Dir; moving: boolean; seat: string | null; auto?: boolean }
 export interface SeatInfo { stationId: string; employeeId: string; name: string; department: string }
 export interface Office2DData { layout: Layout2D; version: number; published: boolean; seats: SeatInfo[] }
@@ -31,7 +32,10 @@ export class Net2D {
     private employeeId: string | null,
   ) {}
 
-  on(event: 'layout' | 'seats' | 'positions' | 'corrected', fn: (arg?: unknown) => void): () => void {
+  /** O que cada TV do mapa mostra (aviso, equipe ou painel), por id de objeto. */
+  tvContent: Record<string, TvContent> = {};
+
+  on(event: 'layout' | 'seats' | 'positions' | 'corrected' | 'tv', fn: (arg?: unknown) => void): () => void {
     if (!this.listeners.has(event)) this.listeners.set(event, new Set());
     this.listeners.get(event)!.add(fn);
     return () => this.listeners.get(event)?.delete(fn);
@@ -40,12 +44,16 @@ export class Net2D {
     this.listeners.get(event)?.forEach((fn) => fn(arg));
   }
 
+  async loadTv() {
+    this.tvContent = (await api.get<{ content: Record<string, TvContent> }>(`/api/office2d/${this.officeId}/tv-content`)).content;
+  }
+
   async loadData() {
     this.data = await api.get<Office2DData>(`/api/office2d/${this.officeId}`);
   }
 
   async start() {
-    await this.loadData();
+    await Promise.all([this.loadData(), this.loadTv().catch(() => undefined)]);
     if (this.stopped) return; // cancelada enquanto carregava (o React monta duas vezes em desenvolvimento): não se inscreve
     // eventos de tempo real (inscrições canceladas em stop(): nada fica escutando depois que o 2D sai)
     this.offs.push(
@@ -61,6 +69,11 @@ export class Net2D {
         if (officeId !== this.officeId || version <= (this.data?.version ?? 0)) return; // evento antigo ou repetido
         await this.loadData();
         this.emit('layout');
+      }),
+      onLiveEvent('tv2d', async (d) => {
+        if ((d as { officeId: string }).officeId !== this.officeId) return;
+        await this.loadTv().catch(() => undefined);
+        this.emit('tv');
       }),
       onLiveEvent('seats2d', async (d) => {
         if ((d as { officeId: string }).officeId !== this.officeId) return;

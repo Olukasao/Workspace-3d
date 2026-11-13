@@ -199,3 +199,54 @@ describe('impressora do escritório 2D: escolher a impressora na lista e enviar 
     expect((await put(PRINTER, null)).status).toBe(200);
   });
 });
+
+describe('conteúdo da tela da TV no mapa 2D', () => {
+  let s: TestServer;
+  let admin: Client, operator: Client;
+  const url = `/api/office2d/${OFFICE}/tv-content`;
+  const put = (c: Client, obj: string, body: unknown) => c.put(`/api/admin/office2d/${OFFICE}/objects/${obj}/tv-content`, body);
+  type Content = Record<string, { kind: string; title: string; body: string; url?: string }>;
+
+  beforeAll(async () => {
+    s = await startServer();
+    admin = await new Client(s.url).login(ADMIN);
+    operator = await new Client(s.url).login(OPERATOR);
+  }, 30000);
+  afterAll(async () => {
+    s.ctx.ara.close();
+    s.ctx.office2d.stop();
+    await s.close();
+  });
+
+  it('todos leem o que cada TV mostra; a demonstração traz o aviso da reunião e a equipe do atendimento', async () => {
+    const c = (await operator.get<{ content: Content }>(url)).body.content;
+    expect(c[TV_REUNIAO]).toMatchObject({ kind: 'notice', title: 'Aviso do dia' });
+    expect(c[TV_REUNIAO].body).toMatch(/Reunião geral/);
+    expect(c[TV_ATENDIMENTO]).toMatchObject({ kind: 'queue', title: 'Equipe do atendimento' });
+    expect(c[TV_ATENDIMENTO].url).toBeUndefined();
+  });
+
+  it('só o administrador define; valida tipo, título, TV e endereço do painel (host autorizado ou /demo/ na demonstração)', async () => {
+    expect((await put(operator, TV_REUNIAO, { kind: 'notice', title: 'x' })).status).toBe(403);
+    expect((await put(admin, 'o1', { kind: 'notice', title: 'x' })).status).toBe(404);
+    expect((await put(admin, TV_REUNIAO, { kind: 'video', title: 'x' })).status).toBe(400);
+    expect((await put(admin, TV_REUNIAO, { kind: 'notice', title: '   ' })).status).toBe(400);
+    expect((await put(admin, TV_REUNIAO, { kind: 'dashboard', title: 'Painel', url: 'http://evil.example.com/x' })).status).toBe(422);
+    expect((await put(admin, TV_REUNIAO, { kind: 'dashboard', title: 'Painel', url: 'https://nao-autorizado.example.com/x' })).status).toBe(422);
+    expect((await put(admin, TV_REUNIAO, { kind: 'dashboard', title: 'Painel', url: 'javascript:alert(1)' })).status).toBe(422);
+    expect((await put(admin, TV_REUNIAO, { kind: 'dashboard', title: 'Fila de chamados', url: '/demo/dashboard.html?painel=chamados' })).status).toBe(200);
+    const c = (await operator.get<{ content: Content }>(url)).body.content;
+    expect(c[TV_REUNIAO]).toMatchObject({ kind: 'dashboard', title: 'Fila de chamados', url: '/demo/dashboard.html?painel=chamados' });
+  });
+
+  it('troca o tipo (o endereço some de quem não é painel), limpa os espaços e remove com kind nulo; a trilha registra', async () => {
+    expect((await put(admin, TV_REUNIAO, { kind: 'notice', title: '  Aviso novo  ', body: '  Sexta, 14h.  ', url: '/demo/dashboard.html' })).status).toBe(200);
+    const c = (await operator.get<{ content: Content }>(url)).body.content[TV_REUNIAO];
+    expect(c).toMatchObject({ kind: 'notice', title: 'Aviso novo', body: 'Sexta, 14h.' });
+    expect(c.url).toBeUndefined();
+    expect((await put(admin, TV_REUNIAO, { kind: null })).status).toBe(200);
+    expect((await operator.get<{ content: Content }>(url)).body.content[TV_REUNIAO]).toBeUndefined();
+    const audit = await admin.get<{ entries: Array<{ action: string; objectId?: string }> }>('/api/admin/audit?action=office2d.tvContent');
+    expect(audit.body.entries.filter((e) => e.objectId === TV_REUNIAO).length).toBeGreaterThanOrEqual(3);
+  });
+});

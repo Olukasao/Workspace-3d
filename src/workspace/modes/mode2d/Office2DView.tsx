@@ -7,11 +7,12 @@ import type Phaser from 'phaser';
 import { Minus, Plus, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { SessionUser } from '../../../../shared/types';
-import { STATUS_COLOR, STATUS_LABEL } from '../../../avatar/PresenceDemo';
+import { STATUS_COLOR } from '../../../avatar/PresenceDemo';
 import { api, errorText } from '../../../api';
 import { useLive, type LiveStatus } from '../../../live';
 import { ChatDialog } from '../../../ops/dialogs';
 import { PrinterDialog } from './PrinterDialog';
+import { TvDialog } from './TvDialog';
 import { TvRemoteDialog } from './TvRemoteDialog';
 import { Net2D } from './net2d';
 import { OfficeScene, type SceneBridge } from './OfficeScene';
@@ -19,6 +20,10 @@ import { PhaserHost, createGame } from './PhaserHost';
 import { useAway } from './useAway';
 
 interface DirEntry { id: string; name: string; department: string; extension: string }
+
+/** Rótulos do escritório 2D: só os estados que importam para chamar alguém. */
+const L2D: Record<LiveStatus, string> = { offline: 'Offline', online: 'Disponível', typing: 'Disponível · digitando', in_call: 'Em atendimento', away: 'Ausente' };
+const HINT2D: Partial<Record<LiveStatus, string>> = { online: 'Pode ser chamado agora.', typing: 'Pode ser chamado agora.', in_call: 'Está em atendimento: deixe uma mensagem, ela responde quando puder.', away: 'Está ausente: a mensagem fica para quando voltar.' };
 
 const isTyping = () => {
   const el = document.activeElement as HTMLElement | null;
@@ -31,7 +36,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
   const [hint, setHint] = useState<string | null>(null);
   const [card, setCard] = useState<{ employeeId: string; sx: number; sy: number } | null>(null);
   const [chat, setChat] = useState<{ id: string; name: string } | null>(null);
-  const [device, setDevice] = useState<{ id: string; asset: 'tv' | 'printer' } | null>(null);
+  const [device, setDevice] = useState<{ id: string; asset: 'tv' | 'printer'; remote?: boolean } | null>(null);
   const [directory, setDirectory] = useState<Record<string, DirEntry>>({});
   const [, setTick] = useState(0);
   const game = useRef<Phaser.Game | null>(null);
@@ -93,14 +98,15 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
         </div>
         {hint && <div className="office2d-hint" role="status" data-testid="office2d-hint">{hint}</div>}
         {net.spectator && <div className="office2d-hint" role="status" data-testid="office2d-spectator">{net.spectatorReason}</div>}
-        {card && selected && (
+        {card && selected && selected.status !== 'offline' && (
           <div className="office2d-card" style={{ left: Math.min(card.sx + 12, window.innerWidth - 270), top: Math.max(card.sy - 10, 8) }} role="dialog" aria-label={`Cartão de ${selected.name}`} data-testid="person-card">
             <button className="btn icon ghost small" style={{ float: 'right' }} onClick={() => setCard(null)} aria-label="Fechar"><X size={14} /></button>
             <b>{selected.name}</b>
             <div className="muted">{dir ? `${dir.department} · ramal ${dir.extension}` : ' '}</div>
-            <div><span className="chip neutral live"><span className="presence-dot" style={{ background: STATUS_COLOR[selected.status] }} /> {STATUS_LABEL[selected.status]}</span></div>
+            <div><span className="chip neutral live"><span className="presence-dot" style={{ background: STATUS_COLOR[selected.status] }} /> <b data-testid="person-status">{L2D[selected.status]}</b></span></div>
+            {HINT2D[selected.status] && <div className="muted" data-testid="person-hint">{HINT2D[selected.status]}</div>}
             {user.employeeId && card.employeeId !== user.employeeId && user.role !== 'viewer' && (
-              <button className="btn primary small" onClick={() => { setChat({ id: card.employeeId, name: selected.name }); setCard(null); }} data-testid="person-chat">Conversar</button>
+              <button className="btn primary small" onClick={() => { setChat({ id: card.employeeId, name: selected.name }); setCard(null); }} data-testid="person-chat">Chamar</button>
             )}
           </div>
         )}
@@ -110,7 +116,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
           <h3>Você</h3>
           {user.employeeId ? (
             <>
-              <div><span className="chip neutral live" data-testid="my-status"><span className="presence-dot" style={{ background: STATUS_COLOR[myStatus] }} /> {STATUS_LABEL[myStatus]}</span></div>
+              <div><span className="chip neutral live" data-testid="my-status"><span className="presence-dot" style={{ background: STATUS_COLOR[myStatus] }} /> {L2D[myStatus]}</span></div>
               <button className="btn small" aria-pressed={manual} onClick={toggle} data-testid="away-toggle" title="Mostra você como ausente para os colegas">{away && !manual ? 'Ausente (automático): voltar' : manual ? 'Voltar do ausente' : 'Marcar como ausente'}</button>
             </>
           ) : (
@@ -125,7 +131,7 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
                 <button className="btn ghost small" onClick={() => scene()?.focusOn(id)} title="Ir até a pessoa na tela">
                   <span className="presence-dot" style={{ background: STATUS_COLOR[p!.status] }} /> {p!.name}
                 </button>
-                <span className="muted">{STATUS_LABEL[p!.status]}</span>
+                <span className="muted">{L2D[p!.status]}</span>
               </li>
             ))}
             {here.length === 0 && <li className="muted">Ninguém por aqui ainda.</li>}
@@ -141,7 +147,8 @@ export function Office2DView({ officeId, user, onReady }: { officeId: string; us
           </ul>
         </section>
       </aside>
-      {device?.asset === 'tv' && <TvRemoteDialog officeId={officeId} objectId={device.id} onClose={() => setDevice(null)} />}
+      {device?.asset === 'tv' && !device.remote && <TvDialog content={net.tvContent[device.id]} onlineIds={[...net.positions.keys()]} onRemote={() => setDevice({ ...device, remote: true })} onClose={() => setDevice(null)} />}
+      {device?.asset === 'tv' && device.remote && <TvRemoteDialog officeId={officeId} objectId={device.id} onClose={() => setDevice(null)} />}
       {device?.asset === 'printer' && <PrinterDialog officeId={officeId} objectId={device.id} onClose={() => setDevice(null)} />}
       {chat && officeId && <ChatDialog direct officeId={officeId} object={{ objectId: '', seat: { employee: { id: chat.id, name: chat.name } } } as never} onClose={() => setChat(null)} />}
     </div>

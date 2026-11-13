@@ -124,14 +124,32 @@ try {
   ok(seatedAt === target.id, `sentou na cadeira solta ${target.id} (${target.dir})`);
   await O.waitForTimeout(800); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-cadeira-solta.png') });
 
-  // clique na TV: área de dispositivos (como o catálogo do AnyDesk); o da TV vem marcado, o operador escolhe outro que tem permissão
+  // clique numa pessoa do mapa: cartão com Disponível / Em atendimento / Ausente e o botão Chamar (só aparece quem está online)
+  const tvBox = await O.locator('.office2d-canvas canvas').boundingBox();
+  const hp = await O.evaluate(() => window.__office2d.personPoint('emp_helena'));
+  await O.waitForTimeout(300);
+  const hp2 = await O.evaluate(() => window.__office2d.personPoint('emp_helena'));
+  await O.mouse.click(tvBox.x + hp2.x, tvBox.y + hp2.y);
+  await O.waitForSelector('[data-testid="person-card"]');
+  ok(/Disponível|Em atendimento|Ausente/.test(await O.locator('[data-testid="person-status"]').innerText()), 'cartão da pessoa mostra Disponível, Em atendimento ou Ausente');
+  ok((await O.locator('[data-testid="person-chat"]').innerText()) === 'Chamar' && (await O.locator('[data-testid="person-hint"]').count()) === 1, 'cartão tem o botão Chamar e a orientação do estado');
+  await O.screenshot({ path: path.join(ROOT, 'test-results/ws-cartao.png') });
+  await O.click('[aria-label="Fechar"]');
+  void hp;
+
+  // clique na TV do atendimento: o que está na tela (equipe ao vivo) e, daí, a área de dispositivos (como o catálogo do AnyDesk)
   await O.evaluate(() => window.__office2d.focusTv('o66'));
   await O.waitForTimeout(700);
+  await O.screenshot({ path: path.join(ROOT, 'test-results/ws-tv-mapa.png') });
   const tvPt = await O.evaluate(() => window.__office2d.tvPoint('o66'));
-  const tvBox = await O.locator('.office2d-canvas canvas').boundingBox();
   await O.mouse.click(tvBox.x + tvPt.x, tvBox.y + tvPt.y);
+  await O.waitForSelector('[data-testid="tv-queue"]');
+  const counts = await O.evaluate(() => ['free', 'call', 'away'].map((k) => Number(document.querySelector(`[data-testid="tv-count-${k}"]`).textContent)));
+  const listed = await O.evaluate(() => document.querySelectorAll('[data-testid="people-list"] li').length);
+  ok(counts.reduce((a, b) => a + b, 0) === listed && listed >= 1, `a TV do atendimento mostra a equipe ao vivo (${counts.join('/')} de ${listed} no mapa)`);
+  await O.click('[data-testid="tv-open-remote"]');
   await O.waitForSelector('[data-testid="tv-device-dev_player_atendimento"]');
-  ok((await O.getAttribute('[data-testid="tv-device-dev_player_atendimento"]', 'aria-selected')) === 'true', 'clicar na TV abre a lista de dispositivos com o da TV marcado');
+  ok((await O.getAttribute('[data-testid="tv-device-dev_player_atendimento"]', 'aria-selected')) === 'true', 'da TV se chega à lista de dispositivos com o da TV marcado');
   ok(!(await O.locator('[data-testid^="tv-device-dev_prn"]').count()), 'impressora não aparece na lista (não tem acesso remoto)');
   await O.fill('[data-testid="tv-search"]', 'PC-ATD');
   await O.click('[data-testid="tv-device-dev_pc_at_01"]');
@@ -141,11 +159,14 @@ try {
   const tvTxt = await O.locator('[data-testid="tv-result"]').innerText();
   ok(/PC-ATD-01/.test(tvTxt) && /Demonstração|demonstra/i.test(tvTxt) && !/anydesk\.exe/.test(tvTxt), 'conexão ao dispositivo escolhido só registrada na demonstração (nenhum comando nem ID exposto)');
   await O.click('[data-testid="tv-close"]');
-  // a TV da reunião vem com um dispositivo que o operador não pode usar: a linha aparece desabilitada, com o motivo
+  // TV da reunião: o aviso do dia na tela; o dispositivo dela o operador não pode usar (linha desabilitada, com o motivo)
   await O.evaluate(() => window.__office2d.focusTv('o40'));
   await O.waitForTimeout(700);
   const tvPt2 = await O.evaluate(() => window.__office2d.tvPoint('o40'));
   await O.mouse.click(tvBox.x + tvPt2.x, tvBox.y + tvPt2.y);
+  await O.waitForSelector('[data-testid="tv-notice"]');
+  ok(/Reunião geral/.test(await O.locator('[data-testid="tv-notice"]').innerText()), 'a TV da reunião mostra o aviso do dia');
+  await O.click('[data-testid="tv-open-remote"]');
   await O.waitForSelector('[data-testid="tv-device-dev_player_reuniao"]');
   ok(await O.locator('[data-testid="tv-device-dev_player_reuniao"]').isDisabled(), 'dispositivo sem permissão aparece desabilitado na lista');
   ok(/permiss/i.test(await O.locator('[data-testid="tv-device-dev_player_reuniao"]').innerText()), 'a linha explica a falta de permissão');
@@ -167,6 +188,17 @@ try {
   const prTxt = await O.locator('[data-testid="printer-job"]').innerText();
   ok(/IMP-RECEPCAO/.test(prTxt) && /Fila simulada/.test(prTxt), 'PDF enviado para a impressora escolhida (fila simulada)');
   await O.click('[data-testid="printer-close"]');
+
+  // o administrador troca o aviso da TV da reunião: chega ao mapa do operador na hora, sem recarregar
+  await A.evaluate(() => fetch('/api/admin/office2d/off_sede_1/objects/o40/tv-content', { method: 'PUT', headers: { 'content-type': 'application/json', 'X-Requested-With': 'office3d' }, body: JSON.stringify({ kind: 'notice', title: 'Aviso do dia', body: 'Aviso trocado pelo e2e: sexta às 16h.' }) }));
+  await O.waitForTimeout(1200);
+  await O.evaluate(() => window.__office2d.focusTv('o40'));
+  await O.waitForTimeout(500);
+  const tvPt3 = await O.evaluate(() => window.__office2d.tvPoint('o40'));
+  await O.mouse.click(tvBox.x + tvPt3.x, tvBox.y + tvPt3.y);
+  await O.waitForSelector('[data-testid="tv-notice"]');
+  ok(/trocado pelo e2e/.test(await O.locator('[data-testid="tv-notice"]').innerText()), 'o aviso trocado pelo administrador chegou à TV do operador ao vivo');
+  await O.click('[data-testid="tv-view-close"]');
 
   // 6) editor 2D: administrador coloca um tapete e publica; o operador recebe o layout novo ao vivo
   await A.locator('nav.tabs button', { hasText: 'Editor' }).click();
@@ -226,7 +258,7 @@ try {
     ok(r2.activeEngines.join() === 'phaser' && r2.phaserGames === 1 && r2.threeDiagnostics === false && r2.canvases.every((c) => c === 'phaser'), `ciclo ${i + 1} → 2D: só Phaser ativo, 1 jogo, sem mundo Three`);
   }
   const rf = await report(O);
-  ok(rf.liveHandlers2d <= 3, `ouvintes do 2D estáveis após as trocas (${rf.liveHandlers2d})`);
+  ok(rf.liveHandlers2d <= 4, `ouvintes do 2D estáveis após as trocas (${rf.liveHandlers2d})`);
   await browser.close();
 } catch (e) {
   console.log('ERRO:', e?.message ?? e);

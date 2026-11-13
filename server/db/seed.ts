@@ -152,6 +152,10 @@ export async function seed(db: Db): Promise<{ created: boolean }> {
     await db.exec('INSERT INTO remote_access_grants (user_id, device_id, company_id) VALUES (?, ?, ?)', ['usr_operador', dev, ACME]);
   }
 
+  // ---- conteúdo das TVs do mapa 2D: aviso do dia na reunião, equipe do atendimento no atendimento ----
+  await db.exec('INSERT INTO object2d_tv_content (company_id, office_id, object_id, kind, title, body, url, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)', [ACME, 'off_sede_1', 'o40', 'notice', 'Aviso do dia', 'Reunião geral às 15h na sala de reunião. Tragam os indicadores da semana.', 'usr_admin', now]);
+  await db.exec('INSERT INTO object2d_tv_content (company_id, office_id, object_id, kind, title, body, url, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)', [ACME, 'off_sede_1', 'o66', 'queue', 'Equipe do atendimento', '', 'usr_admin', now]);
+
   // ---- TVs e impressora do escritório 2D: o dispositivo marcado em cada uma (a pessoa pode escolher outro na lista).
   // TVs (penduradas na parede): O operador só tem permissão na do atendimento (RustDesk) ----
   for (const [objectId, dev] of [['o40', 'dev_player_reuniao'], ['o66', 'dev_player_atendimento'], ['o27', 'dev_prn_at_01']]) {

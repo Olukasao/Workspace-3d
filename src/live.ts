@@ -82,7 +82,7 @@ let refs = 0;
  * fica escutando depois que o motor 2D sai. A inscrição vale mesmo que a conexão ainda não tenha sido aberta.
  */
 const handlers = new Map<string, Set<(data: unknown) => void>>();
-const EVENTS_2D = ['p2d', 'layout2d', 'seats2d'] as const;
+const EVENTS_2D = ['p2d', 'layout2d', 'seats2d', 'tv2d'] as const;
 export function onLiveEvent(name: (typeof EVENTS_2D)[number], fn: (data: unknown) => void): () => void {
   if (!handlers.has(name)) handlers.set(name, new Set());
   handlers.get(name)!.add(fn);

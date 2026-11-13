@@ -18,7 +18,7 @@ let floors: HTMLImageElement | null = null;
 let walls: HTMLImageElement | null = null;
 const tileImgs = new Map<string, HTMLImageElement>();
 let loading: Promise<void> | null = null;
-const TILE_FILES = ['sofa_down_1', 'sofa_down_2', 'sofa_up_1', 'sofa_up_2', 'sofa_left_1', 'sofa_left_2', 'sofa_right_1', 'sofa_right_2', 'counter_bank', 'counter_teller', 'counter_metal'];
+const TILE_FILES = ['sofa_down_1', 'sofa_down_2', 'sofa_up_1', 'sofa_up_2', 'sofa_left_1', 'sofa_left_2', 'sofa_right_1', 'sofa_right_2', 'counter_bank', 'counter_teller', 'counter_metal', 'oven1', 'hifi', 'speaker'];
 
 const loadImg = (src: string) =>
   new Promise<HTMLImageElement>((ok, no) => {
@@ -68,6 +68,10 @@ const RECIPE: Record<string, string[]> = {
 /** Móveis montados com ladrilhos de 32×32 do Crimelike Furniture (CC0): uma lista de ladrilhos por direção (frente, costas, esquerda e direita). */
 const TILE_RECIPE: Record<string, Partial<Record<Facing, string[]>>> = {
   sofa: { down: ['sofa_down_1', 'sofa_down_2'], up: ['sofa_up_1', 'sofa_up_2'], left: ['sofa_left_1', 'sofa_left_2'], right: ['sofa_right_1', 'sofa_right_2'] },
+  oven: { down: ['oven1'] },
+  kitchen_counter: { down: ['counter_metal'] },
+  hifi: { down: ['hifi'] },
+  speaker: { down: ['speaker'] },
   // balcão de recepção: faixa horizontal de 3; na vertical é a mesma faixa girada
   reception_desk: { down: ['counter_bank', 'counter_metal', 'counter_teller'], up: ['counter_bank', 'counter_metal', 'counter_teller'] },
 };

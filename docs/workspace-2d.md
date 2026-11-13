@@ -27,7 +27,7 @@ O Workspace tem **dois ambientes para a mesma empresa: 3D e 2D**. O **administra
 
 - Phaser 3 + React: o Phaser cuida do mapa e dos personagens; o React só desenha os painéis (lista de pessoas, seu estado, cartão da pessoa). Não há re-render do React a cada passo.
 - Mapa em formato **Tiled** (JSON). O layout é guardado como `Layout2D` (grade de 32 px: piso, paredes, móveis, salas, entradas, estações) e pode ser exportado como `.tmj` (`GET /api/admin/office2d/:id/tiled`).
-- Visão de cima em 3/4. Pixel art original pintada por código (22 móveis, personagens em camadas) e, onde o tamanho bate, o pacote Office Pixel Art (ver Decisões). Nada do Habbo ou do Gather.
+- Visão de cima em 3/4. Pixel art original pintada por código (26 móveis, personagens em camadas) e, onde o tamanho bate, o pacote Office Pixel Art (ver Decisões). Nada do Habbo ou do Gather.
 - Controles: WASD/setas, clique no chão (caminho A*), **E** ou clique na mesa para sentar/levantar, clique numa pessoa para o cartão e **Conversar**, roda do mouse ou +/− para zoom. Colisão com paredes e móveis; profundidade por linha (quem está atrás aparece atrás).
 - Pinça no celular **não foi implementada** (use os botões +/−).
 
@@ -45,7 +45,7 @@ Regras do briefing mantidas: nenhuma tecla, texto ou nome de conversa vai para o
 
 ## Editor 2D (administrador)
 
-Editor → no modo 2D abre o editor do layout: pintar piso, paredes, apagar, colocar/mover/girar/remover móveis (22 do catálogo), definir entradas, vincular colaborador a cada estação. **Salvar rascunho** (com versão-base: 409 se outro administrador salvou antes) e **Publicar**: todos os conectados recebem o layout novo ao vivo (as pessoas que estavam num lugar que deixou de existir são realocadas; vínculos de estações removidas caem). Toda mesa com computador vira uma estação automaticamente. O servidor valida o layout inteiro (`validateLayout`) antes de gravar: limites, sobreposição, móvel sobre parede, estações com lugar para sentar.
+Editor → no modo 2D abre o editor do layout: pintar piso, paredes, apagar, colocar/mover/girar/remover móveis (26 do catálogo), definir entradas, vincular colaborador a cada estação. **Salvar rascunho** (com versão-base: 409 se outro administrador salvou antes) e **Publicar**: todos os conectados recebem o layout novo ao vivo (as pessoas que estavam num lugar que deixou de existir são realocadas; vínculos de estações removidas caem). Toda mesa com computador vira uma estação automaticamente. O servidor valida o layout inteiro (`validateLayout`) antes de gravar: limites, sobreposição, móvel sobre parede, estações com lugar para sentar.
 
 Vínculo de pessoas às estações 2D fica em tabela própria (`seat2d_assignments`), separado das mesas do 3D.
 
@@ -69,7 +69,7 @@ Vínculo de pessoas às estações 2D fica em tabela própria (`seat2d_assignmen
 
 - **Socket.IO não foi adicionado.** O briefing aceita "a infraestrutura existente": o projeto já tem tempo real por SSE com reconexão, versão e ressincronização, e as posições vão por `POST` validado no servidor. Menos uma dependência, mesma garantia.
 - **Personagens:** Universal LPC (padrão) e, para aparências antigas, o pacote Customizable Character Pack (Ordinary Bumblebee, CC0).
-- **Móveis extras:** sofás e balcão de recepção do Crimelike Furniture (extradave, CC0), em `public/assets/furniture-crimelike/`.
+- **Móveis extras:** sofás, balcão de recepção, forno, balcão da copa, som e caixa de som do Crimelike Furniture (extradave, CC0), em `public/assets/furniture-crimelike/`.
 - **Arte mista.** Móveis, paredes e personagens são pixel art original pintada por código. Mesa, computador, cadeira, arquivo, 2 plantas, bebedouro e 3 pisos vêm do pacote gratuito **Office Pixel Art (Imersa Studios)**, usado sem alteração em `public/assets/office-pixel/`, com crédito na tela Créditos e autorização de redistribuição por escrito em `docs/licencas/imersa-office-pixel-art.md`. Se o pacote não carregar, a arte pintada assume (`src/workspace/modes/mode2d/art/pack.ts`). O pacote Modern Home (Chucky Assets) **não** foi incluído: a licença proíbe redistribuir.
 - **Pinça em telas de toque:** não feita.
 - **Colegas simulados:** no modo demonstração, os colegas simulados aparecem no 2D com os mesmos sinais de presença que já existiam; em produção só entram pessoas realmente conectadas.

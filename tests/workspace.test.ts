@@ -372,22 +372,22 @@ describe('ausente e avatar 2D', () => {
     expect(mine.saved).toBe(false);
     expect(validateAvatar2D(mine.config)).toEqual([]);
     expect(mine.config).toEqual(defaultAvatar2D('emp_otavio'));
-    const changed: Avatar2DConfig = { ...mine.config, hair: 'bun', hairColor: '#a0652a', glasses: true, headsetAlways: true };
+    const changed: Avatar2DConfig = { ...mine.config, hair: 'hair_bob', hairColor: 'blonde', glasses: true, headsetAlways: true };
     const saved = await operator.put<{ version: number; config: Avatar2DConfig }>('/api/avatar/me', { config: changed, baseVersion: mine.version });
     expect(saved.status).toBe(200);
-    expect(saved.body.config.hair).toBe('bun');
+    expect(saved.body.config.hair).toBe('hair_bob');
     expect((await operator.put('/api/avatar/me', { config: defaultAvatar('x'), baseVersion: saved.body.version })).status).toBe(422); // config do MakeHuman
     expect((await operator.put('/api/avatar/me', { config: { ...changed, hair: 'laser' }, baseVersion: saved.body.version })).status).toBe(422);
     expect((await admin.put('/api/avatar/employees/emp_otavio', { config: changed, baseVersion: saved.body.version })).status).toBe(403);
     // presença: os colegas recebem a aparência 2D
     const snap = (await admin.get<{ people: Array<{ employeeId: string; appearance: { config: Avatar2DConfig } | null }> }>('/api/live/snapshot')).body.people.find((p) => p.employeeId === 'emp_otavio');
-    expect(snap?.appearance?.config.hair).toBe('bun');
+    expect(snap?.appearance?.config.hair).toBe('hair_bob');
     // volta ao 3D: a escolha do estilo 3D não foi tocada
     await setMode(admin, '3d');
     const back = (await operator.get<{ style: string }>('/api/avatar/me')).body;
     expect(back.style).not.toBe('sprite2d');
     await setMode(admin, '2d');
-    expect((await operator.get<{ config: Avatar2DConfig }>('/api/avatar/me')).body.config.hair).toBe('bun'); // e a do 2D continua
+    expect((await operator.get<{ config: Avatar2DConfig }>('/api/avatar/me')).body.config.hair).toBe('hair_bob'); // e a do 2D continua
     await setMode(admin, '3d');
   });
 });

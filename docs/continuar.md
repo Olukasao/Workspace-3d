@@ -53,7 +53,7 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 
 ## Pendências (em ordem)
 
-0. **2D:** pinça (zoom por toque) não feita; arte pode ganhar mais variedade (mais móveis e roupas); falta teste manual em celular. O estilo do avatar 3D (Integrações → agora **Configurações**) continua valendo só para o modo 3D.
+0. **2D:** pinça (zoom por toque) não feita; instalar mais móveis e decoração 2D com licença que permita redistribuir (feito em parte, ver docs/workspace-2d.md); arte pode ganhar mais variedade (mais móveis e roupas); falta teste manual em celular. O estilo do avatar 3D (Integrações → agora **Configurações**) continua valendo só para o modo 3D.
 
 1. **Confirmar a estabilidade do `npm run e2e`**: rodar mais 2 ou 3 vezes seguidas. Passou 20/20 uma vez depois da correção abaixo.
 2. **Limpeza dos modelos gerados:** ficam em `data/avatar-models` e nunca são apagados (3 a 5 MB por edição). Falta uma rotina que apague os que nenhum avatar salvo usa. Com mais de um servidor, o armazenamento precisa ser compartilhado. Também não há regeneração automática se a pasta sumir. Ver `docs/avatars-ara.md`, "Lacunas".

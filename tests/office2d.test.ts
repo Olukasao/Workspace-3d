@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ASSET_BY_ID, ASSETS, FLOORS, TILE, blockedGrid, findPath, footprintCells, gridOf, layoutToTiled, nearestFree, seatOfObject, validateLayout, walkable, type Layout2D, type Obj2D } from '../shared/office2d';
 import { defaultLayout2D } from '../shared/office2dDefault';
-import { PALETTE2D, defaultAvatar2D, validateAvatar2D } from '../shared/avatar2d';
+import { PALETTE2D, defaultAvatar2D, validateAvatar2D, type Avatar2DConfig } from '../shared/avatar2d';
 
 const clone = (l: Layout2D): Layout2D => JSON.parse(JSON.stringify(l));
 const errs = (raw: unknown) => validateLayout(raw).errors.join(' | ');
@@ -153,10 +153,17 @@ describe('avatar 2D', () => {
   it('recusa itens fora da lista, cores inválidas e campos desconhecidos', () => {
     const a = defaultAvatar2D('x');
     expect(validateAvatar2D({ ...a, hair: 'mohawk-do-mal' }).join(' ')).toMatch(/Cabelo/);
-    expect(validateAvatar2D({ ...a, shirtColor: 'azul' }).join(' ')).toMatch(/shirtColor/);
+    expect(validateAvatar2D({ ...a, shirtColor: 'azul-neon' }).join(' ')).toMatch(/Cor da parte de cima/);
+    expect(validateAvatar2D({ ...a, bodyType: 'robo' }).join(' ')).toMatch(/Tipo de corpo/);
+    expect(validateAvatar2D({ ...a, eyeColor: 'rosa' }).join(' ')).toMatch(/olhos/);
     expect(validateAvatar2D({ ...a, glasses: 'sim' }).join(' ')).toMatch(/glasses/);
     expect(validateAvatar2D({ ...a, extra: 1 }).join(' ')).toMatch(/desconhecidos/);
     expect(validateAvatar2D({ ...a, skin: 'x' }).join(' ')).toMatch(/Pele/);
-    expect(validateAvatar2D({ ...a, hairColor: PALETTE2D.hair[0] })).toEqual([]);
+    expect(validateAvatar2D({ ...a, hairColor: 'blue', hair: 'none', facial: 'none' })).toEqual([]);
+  });
+  it('aparências antigas (personagem pequeno, sem o campo look) continuam válidas e não aceitam campos do LPC', () => {
+    const legacy: Avatar2DConfig = { v: 1, style: 'sprite2d', skin: 'pele-2', hair: 'h1', hairColor: PALETTE2D.hair[0], shirt: 't1', shirtColor: '#ffffff', pants: 'b1', pantsColor: '#26324a', shoes: 's1', shoesColor: '#1a1410', facial: 'none', glasses: false, headsetAlways: false };
+    expect(validateAvatar2D(legacy)).toEqual([]);
+    expect(validateAvatar2D({ ...legacy, bodyType: 'male' }).join(' ')).toMatch(/só existem no estilo LPC/);
   });
 });

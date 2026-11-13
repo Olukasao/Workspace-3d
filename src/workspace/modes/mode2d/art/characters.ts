@@ -8,12 +8,14 @@
  */
 import { SKIN2D, type Avatar2DConfig } from '../../../../../shared/avatar2d';
 import type { Dir } from '../../../../../shared/office2d';
+import { drawFrame, layersReady } from './layers';
+import { LPC_FRAME, composeAnim, headBox, lpcLoaded, lpcRow } from './lpc';
 import { Pix, shade } from './pixel';
 
-export const FW = 32;
-export const FH = 48;
-export const SHEET_COLS = 12;
-export const ANIMS = {
+const OFW = 32;
+const OFH = 48;
+const OSHEET_COLS = 12;
+const OANIMS = {
   walk: { start: 0, frames: 4 },
   idle: { start: 4, frames: 1 },
   sit: { start: 5, frames: 1 },
@@ -21,13 +23,13 @@ export const ANIMS = {
   talk: { start: 8, frames: 2 },
   sittalk: { start: 10, frames: 2 },
 } as const;
-export type AnimName = keyof typeof ANIMS;
+type OldAnim = keyof typeof OANIMS;
 export const ROW: Record<Dir, number> = { down: 0, left: 1, right: 2, up: 3 };
-export const FOOT_Y = 45; // chão do personagem dentro do quadro
+const OFOOT_Y = 45; // chão do personagem dentro do quadro
 
 interface Pose {
   dir: Dir; // down | left | up (right é o espelho de left)
-  anim: AnimName;
+  anim: OldAnim;
   i: number;
   sitting: boolean;
   bob: number;
@@ -284,11 +286,11 @@ function drawHeadset(p: Pix, L: Look, o: Pose, hy: number) {
 }
 
 function frame(p: Pix, ox: number, oy: number, L: Look, o: Pose) {
-  const sub = new Pix(FW, FH);
+  const sub = new Pix(OFW, OFH);
   const sit = o.sitting ? 5 : 0;
   const ty = 18 + o.bob + sit; // topo do tronco
   const hy = HEAD.y + o.bob + sit;
-  sub.ellipse(16, FOOT_Y - 1, 9, 3, '#000000', 0.22); // sombra
+  sub.ellipse(16, OFOOT_Y - 1, 9, 3, '#000000', 0.22); // sombra
   drawHair(sub, L, o, hy, true);
   drawLegs(sub, L, o, ty);
   drawTorso(sub, L, o, ty);
@@ -299,29 +301,64 @@ function frame(p: Pix, ox: number, oy: number, L: Look, o: Pose) {
   p.g.drawImage(sub.canvas, ox, oy);
 }
 
+/** Folha com as camadas do pacote Bumblebee (CC0). Os pés ficam na linha OFOOT_Y do quadro de 32×48. */
+function composeLayered(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasElement {
+  const sheet = document.createElement('canvas');
+  sheet.width = OFW * OSHEET_COLS;
+  sheet.height = OFH * 4;
+  const sg = sheet.getContext('2d')!;
+  sg.imageSmoothingEnabled = false;
+  const tmp = document.createElement('canvas');
+  tmp.width = 32;
+  tmp.height = 32;
+  const tg = tmp.getContext('2d')!;
+  tg.imageSmoothingEnabled = false;
+  const oy = OFOOT_Y - 31; // o pé do pacote está na linha 31
+  const put = (dir: Dir, col: number, anim: 'Idle' | 'Walk', pc: number, sitting: boolean, dy: number) => {
+    tg.clearRect(0, 0, 32, 32);
+    drawFrame(tg, cfg, { anim, col: pc, dir, glasses: cfg.glasses, headset });
+    if (sitting) tg.clearRect(0, 27, 32, 5); // as pernas ficam atrás da mesa
+    sg.drawImage(tmp, col * OFW, ROW[dir] * OFH + oy + dy);
+  };
+  for (const dir of ['down', 'left', 'right', 'up'] as const) {
+    for (let i = 0; i < 4; i++) put(dir, OANIMS.walk.start + i, 'Walk', i, false, 0);
+    put(dir, OANIMS.idle.start, 'Idle', 0, false, 0);
+    put(dir, OANIMS.sit.start, 'Idle', 0, true, 0);
+    for (let i = 0; i < 2; i++) {
+      put(dir, OANIMS.type.start + i, 'Idle', i ? 2 : 0, true, i ? -1 : 0);
+      put(dir, OANIMS.talk.start + i, 'Idle', i ? 1 : 0, false, i ? -1 : 0);
+      put(dir, OANIMS.sittalk.start + i, 'Idle', i ? 1 : 0, true, i ? -1 : 0);
+    }
+  }
+  return sheet;
+}
+
 /** Folha de sprites completa de uma aparência (com ou sem o headset visível). */
-export function composeSheet(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasElement {
+function composeOld(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasElement {
+  if (layersReady()) return composeLayered(cfg, headset);
+  // sem o pacote: personagem pintado por código, com peças padrão (os ids novos não existem nesta arte)
+  cfg = { ...cfg, hair: 'short', shirt: 'tee', shirtColor: '#3a5a8a', pants: 'long', pantsColor: '#26324a', shoes: 'sneakers', shoesColor: '#1a1410', facial: 'none' };
   const skin = SKIN2D.find((s) => s.id === cfg.skin)?.hex ?? SKIN2D[1].hex;
   const L: Look = { skin, skinD: shade(skin, -0.14), hair: cfg.hairColor, shirt: cfg.shirtColor, pants: cfg.pantsColor, shoes: cfg.shoesColor, cfg, headset };
-  const sheet = new Pix(FW * SHEET_COLS, FH * 4);
+  const sheet = new Pix(OFW * OSHEET_COLS, OFH * 4);
   for (const dir of ['down', 'left', 'up'] as const) {
-    for (const [name, def] of Object.entries(ANIMS) as Array<[AnimName, (typeof ANIMS)[AnimName]]>) {
+    for (const [name, def] of Object.entries(OANIMS) as Array<[OldAnim, (typeof OANIMS)[OldAnim]]>) {
       for (let i = 0; i < def.frames; i++) {
         const sitting = name === 'sit' || name === 'type' || name === 'sittalk';
         const bob = name === 'walk' ? (i % 2 ? -1 : 0) : name === 'talk' || name === 'sittalk' ? (i % 2 ? -1 : 0) : 0;
         const swing = name === 'walk' ? [0, 1, 0, -1][i] : 0;
-        frame(sheet, (def.start + i) * FW, ROW[dir] * FH, L, { dir, anim: name, i, sitting, bob, swing });
+        frame(sheet, (def.start + i) * OFW, ROW[dir] * OFH, L, { dir, anim: name, i, sitting, bob, swing });
       }
     }
   }
   // direita = esquerda espelhada
   sheet.g.save();
   sheet.g.translate(0, 0);
-  for (let c = 0; c < SHEET_COLS; c++) {
+  for (let c = 0; c < OSHEET_COLS; c++) {
     sheet.g.save();
-    sheet.g.translate((c + 1) * FW, ROW.right * FH);
+    sheet.g.translate((c + 1) * OFW, ROW.right * OFH);
     sheet.g.scale(-1, 1);
-    sheet.g.drawImage(sheet.canvas, c * FW, ROW.left * FH, FW, FH, 0, 0, FW, FH);
+    sheet.g.drawImage(sheet.canvas, c * OFW, ROW.left * OFH, OFW, OFH, 0, 0, OFW, OFH);
     sheet.g.restore();
   }
   sheet.g.restore();
@@ -329,3 +366,95 @@ export function composeSheet(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasE
 }
 
 export const sheetKey = (cfg: Avatar2DConfig, headset: boolean) => `av2d:${headset ? 'h' : 'n'}:${cfg.skin}:${cfg.hair}:${cfg.hairColor}:${cfg.shirt}:${cfg.shirtColor}:${cfg.pants}:${cfg.pantsColor}:${cfg.shoes}:${cfg.shoesColor}:${cfg.facial}:${cfg.glasses ? 1 : 0}`;
+
+// ---------- folha final: quadros de 64×64 para todos os estilos ----------
+export const FW = 64;
+export const FH = 64;
+export const SHEET_COLS = 16;
+export const FOOT_Y = 61; // chão do personagem dentro do quadro (pés do LPC)
+/** Colunas da folha: andar 0-7 · parado 8 · sentado 9 · digitando 10-11 (sentado) · falando 12-13 (em pé) · falando sentado 14-15 */
+export const ANIMS = {
+  walk: { start: 0, frames: 8 },
+  idle: { start: 8, frames: 1 },
+  sit: { start: 9, frames: 1 },
+  type: { start: 10, frames: 2 },
+  talk: { start: 12, frames: 2 },
+  sittalk: { start: 14, frames: 2 },
+} as const;
+export type AnimName = keyof typeof ANIMS;
+
+/** Personagem pequeno (32×48): recoloca cada quadro no quadro de 64×64 e repete o andar para completar os 8 passos. */
+function reframeOld(old: HTMLCanvasElement): HTMLCanvasElement {
+  const out = document.createElement('canvas');
+  out.width = FW * SHEET_COLS;
+  out.height = FH * 4;
+  const g = out.getContext('2d')!;
+  g.imageSmoothingEnabled = false;
+  const from = (c: number) => (c < 8 ? c % 4 : c === 8 ? 4 : c === 9 ? 5 : c - 4); // coluna nova → coluna antiga
+  for (let r = 0; r < 4; r++) for (let c = 0; c < SHEET_COLS; c++) g.drawImage(old, from(c) * OFW, r * OFH, OFW, OFH, c * FW + (FW - OFW) / 2, r * FH + (FOOT_Y - OOFOOT), OFW, OFH);
+  old.width = 0;
+  return out;
+}
+const OOFOOT = OFOOT_Y;
+
+/** Quadros do LPC nas colunas e linhas da nossa folha, com o headset desenhado por cima. */
+function composeLpc(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasElement | null {
+  if (!lpcLoaded(cfg)) return null;
+  const sheets = { walk: composeAnim(cfg, 'walk'), idle: composeAnim(cfg, 'idle'), sit: composeAnim(cfg, 'sit') };
+  if (!sheets.walk || !sheets.idle || !sheets.sit) return null;
+  const out = document.createElement('canvas');
+  out.width = FW * SHEET_COLS;
+  out.height = FH * 4;
+  const g = out.getContext('2d')!;
+  g.imageSmoothingEnabled = false;
+  const put = (dir: Dir, col: number, anim: 'walk' | 'idle' | 'sit', src: number, dy = 0) => {
+    const lr = lpcRow(dir);
+    g.drawImage(sheets[anim]!, src * LPC_FRAME, lr * LPC_FRAME, LPC_FRAME, LPC_FRAME, col * FW, ROW[dir] * FH + dy, FW, FH);
+    if (headset) drawLpcHeadset(g, col * FW, ROW[dir] * FH + dy, dir, headBox(cfg, anim, src, lr));
+  };
+  for (const dir of ['down', 'left', 'right', 'up'] as const) {
+    for (let i = 0; i < 8; i++) put(dir, ANIMS.walk.start + i, 'walk', i + 1);
+    put(dir, ANIMS.idle.start, 'idle', 0);
+    put(dir, ANIMS.sit.start, 'sit', 0);
+    for (let i = 0; i < 2; i++) {
+      put(dir, ANIMS.type.start + i, 'sit', 0, i ? -1 : 0);
+      put(dir, ANIMS.talk.start + i, 'idle', i, 0);
+      put(dir, ANIMS.sittalk.start + i, 'sit', 0, i ? -1 : 0);
+    }
+  }
+  for (const k of Object.keys(sheets)) (sheets[k as keyof typeof sheets] as HTMLCanvasElement).width = 0;
+  return out;
+}
+
+function drawLpcHeadset(g: CanvasRenderingContext2D, ox: number, oy: number, dir: Dir, b: { x0: number; y0: number; x1: number; y1: number } | null) {
+  if (!b) return;
+  const px = (x: number, y: number, w: number, h: number, c: string) => {
+    g.fillStyle = c;
+    g.fillRect(ox + x, oy + y, w, h);
+  };
+  const midY = b.y0 + Math.round((b.y1 - b.y0) * 0.45);
+  if (dir === 'down' || dir === 'up') {
+    px(b.x0 + 2, b.y0 + 1, b.x1 - b.x0 - 3, 1, '#2b2d33'); // arco
+    px(b.x0, b.y0 + 3, 1, midY - b.y0 - 2, '#2b2d33');
+    px(b.x1, b.y0 + 3, 1, midY - b.y0 - 2, '#2b2d33');
+    px(b.x0 - 2, midY, 3, 6, '#2b2d33'); // fones
+    px(b.x1, midY, 3, 6, '#2b2d33');
+    px(b.x0 - 2, midY, 1, 1, '#6b7280');
+    px(b.x1 + 2, midY, 1, 1, '#6b7280');
+    if (dir === 'down') px(b.x0 - 1, midY + 6, 5, 1, '#2b2d33'); // microfone
+  } else {
+    const cx = Math.round((b.x0 + b.x1) / 2);
+    px(b.x0 + 3, b.y0 + 1, b.x1 - b.x0 - 5, 1, '#2b2d33');
+    px(cx - 2, midY - 1, 5, 7, '#2b2d33');
+    px(cx - 2, midY - 1, 1, 1, '#6b7280');
+  }
+}
+
+/** Folha de sprites completa de uma aparência (com ou sem o headset visível). */
+export function composeSheet(cfg: Avatar2DConfig, headset: boolean): HTMLCanvasElement {
+  if (cfg.look === 'lpc') {
+    const lpc = composeLpc(cfg, headset);
+    if (lpc) return lpc;
+  }
+  return reframeOld(composeOld(cfg, headset));
+}

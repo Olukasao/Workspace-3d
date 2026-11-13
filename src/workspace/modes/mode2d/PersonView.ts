@@ -6,7 +6,8 @@ import Phaser from 'phaser';
 import { defaultAvatar2D, isSprite2D, type Avatar2DConfig } from '../../../../shared/avatar2d';
 import { TILE, type Dir } from '../../../../shared/office2d';
 import type { LiveStatus } from '../../../live';
-import { ANIMS, FH, FOOT_Y, FW, ROW, type AnimName } from './art/characters';
+import { ANIMS, FH, FOOT_Y, ROW, type AnimName } from './art/characters';
+import { preloadLpc } from './art/lpc';
 import { acquireAvatar, frameName, releaseAvatar } from './textures2d';
 
 export const STATUS_BG: Record<LiveStatus, string> = { online: '#1f9d55', typing: '#2f6fed', in_call: '#c05621', away: '#b7791f', offline: '#6b7280' };
@@ -43,6 +44,7 @@ export class PersonView {
   private cfgSig = '';
   private frame = '';
   private bubbleText = '';
+  private dead = false;
 
   constructor(
     private scene: Phaser.Scene,
@@ -68,11 +70,17 @@ export class PersonView {
     const sig = JSON.stringify(cfg) + (headset ? 'h' : 'n');
     if (sig === this.cfgSig) return;
     this.cfgSig = sig;
-    const old = this.texKey;
-    this.texKey = acquireAvatar(this.scene, cfg, headset);
-    this.frame = '';
-    this.sprite.setTexture(this.texKey).setVisible(true);
-    if (old) releaseAvatar(this.scene, old);
+    const apply = () => {
+      if (this.dead || sig !== this.cfgSig) return; // a pessoa saiu ou a aparência mudou de novo enquanto as imagens carregavam
+      const old = this.texKey;
+      this.texKey = acquireAvatar(this.scene, cfg, headset);
+      this.frame = '';
+      this.sprite.setTexture(this.texKey).setVisible(true);
+      if (old) releaseAvatar(this.scene, old);
+    };
+    // no estilo LPC as imagens das peças são baixadas sob demanda; sem elas vale o personagem pequeno
+    if (cfg.look === 'lpc') void preloadLpc(cfg).then(apply, apply);
+    else apply();
   }
 
   setTarget(x: number, y: number, snap = false) {
@@ -112,10 +120,11 @@ export class PersonView {
 
   /** Posição na tela (pixels do canvas) para ancorar o cartão da pessoa. */
   hit(wx: number, wy: number) {
-    return Math.abs(wx - this.x) < FW / 2 - 4 && wy > this.y - FH + 14 && wy < this.y + 6;
+    return Math.abs(wx - this.x) < 12 && wy > this.y - 46 && wy < this.y + 6;
   }
 
   destroy() {
+    this.dead = true;
     this.sprite.destroy();
     this.label.destroy();
     this.bubble.destroy();

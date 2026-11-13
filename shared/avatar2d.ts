@@ -1,31 +1,32 @@
 /**
- * Avatar 2D em camadas (pixel art): corpo, cabelo, camiseta, calça, calçado, barba, óculos e headset.
- * Os desenhos são pintados por código no navegador (src/workspace/mode2d/art): para acrescentar uma roupa ou um acessório,
- * basta incluir o id aqui e a função de pintura no registro, sem mexer no motor do personagem.
+ * Avatar 2D em camadas (pixel art, 32x32): corpo, olhos, cabelo, parte de cima, parte de baixo e calçado vêm do pacote
+ * "Customizable Character Pack" (Ordinary Bumblebee, CC0) em public/assets/char-layers; óculos e headset são desenhados por código.
+ * Para acrescentar uma peça: aumente o número de peças da lista aqui e acrescente a linha na folha de sprites.
  * A configuração é guardada por colaborador (avatar_choices, estilo "sprite2d") e sincronizada em tempo real.
+ * As cores de roupa e calçado não são usadas por este pacote (as peças já têm cor), mas os campos continuam por compatibilidade.
  */
+import { LPC_BODIES, LPC_CLOTH_COLORS, LPC_EYE_COLORS, LPC_HAIR_COLORS, LPC_PARTS, LPC_SKINS } from './avatarLpc.generated';
+
 export interface Opt2D { id: string; name: string }
+export type Look2D = 'lpc' | 'chibi';
 
 export const SKIN2D = [
-  { id: 'pele-1', name: 'Clara', hex: '#f6d5bd' }, { id: 'pele-2', name: 'Bege', hex: '#e8b98f' }, { id: 'pele-3', name: 'Morena clara', hex: '#c98f63' },
-  { id: 'pele-4', name: 'Morena', hex: '#a46a42' }, { id: 'pele-5', name: 'Escura', hex: '#7a4a2e' }, { id: 'pele-6', name: 'Muito escura', hex: '#5a3622' },
+  { id: 'pele-1', name: 'Morena clara', hex: '#c98040' }, { id: 'pele-2', name: 'Clara', hex: '#efc7a5' }, { id: 'pele-3', name: 'Bege', hex: '#e8bf8d' },
+  { id: 'pele-4', name: 'Morena', hex: '#ad6c3d' }, { id: 'pele-5', name: 'Muito clara', hex: '#f6d5b3' },
 ] as const;
-export const HAIR2D: readonly Opt2D[] = [
-  { id: 'short', name: 'Curto' }, { id: 'side', name: 'Curto com lado' }, { id: 'long', name: 'Longo' }, { id: 'bob', name: 'Chanel' },
-  { id: 'ponytail', name: 'Rabo de cavalo' }, { id: 'bun', name: 'Coque' }, { id: 'afro', name: 'Afro' }, { id: 'buzz', name: 'Raspado' }, { id: 'bald', name: 'Careca' },
-];
-export const SHIRT2D: readonly Opt2D[] = [
-  { id: 'tee', name: 'Camiseta' }, { id: 'shirt', name: 'Camisa social' }, { id: 'polo', name: 'Polo' }, { id: 'blazer', name: 'Paletó' }, { id: 'hoodie', name: 'Moletom' },
-];
-export const PANTS2D: readonly Opt2D[] = [{ id: 'long', name: 'Calça' }, { id: 'shorts', name: 'Bermuda' }, { id: 'skirt', name: 'Saia' }];
-export const SHOES2D: readonly Opt2D[] = [{ id: 'sneakers', name: 'Tênis' }, { id: 'formal', name: 'Sapato social' }, { id: 'boots', name: 'Bota' }];
-export const FACIAL2D: readonly Opt2D[] = [{ id: 'none', name: 'Sem barba' }, { id: 'mustache', name: 'Bigode' }, { id: 'beard', name: 'Barba' }];
+/** Peças do pacote de personagens em camadas (Ordinary Bumblebee, CC0): a ordem dos ids é a ordem das linhas nas folhas. */
+const seq = (prefix: string, n: number, label: string): readonly Opt2D[] => Array.from({ length: n }, (_, i) => ({ id: `${prefix}${i + 1}`, name: `${label} ${i + 1}` }));
+export const HAIR2D: readonly Opt2D[] = [{ id: 'bald', name: 'Careca' }, ...seq('h', 5, 'Cabelo')];
+export const SHIRT2D: readonly Opt2D[] = seq('t', 29, 'Parte de cima');
+export const PANTS2D: readonly Opt2D[] = seq('b', 14, 'Parte de baixo');
+export const SHOES2D: readonly Opt2D[] = seq('s', 10, 'Calçado');
+export const FACIAL2D: readonly Opt2D[] = [{ id: 'none', name: 'Sem barba' }];
 
 export const PALETTE2D = {
-  hair: ['#1a1410', '#3b2a1c', '#6b4a2e', '#a0652a', '#c8a15a', '#d8d8d8', '#b0301f', '#3a5a8a'],
-  shirt: ['#ffffff', '#26324a', '#3a5a8a', '#3a8f94', '#5a1f2b', '#c9b597', '#2b2d33', '#e3c168', '#7a4aa0', '#4a8a4a'],
-  pants: ['#26324a', '#2b2d33', '#6b7280', '#c9b597', '#3a5a8a', '#5a3622', '#1a1410'],
-  shoes: ['#1a1410', '#5a3622', '#f1ece4', '#26324a', '#b0301f'],
+  hair: ['#3e2723', '#a33c1a', '#ebcc66', '#2e2725', '#8a8a8a'],
+  shirt: ['#ffffff'],
+  pants: ['#26324a'],
+  shoes: ['#1a1410'],
 } as const;
 
 export interface Avatar2DConfig {
@@ -43,11 +44,23 @@ export interface Avatar2DConfig {
   facial: string;
   glasses: boolean;
   headsetAlways: boolean;
+  /** Estilo de arte: 'lpc' (Universal LPC, padrão) ou 'chibi'. Sem o campo = 'chibi' (aparências antigas). */
+  look?: Look2D;
+  /** Só no estilo LPC. */
+  bodyType?: 'male' | 'female';
+  eyeColor?: string;
 }
 export const isSprite2D = (c: unknown): c is Avatar2DConfig => !!c && typeof c === 'object' && (c as { style?: unknown }).style === 'sprite2d';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
-const KEYS = ['v', 'style', 'skin', 'hair', 'hairColor', 'shirt', 'shirtColor', 'pants', 'pantsColor', 'shoes', 'shoesColor', 'facial', 'glasses', 'headsetAlways'];
+const KEYS = ['v', 'style', 'skin', 'hair', 'hairColor', 'shirt', 'shirtColor', 'pants', 'pantsColor', 'shoes', 'shoesColor', 'facial', 'glasses', 'headsetAlways', 'look', 'bodyType', 'eyeColor'];
+
+const ids = (cat: keyof typeof LPC_PARTS, none?: string) => [...(none ? [none] : []), ...LPC_PARTS[cat].map((p) => p.id)];
+export const LPC_HAIR_IDS = ids('hair', 'none');
+export const LPC_TORSO_IDS = ids('torso');
+export const LPC_LEGS_IDS = ids('legs');
+export const LPC_SHOES_IDS = ids('shoes');
+export const LPC_BEARD_IDS = ids('beard', 'none');
 
 export function validateAvatar2D(input: unknown): string[] {
   const c = input as Record<string, unknown>;
@@ -55,6 +68,29 @@ export function validateAvatar2D(input: unknown): string[] {
   const e: string[] = [];
   if (c.v !== 1) e.push('Versão não suportada.');
   if (c.style !== 'sprite2d') e.push('Estilo inválido.');
+  if (c.look !== undefined && c.look !== 'lpc' && c.look !== 'chibi') e.push('Estilo de arte inválido.');
+  if (c.look === 'lpc') {
+    const inList = (k: string, list: readonly string[], label: string) => {
+      if (typeof c[k] !== 'string' || !list.includes(c[k] as string)) e.push(`${label} fora da lista.`);
+    };
+    inList('bodyType', LPC_BODIES, 'Tipo de corpo');
+    inList('skin', LPC_SKINS, 'Pele');
+    inList('hair', LPC_HAIR_IDS, 'Cabelo');
+    inList('hairColor', LPC_HAIR_COLORS, 'Cor do cabelo');
+    inList('shirt', LPC_TORSO_IDS, 'Parte de cima');
+    inList('shirtColor', LPC_CLOTH_COLORS, 'Cor da parte de cima');
+    inList('pants', LPC_LEGS_IDS, 'Parte de baixo');
+    inList('pantsColor', LPC_CLOTH_COLORS, 'Cor da parte de baixo');
+    inList('shoes', LPC_SHOES_IDS, 'Calçado');
+    inList('shoesColor', LPC_CLOTH_COLORS, 'Cor do calçado');
+    inList('facial', LPC_BEARD_IDS, 'Barba');
+    inList('eyeColor', LPC_EYE_COLORS, 'Cor dos olhos');
+    for (const k of ['glasses', 'headsetAlways']) if (typeof c[k] !== 'boolean') e.push(`${k} deve ser verdadeiro ou falso.`);
+    const extra = Object.keys(c).filter((k) => !KEYS.includes(k));
+    if (extra.length) e.push(`Campos desconhecidos: ${extra.join(', ')}.`);
+    return e;
+  }
+  if (c.bodyType !== undefined || c.eyeColor !== undefined) e.push('bodyType e eyeColor só existem no estilo LPC.');
   const pick = (k: string, list: readonly { id: string }[], label: string) => {
     if (typeof c[k] !== 'string' || !list.some((o) => o.id === c[k])) e.push(`${label} fora da lista.`);
   };
@@ -77,14 +113,14 @@ const hash = (s: string) => {
   return h;
 };
 
-/** Aparência padrão determinística por pessoa (o gênero não é deduzido do nome). */
+/** Aparência padrão determinística por pessoa, no estilo LPC (o gênero não é deduzido do nome: o tipo de corpo vem do sorteio). */
 export function defaultAvatar2D(seed: string): Avatar2DConfig {
   const h = hash(seed);
   const pick = <T,>(a: readonly T[], shift: number) => a[(h >>> shift) % a.length];
-  const hair = pick(HAIR2D, 3);
   return {
-    v: 1, style: 'sprite2d', skin: pick(SKIN2D, 1).id, hair: hair.id, hairColor: pick(PALETTE2D.hair, 5), shirt: pick(SHIRT2D, 7).id, shirtColor: pick(PALETTE2D.shirt, 9),
-    pants: pick(PANTS2D, 11).id, pantsColor: pick(PALETTE2D.pants, 13), shoes: pick(SHOES2D, 15).id, shoesColor: pick(PALETTE2D.shoes, 17),
-    facial: (h >>> 19) % 5 === 0 ? 'beard' : 'none', glasses: (h >>> 21) % 4 === 0, headsetAlways: false,
+    v: 1, style: 'sprite2d', look: 'lpc', bodyType: pick(LPC_BODIES, 1), skin: pick(LPC_SKINS, 2),
+    hair: pick(LPC_HAIR_IDS.slice(1), 4), hairColor: pick(['dark_brown', 'black', 'chestnut', 'light_brown', 'blonde', 'ginger', 'dark_gray', 'raven', 'sandy', 'gray'], 6), shirt: pick(LPC_TORSO_IDS, 8), shirtColor: pick(['blue', 'navy', 'red', 'teal', 'forest', 'green', 'white', 'gray', 'maroon', 'purple', 'sky', 'yellow', 'orange', 'bluegray'], 10),
+    pants: pick(LPC_LEGS_IDS, 12), pantsColor: pick(['navy', 'charcoal', 'black', 'gray', 'brown', 'forest'], 14), shoes: pick(LPC_SHOES_IDS, 16), shoesColor: pick(['black', 'brown', 'leather', 'charcoal'], 18),
+    facial: 'none', eyeColor: pick(LPC_EYE_COLORS, 20), glasses: (h >>> 22) % 4 === 0, headsetAlways: false,
   };
 }

@@ -71,11 +71,13 @@ try {
   await A.keyboard.up('d');
   await O.waitForTimeout(800);
   await O.screenshot({ path: path.join(ROOT, 'test-results/ws-operador.png') });
+  for (let i = 0; i < 4; i++) await O.click('[aria-label="Afastar"]'); await O.waitForTimeout(800); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-escritorio.png') });
 
   // 5) avatar 2D: operador edita o cabelo e salva
   await O.click('[data-testid="my-avatar"]');
   await O.waitForSelector('[data-testid="avatar-editor-2d"]');
-  await O.evaluate(() => { const b = [...document.querySelectorAll('[data-testid^="hair-"]')].find((x) => x.getAttribute('aria-pressed') !== 'true' && x.dataset.testid !== 'hair-bald'); b.click(); });
+  await O.waitForTimeout(3500); await O.screenshot({ path: 'test-results/ws-avatar2d.png' });
+  await O.evaluate(() => { const b = [...document.querySelectorAll('[data-testid^="hair-"]')].find((x) => x.getAttribute('aria-pressed') !== 'true' && x.dataset.testid !== 'hair-none'); b.click(); });
   await O.click('[data-testid="avatar2d-save"]');
   await O.waitForSelector('[data-testid="avatar2d-msg"]');
   ok(/salvo/i.test(await O.locator('[data-testid="avatar2d-msg"]').innerText()), 'avatar 2D salvo');

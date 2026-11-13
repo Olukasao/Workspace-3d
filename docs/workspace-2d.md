@@ -49,11 +49,15 @@ Editor → no modo 2D abre o editor do layout: pintar piso, paredes, apagar, col
 
 Vínculo de pessoas às estações 2D fica em tabela própria (`seat2d_assignments`), separado das mesas do 3D.
 
-## Avatar 2D
+## Avatar 2D (Universal LPC, padrão)
 
-"Meu avatar" no modo 2D: pele (6), cabelo (9 estilos, 8 cores), barba, parte de cima (5), parte de baixo (3), calçado (3), cores de cada peça, óculos e headset. Animações: parado, andando, sentado, digitando, falando (em pé e sentado) e com headset. A configuração é salva por colaborador (estilo `sprite2d`) e **separada da aparência 3D**. Cada colaborador só edita o próprio avatar.
+"Meu avatar" no modo 2D monta o personagem com o **Universal LPC Spritesheet Character Generator** (quadros de 64×64): tipo de corpo (masculino ou feminino), 7 tons de pele, 8 cores de olhos, **44 cabelos**, **8 barbas e bigodes**, **21 roupas de cima**, **10 calças, bermudas e saias**, **6 calçados**, 26 cores de cabelo, 24 cores para roupa e calçado, óculos e headset. Animações: andar (8 passos), parado, sentado, digitando, falando (em pé e sentado) e com headset. A cor é aplicada por paleta em tempo de execução (cor da rampa do pacote → cor escolhida), sem alterar os desenhos.
 
-Para acrescentar uma peça: incluir o id em `shared/avatar2d.ts` e a função de pintura em `src/workspace/modes/mode2d/art/characters.ts`. O motor do personagem não muda.
+- A configuração é guardada por colaborador (estilo `sprite2d`, campo `look: 'lpc'`) e fica **separada da aparência 3D**. Cada colaborador só edita o próprio avatar. O servidor valida todos os campos contra o catálogo gerado (`shared/avatarLpc.generated.ts`).
+- Aparências antigas (sem `look`, do personagem pequeno 32×32) continuam válidas e aparecem como antes; ao abrir o editor viram a aparência LPC padrão.
+- As imagens das peças só são baixadas quando alguém as usa (≈2 MB no total em `public/assets/lpc`); sem elas o 2D mostra o personagem pequeno.
+- **Licença:** só entram peças que oferecem OGA-BY 3.0, CC-BY 3.0/4.0 ou CC0 (atribuição). Nada de CC-BY-SA ou GPL. Autores na tela Créditos e em `public/assets/lpc/CREDITS.md`.
+- **Acrescentar ou trocar peças:** `git clone --depth 1 https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator.git <pasta>`, editar a lista `CURATED` em `tools/lpc/build.mjs` e rodar `LPC_REPO=<pasta> node tools/lpc/build.mjs`: baixa só o que usamos, confere a licença e regera o catálogo, os créditos e o arquivo compartilhado.
 
 ## Banco de dados
 
@@ -64,6 +68,8 @@ Para acrescentar uma peça: incluir o id em `shared/avatar2d.ts` e a função de
 ## Decisões e diferenças em relação ao briefing
 
 - **Socket.IO não foi adicionado.** O briefing aceita "a infraestrutura existente": o projeto já tem tempo real por SSE com reconexão, versão e ressincronização, e as posições vão por `POST` validado no servidor. Menos uma dependência, mesma garantia.
+- **Personagens:** Universal LPC (padrão) e, para aparências antigas, o pacote Customizable Character Pack (Ordinary Bumblebee, CC0).
+- **Móveis extras:** sofás e balcão de recepção do Crimelike Furniture (extradave, CC0), em `public/assets/furniture-crimelike/`.
 - **Arte mista.** Móveis, paredes e personagens são pixel art original pintada por código. Mesa, computador, cadeira, arquivo, 2 plantas, bebedouro e 3 pisos vêm do pacote gratuito **Office Pixel Art (Imersa Studios)**, usado sem alteração em `public/assets/office-pixel/`, com crédito na tela Créditos e autorização de redistribuição por escrito em `docs/licencas/imersa-office-pixel-art.md`. Se o pacote não carregar, a arte pintada assume (`src/workspace/modes/mode2d/art/pack.ts`). O pacote Modern Home (Chucky Assets) **não** foi incluído: a licença proíbe redistribuir.
 - **Pinça em telas de toque:** não feita.
 - **Colegas simulados:** no modo demonstração, os colegas simulados aparecem no 2D com os mesmos sinais de presença que já existiam; em produção só entram pessoas realmente conectadas.

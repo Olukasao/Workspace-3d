@@ -5,6 +5,7 @@ import type { Avatar2DConfig } from '../../../../shared/avatar2d';
 import { FH, FW, SHEET_COLS, composeSheet, sheetKey } from './art/characters';
 import { makeFurniture } from './art/furniture';
 import { makeTileset } from './art/tiles';
+import { packWalls } from './art/pack';
 
 export const furnitureKey = (asset: string, rot: number) => `f_${asset}_${rot}`;
 
@@ -17,6 +18,8 @@ export function registerArt(scene: Phaser.Scene) {
     const t = tx.get('tiles');
     for (let i = 0; i < TILESET_TILES; i++) t.add(i, 0, i * TILE, 0, TILE, TILE);
   }
+  const pw = packWalls();
+  if (pw && !tx.exists('packwalls')) tx.addImage('packwalls', pw); // ladrilhos de parede do pacote (segundo tileset do mapa)
   for (const a of ASSETS) for (const rot of a.rotatable ? [0, 1, 2, 3] : [0]) if (!tx.exists(furnitureKey(a.id, rot))) tx.addCanvas(furnitureKey(a.id, rot), makeFurniture(a, rot));
 }
 

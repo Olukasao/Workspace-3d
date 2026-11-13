@@ -77,7 +77,7 @@ No **Editor**, selecione uma mesa e escolha o colaborador no inspetor (seção d
 
 ## Modo 2D e alternância global 2D/3D
 
-O administrador escolhe, em **Configurações → Ambiente virtual**, se a empresa inteira usa o escritório **3D** ou o **2D** (Phaser, pixel art). A troca pede confirmação, fica gravada no banco (sobrevive a reinício) e chega a todos os navegadores ao vivo, sem recarregar. Só um motor gráfico existe por vez: no 2D o Three.js/GLB não é baixado, e no 3D o Phaser não. No 2D há escritório com movimento em tempo real (o servidor valida cada passo), editor de layout para o administrador e avatar em camadas. Detalhes, decisões e como conferir o isolamento pelo DevTools: [docs/workspace-2d.md](docs/workspace-2d.md).
+O administrador escolhe, em **Configurações → Ambiente virtual**, se a empresa inteira usa o escritório **3D** ou o **2D** (Phaser, pixel art). A troca pede confirmação, fica gravada no banco (sobrevive a reinício) e chega a todos os navegadores ao vivo, sem recarregar. Só um motor gráfico existe por vez: no 2D o Three.js/GLB não é baixado, e no 3D o Phaser não. No 2D há escritório com movimento em tempo real (o servidor valida cada passo), editor de layout para o administrador e avatar em camadas no estilo Universal LPC (44 cabelos, 21 roupas, barbas, calças, calçados e dezenas de cores). Arte do escritório: pacote Office Pixel Art (Imersa Studios) e Crimelike Furniture (CC0); créditos na tela Créditos. Detalhes, decisões e como conferir o isolamento pelo DevTools: [docs/workspace-2d.md](docs/workspace-2d.md).
 
 ## Avatares e presença ao vivo
 
@@ -98,7 +98,7 @@ Detalhes: [docs/avatars-ara.md](docs/avatars-ara.md) (estilo Ara 3D Gen e a esco
 ```bash
 npm run typecheck   # TypeScript estrito (cliente, servidor, ferramentas e testes)
 npm run lint        # ESLint
-npm test            # 123 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
+npm test            # 124 testes: cena, operações do editor, desenho livre, API e presença/avatares/estilos (servidor real + SQLite em memória)
 npm run e2e         # 20 verificações no navegador real (Chrome/Edge), pelos fluxos da interface
 npm run e2e:draw    # 7 verificações: construir a estrutura do zero (piso, paredes, janela, porta, puxador)
 npm run e2e:avatars # 10 verificações com duas pessoas em sessões separadas: avatar na mesa, personagem personalizado, digitação, atendimento, várias abas, reconexão, troca de estilo pelo admin

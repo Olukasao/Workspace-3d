@@ -5,8 +5,27 @@
 import Phaser from 'phaser';
 import { ASSET_BY_ID, TILE, TILE_WALL_FRONT, TILE_WALL_TOP, footprintSize, gridOf, layoutToTiled, type Grid, type Layout2D, type Obj2D } from '../../../../shared/office2d';
 import { furnitureKey, registerArt } from './textures2d';
+import { packWalls } from './art/pack';
+import { TILESET_TILES } from '../../../../shared/office2d';
 
 let seq = 0;
+
+/**
+ * Parede do pacote Office Pixel Art conforme os vizinhos (indices do tileset do pacote: 0 piso, 1-5 topos, 6-10 frentes, 11-13 laterais...).
+ * Parede com o sul aberto mostra a frente (6, 7, 10 ou 17 na ponta de uma divisória); com parede ao sul mostra o topo
+ * (2 horizontal, 1/5 cantos, 12 vertical).
+ */
+function packWallGid(l: Layout2D, x: number, y: number): number {
+  const w = (xx: number, yy: number) => xx >= 0 && yy >= 0 && xx < l.cols && yy < l.rows && l.walls[yy * l.cols + xx] === 1;
+  const n = w(x, y - 1);
+  const s = w(x, y + 1);
+  const e = w(x + 1, y);
+  const west = w(x - 1, y);
+  let k: number;
+  if (!s) k = n && !e && !west ? 17 : !west && e ? 6 : west && !e ? 10 : 7;
+  else k = !e && !west ? 12 : e && !west ? 1 : west && !e ? 5 : 2;
+  return TILESET_TILES + k + 1;
+}
 export const objectDepth = (o: Obj2D) => {
   const a = ASSET_BY_ID.get(o.asset)!;
   return a.flat ? 1 : (o.y + footprintSize(a, o.rot).h) * TILE;
@@ -40,11 +59,16 @@ export class LayoutView {
   private build() {
     registerArt(this.scene);
     this.mapKey = `map_${++seq}`;
-    this.scene.cache.tilemap.add(this.mapKey, { format: Phaser.Tilemaps.Formats.TILED_JSON, data: layoutToTiled(this.layout) });
+    const data = layoutToTiled(this.layout) as { tilesets: unknown[] };
+    // o Phaser só aceita tilesets declarados no JSON do Tiled: declara o das paredes do pacote (gids depois dos nossos)
+    if (packWalls()) data.tilesets.push({ firstgid: TILESET_TILES + 1, name: 'packwalls', tilewidth: TILE, tileheight: TILE, tilecount: 25, columns: 8, image: 'packwalls.png', imagewidth: 8 * TILE, imageheight: 4 * TILE });
+    this.scene.cache.tilemap.add(this.mapKey, { format: Phaser.Tilemaps.Formats.TILED_JSON, data });
     this.map = this.scene.make.tilemap({ key: this.mapKey });
     const ts = this.map.addTilesetImage('workspace', 'tiles', TILE, TILE, 0, 0, 1)!;
+    const pack = packWalls() ? this.map.addTilesetImage('packwalls', 'packwalls', TILE, TILE, 0, 0, TILESET_TILES + 1) : null;
     this.floor = this.map.createLayer('piso', ts, 0, 0)!.setDepth(0);
-    this.walls = this.map.createLayer('paredes', ts, 0, 0)!.setDepth(1);
+    this.walls = this.map.createLayer('paredes', pack ? [ts, pack] : ts, 0, 0)!.setDepth(1);
+    if (packWalls()) for (let y = 0; y < this.layout.rows; y++) for (let x = 0; x < this.layout.cols; x++) if (this.layout.walls[y * this.layout.cols + x]) this.walls.putTileAt(this.wallTile(x, y), x, y);
     this.buildObjects();
     if (this.showLabels) this.buildLabels();
   }
@@ -94,6 +118,7 @@ export class LayoutView {
   wallTile(x: number, y: number) {
     const l = this.layout;
     if (!l.walls[y * l.cols + x]) return 0;
+    if (packWalls()) return packWallGid(l, x, y);
     return y + 1 < l.rows && l.walls[(y + 1) * l.cols + x] ? TILE_WALL_TOP : TILE_WALL_FRONT;
   }
   putFloor(x: number, y: number, id: number) {
@@ -103,11 +128,15 @@ export class LayoutView {
   }
   putWall(x: number, y: number, on: boolean) {
     this.layout.walls[y * this.layout.cols + x] = on ? 1 : 0;
-    for (const yy of [y, y - 1]) {
-      if (yy < 0) continue;
-      const t = this.wallTile(x, yy);
-      if (t === 0) this.walls.removeTileAt(x, yy);
-      else this.walls.putTileAt(t, x, yy);
+    // com o pacote a forma de cada parede depende dos vizinhos (3×3 ao redor); sem ele só a de cima muda
+    const near = packWalls() ? [-1, 0, 1] : [0];
+    for (const dy of packWalls() ? [-1, 0, 1] : [0, -1]) for (const dx of near) {
+      const xx = x + dx;
+      const yy = y + dy;
+      if (xx < 0 || yy < 0 || xx >= this.layout.cols || yy >= this.layout.rows) continue;
+      const t = this.wallTile(xx, yy);
+      if (t === 0) this.walls.removeTileAt(xx, yy);
+      else this.walls.putTileAt(t, xx, yy);
     }
   }
   refreshGrid() {

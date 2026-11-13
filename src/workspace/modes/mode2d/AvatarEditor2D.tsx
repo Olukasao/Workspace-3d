@@ -3,57 +3,92 @@
  * A prévia usa o mesmo desenhista do escritório (composeSheet) num canvas comum. Cada colaborador edita só o próprio avatar;
  * a aparência 2D é guardada à parte da aparência 3D (estilo "sprite2d") e vai para os colegas ao vivo.
  */
-import { useEffect, useRef, useState } from 'react';
-import { FACIAL2D, HAIR2D, PALETTE2D, PANTS2D, SHIRT2D, SHOES2D, SKIN2D, defaultAvatar2D, isSprite2D, type Avatar2DConfig, type Opt2D } from '../../../../shared/avatar2d';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  LPC_BEARD_IDS, LPC_HAIR_IDS, LPC_LEGS_IDS, LPC_SHOES_IDS, LPC_TORSO_IDS, defaultAvatar2D, isSprite2D, type Avatar2DConfig,
+} from '../../../../shared/avatar2d';
+import { LPC_CLOTH_COLORS, LPC_EYE_COLORS, LPC_HAIR_COLORS, LPC_PARTS, LPC_SKINS } from '../../../../shared/avatarLpc.generated';
 import type { SessionUser } from '../../../../shared/types';
 import { api, errorText, type ApiError } from '../../../api';
-import { FH, FW, composeSheet } from './art/characters';
+import { ANIMS, FH, FW, ROW, composeSheet } from './art/characters';
+import { composeAnim, lpcLoaded, lpcRow, preloadCatalog, preloadLpc, swatch } from './art/lpc';
 
 interface Mine { style: string; config: unknown; version: number; saved: boolean }
 
 // quadros da prévia: [linha (direção), coluna]: parado de frente/lado/costas, sentado digitando, falando
 const VIEWS: Array<{ label: string; row: number; col: number }> = [
-  { label: 'Frente', row: 0, col: 4 },
-  { label: 'Lado', row: 1, col: 4 },
-  { label: 'Costas', row: 3, col: 4 },
-  { label: 'Sentado', row: 3, col: 6 },
-  { label: 'Falando', row: 0, col: 8 },
+  { label: 'Frente', row: ROW.down, col: ANIMS.idle.start },
+  { label: 'Lado', row: ROW.left, col: ANIMS.idle.start },
+  { label: 'Costas', row: ROW.up, col: ANIMS.idle.start },
+  { label: 'Sentado', row: ROW.up, col: ANIMS.type.start },
+  { label: 'Falando', row: ROW.down, col: ANIMS.talk.start },
 ];
+const SCALE = 3;
 
 function Preview({ cfg }: { cfg: Avatar2DConfig }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const body = JSON.stringify(cfg);
   useEffect(() => {
-    const c = ref.current!;
+    let dead = false;
+    void preloadLpc(cfg).then(() => {
+      if (dead || !ref.current) return;
+      const c = ref.current;
+      const g = c.getContext('2d')!;
+      g.imageSmoothingEnabled = false;
+      g.clearRect(0, 0, c.width, c.height);
+      const sheet = composeSheet(cfg, cfg.headsetAlways);
+      VIEWS.forEach((v, i) => g.drawImage(sheet, v.col * FW, v.row * FH, FW, FH, i * FW * SCALE, 0, FW * SCALE, FH * SCALE));
+      sheet.width = 0; // libera a folha temporária
+    });
+    return () => {
+      dead = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [body]);
+  return <canvas ref={ref} width={FW * SCALE * VIEWS.length} height={FH * SCALE} className="av2d-preview" data-testid="avatar2d-preview" aria-label="Prévia do avatar" />;
+}
+
+/** Miniatura: o personagem de frente com a peça `patch` aplicada (as demais peças são as escolhidas agora). */
+function Thumb({ cfg, patch, ready }: { cfg: Avatar2DConfig; patch: Partial<Avatar2DConfig>; ready: boolean }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const body = JSON.stringify({ ...cfg, ...patch, glasses: false, headsetAlways: false });
+  useEffect(() => {
+    const c = ref.current;
+    if (!c || !ready) return;
+    const t = JSON.parse(body) as Avatar2DConfig;
     const g = c.getContext('2d')!;
     g.imageSmoothingEnabled = false;
     g.clearRect(0, 0, c.width, c.height);
-    const sheet = composeSheet(cfg, cfg.headsetAlways);
-    VIEWS.forEach((v, i) => g.drawImage(sheet, v.col * FW, v.row * FH, FW, FH, i * FW * 4, 0, FW * 4, FH * 4));
-    // libera a folha temporária
-    sheet.width = 0;
-  }, [cfg]);
-  return <canvas ref={ref} width={FW * 4 * VIEWS.length} height={FH * 4} className="av2d-preview" data-testid="avatar2d-preview" aria-label="Prévia do avatar" />;
+    if (!lpcLoaded(t, ['idle'])) return;
+    const sheet = composeAnim(t, 'idle');
+    if (sheet) g.drawImage(sheet, 0, lpcRow('down') * 64 + 10, 64, 46, 0, 0, 64, 46); // da cabeça aos joelhos
+  }, [body, ready]);
+  return <canvas ref={ref} width={64} height={46} className="av2d-thumb" aria-hidden="true" />;
 }
 
-function Choice({ label, list, value, onPick, testid }: { label: string; list: readonly Opt2D[]; value: string; onPick: (id: string) => void; testid: string }) {
+type Field = 'hair' | 'shirt' | 'pants' | 'shoes' | 'facial';
+function Choice({ label, ids, names, value, onPick, testid, cfg, field, ready }: { label: string; ids: readonly string[]; names: Record<string, string>; value: string; onPick: (id: string) => void; testid: string; cfg: Avatar2DConfig; field: Field; ready: boolean }) {
   return (
-    <div className="av2d-group">
+    <div className="av2d-group wide">
       <div className="muted">{label}</div>
-      <div className="editor2d-row">
-        {list.map((o) => (
-          <button key={o.id} className={`btn small ${o.id === value ? 'primary' : ''}`} aria-pressed={o.id === value} onClick={() => onPick(o.id)} data-testid={`${testid}-${o.id}`}>{o.name}</button>
+      <div className="av2d-thumbs">
+        {ids.map((id) => (
+          <button key={id} className={`av2d-opt ${id === value ? 'on' : ''}`} title={names[id] ?? id} aria-label={names[id] ?? id} aria-pressed={id === value} onClick={() => onPick(id)} data-testid={`${testid}-${id}`}>
+            {id === 'none' ? <span className="av2d-none">Nenhum</span> : <Thumb cfg={cfg} patch={{ [field]: id }} ready={ready} />}
+          </button>
         ))}
       </div>
     </div>
   );
 }
-function Colors({ label, colors, value, onPick, testid }: { label: string; colors: readonly string[]; value: string; onPick: (c: string) => void; testid: string }) {
+const PT: Record<string, string> = { none: 'Nenhum' };
+function Colors({ label, colors, material, value, onPick, testid }: { label: string; colors: readonly string[]; material: 'body' | 'hair' | 'cloth' | 'eye'; value: string; onPick: (c: string) => void; testid: string }) {
   return (
     <div className="av2d-group">
       <div className="muted">{label}</div>
       <div className="editor2d-row">
         {colors.map((c) => (
-          <button key={c} className="av2d-color" style={{ background: c, outline: c === value ? '2px solid var(--blue)' : '1px solid rgba(0,0,0,.25)' }} onClick={() => onPick(c)} aria-label={`${label} ${c}`} aria-pressed={c === value} data-testid={`${testid}-${c.slice(1)}`} />
+          <button key={c} className="av2d-color" title={c.replace(/_/g, ' ')} style={{ background: swatch(material, c), outline: c === value ? '2px solid var(--blue)' : '1px solid rgba(0,0,0,.25)' }} onClick={() => onPick(c)} aria-label={`${label} ${c.replace(/_/g, ' ')}`} aria-pressed={c === value} data-testid={`${testid}-${c}`} />
         ))}
       </div>
     </div>
@@ -67,6 +102,17 @@ export function AvatarEditor2D({ user, onReady }: { user: SessionUser; onReady: 
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [ready, setReady] = useState(false); // miniaturas: imagens de "parado" de todas as peças do corpo escolhido
+  const bodyType = cfg?.bodyType ?? 'male';
+  useEffect(() => {
+    let dead = false;
+    setReady(false);
+    void preloadCatalog(bodyType).then(() => !dead && setReady(true));
+    return () => {
+      dead = true;
+    };
+  }, [bodyType]);
+  const names = useMemo(() => Object.fromEntries(Object.values(LPC_PARTS).flat().map((p) => [p.id, p.name])), []);
 
   useEffect(() => {
     let dead = false;
@@ -78,7 +124,8 @@ export function AvatarEditor2D({ user, onReady }: { user: SessionUser; onReady: 
     api.get<Mine>('/api/avatar/me').then(
       (r) => {
         if (dead) return;
-        const c = isSprite2D(r.config) ? r.config : defaultAvatar2D(user.employeeId!);
+        // aparências antigas (personagem pequeno) viram a aparência LPC padrão ao editar
+        const c = isSprite2D(r.config) && r.config.look === 'lpc' ? r.config : defaultAvatar2D(user.employeeId!);
         setCfg(c);
         setSaved(c);
         setVersion(r.version);
@@ -137,22 +184,24 @@ export function AvatarEditor2D({ user, onReady }: { user: SessionUser; onReady: 
       <div className="av2d-labels muted">{VIEWS.map((v) => <span key={v.label}>{v.label}</span>)}</div>
       <div className="av2d-grid">
         <div className="av2d-group">
-          <div className="muted">Pele</div>
+          <div className="muted">Corpo</div>
           <div className="editor2d-row">
-            {SKIN2D.map((s) => (
-              <button key={s.id} className="av2d-color" title={s.name} style={{ background: s.hex, outline: s.id === cfg.skin ? '2px solid var(--blue)' : '1px solid rgba(0,0,0,.25)' }} onClick={() => set({ skin: s.id })} aria-label={`Pele ${s.name}`} aria-pressed={s.id === cfg.skin} data-testid={`skin-${s.id}`} />
+            {([['male', 'Masculino'], ['female', 'Feminino']] as const).map(([id, name]) => (
+              <button key={id} className={`btn small ${cfg.bodyType === id ? 'primary' : ''}`} aria-pressed={cfg.bodyType === id} onClick={() => set({ bodyType: id })} data-testid={`body-${id}`}>{name}</button>
             ))}
           </div>
         </div>
-        <Choice label="Cabelo" list={HAIR2D} value={cfg.hair} onPick={(id) => set({ hair: id })} testid="hair" />
-        <Colors label="Cor do cabelo" colors={PALETTE2D.hair} value={cfg.hairColor} onPick={(c) => set({ hairColor: c })} testid="haircolor" />
-        <Choice label="Barba" list={FACIAL2D} value={cfg.facial} onPick={(id) => set({ facial: id })} testid="facial" />
-        <Choice label="Parte de cima" list={SHIRT2D} value={cfg.shirt} onPick={(id) => set({ shirt: id })} testid="shirt" />
-        <Colors label="Cor da roupa" colors={PALETTE2D.shirt} value={cfg.shirtColor} onPick={(c) => set({ shirtColor: c })} testid="shirtcolor" />
-        <Choice label="Parte de baixo" list={PANTS2D} value={cfg.pants} onPick={(id) => set({ pants: id })} testid="pants" />
-        <Colors label="Cor da calça" colors={PALETTE2D.pants} value={cfg.pantsColor} onPick={(c) => set({ pantsColor: c })} testid="pantscolor" />
-        <Choice label="Calçado" list={SHOES2D} value={cfg.shoes} onPick={(id) => set({ shoes: id })} testid="shoes" />
-        <Colors label="Cor do calçado" colors={PALETTE2D.shoes} value={cfg.shoesColor} onPick={(c) => set({ shoesColor: c })} testid="shoescolor" />
+        <Colors label="Pele" colors={LPC_SKINS} material="body" value={cfg.skin} onPick={(c) => set({ skin: c })} testid="skin" />
+        <Colors label="Cor dos olhos" colors={LPC_EYE_COLORS} material="eye" value={cfg.eyeColor ?? 'blue'} onPick={(c) => set({ eyeColor: c })} testid="eyecolor" />
+        <Choice label="Cabelo" ids={LPC_HAIR_IDS} names={{ ...names, ...PT }} value={cfg.hair} onPick={(id) => set({ hair: id })} testid="hair" cfg={cfg} field="hair" ready={ready} />
+        <Colors label="Cor do cabelo e da barba" colors={LPC_HAIR_COLORS} material="hair" value={cfg.hairColor} onPick={(c) => set({ hairColor: c })} testid="haircolor" />
+        <Choice label="Barba e bigode" ids={LPC_BEARD_IDS} names={{ ...names, ...PT }} value={cfg.facial} onPick={(id) => set({ facial: id })} testid="facial" cfg={cfg} field="facial" ready={ready} />
+        <Choice label="Parte de cima" ids={LPC_TORSO_IDS} names={names} value={cfg.shirt} onPick={(id) => set({ shirt: id })} testid="shirt" cfg={cfg} field="shirt" ready={ready} />
+        <Colors label="Cor da parte de cima" colors={LPC_CLOTH_COLORS} material="cloth" value={cfg.shirtColor} onPick={(c) => set({ shirtColor: c })} testid="shirtcolor" />
+        <Choice label="Parte de baixo" ids={LPC_LEGS_IDS} names={names} value={cfg.pants} onPick={(id) => set({ pants: id })} testid="pants" cfg={cfg} field="pants" ready={ready} />
+        <Colors label="Cor da parte de baixo" colors={LPC_CLOTH_COLORS} material="cloth" value={cfg.pantsColor} onPick={(c) => set({ pantsColor: c })} testid="pantscolor" />
+        <Choice label="Calçado" ids={LPC_SHOES_IDS} names={names} value={cfg.shoes} onPick={(id) => set({ shoes: id })} testid="shoes" cfg={cfg} field="shoes" ready={ready} />
+        <Colors label="Cor do calçado" colors={LPC_CLOTH_COLORS} material="cloth" value={cfg.shoesColor} onPick={(c) => set({ shoesColor: c })} testid="shoescolor" />
         <div className="av2d-group">
           <div className="muted">Acessórios</div>
           <label><input type="checkbox" checked={cfg.glasses} onChange={(e) => set({ glasses: e.target.checked })} data-testid="glasses" /> Óculos</label>

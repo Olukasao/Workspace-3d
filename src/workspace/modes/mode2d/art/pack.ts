@@ -4,6 +4,8 @@
  * Se algo não carregar, a arte pintada por código (furniture.ts, tiles.ts) continua valendo.
  */
 import { TILE, rotateDir, type AssetDef } from '../../../../../shared/office2d';
+import { loadLayers } from './layers';
+import { loadLpcManifest } from './lpc';
 
 type Facing = 'down' | 'left' | 'right' | 'up';
 const VIEW: Record<Facing, string> = { down: 'front', up: 'back', left: 'left', right: 'right' };
@@ -13,7 +15,10 @@ const BASE = '/assets/office-pixel';
 const PROPS = ['office_desk', 'computer', 'office_chair', 'filing_cabinet', 'office_plant', 'tall_plant', 'water_cooler'] as const;
 const props = new Map<string, Partial<Record<Facing, View>>>();
 let floors: HTMLImageElement | null = null;
+let walls: HTMLImageElement | null = null;
+const tileImgs = new Map<string, HTMLImageElement>();
 let loading: Promise<void> | null = null;
+const TILE_FILES = ['sofa_down_1', 'sofa_down_2', 'sofa_up_1', 'sofa_up_2', 'sofa_left_1', 'sofa_left_2', 'sofa_right_1', 'sofa_right_2', 'counter_bank', 'counter_teller', 'counter_metal'];
 
 const loadImg = (src: string) =>
   new Promise<HTMLImageElement>((ok, no) => {
@@ -37,10 +42,12 @@ async function loadProp(name: string) {
 export function loadOfficePack(): Promise<void> {
   loading ??= (async () => {
     try {
-      await Promise.all([...PROPS.map(loadProp), loadImg(`${BASE}/floors.png`).then((i) => void (floors = i))]);
+      await Promise.all([...PROPS.map(loadProp), loadImg(`${BASE}/floors.png`).then((i) => void (floors = i)), loadImg(`${BASE}/walls.png`).then((i) => void (walls = i)), loadLayers(), loadLpcManifest(), ...TILE_FILES.map((n) => loadImg(`/assets/furniture-crimelike/${n}.png`).then((i) => void tileImgs.set(n, i)))]);
     } catch {
       props.clear();
+      tileImgs.clear();
       floors = null;
+      walls = null;
     }
   })();
   return loading;
@@ -58,8 +65,50 @@ const RECIPE: Record<string, string[]> = {
   cooler: ['water_cooler'],
 };
 
+/** Móveis montados com ladrilhos de 32×32 do Crimelike Furniture (CC0): uma lista de ladrilhos por direção (frente, costas, esquerda e direita). */
+const TILE_RECIPE: Record<string, Partial<Record<Facing, string[]>>> = {
+  sofa: { down: ['sofa_down_1', 'sofa_down_2'], up: ['sofa_up_1', 'sofa_up_2'], left: ['sofa_left_1', 'sofa_left_2'], right: ['sofa_right_1', 'sofa_right_2'] },
+  // balcão de recepção: faixa horizontal de 3; na vertical é a mesma faixa girada
+  reception_desk: { down: ['counter_bank', 'counter_metal', 'counter_teller'], up: ['counter_bank', 'counter_metal', 'counter_teller'] },
+};
+
+function tileFurniture(a: AssetDef, rot: number, fw: number, fh: number): HTMLCanvasElement | null {
+  const rec = TILE_RECIPE[a.id];
+  if (!rec) return null;
+  const facing = rotateDir('down', rot) as Facing;
+  const vertical = facing === 'left' || facing === 'right';
+  const names = rec[facing] ?? (vertical ? rec.down : undefined);
+  if (!names || !names.every((n) => tileImgs.has(n))) return null;
+  const W = fw * TILE;
+  const H = (fh + a.tall) * TILE;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = c.getContext('2d')!;
+  g.imageSmoothingEnabled = false;
+  const top = a.tall * TILE;
+  if (rec[facing]) {
+    names.forEach((n, i) => g.drawImage(tileImgs.get(n)!, vertical ? 0 : i * TILE, top + (vertical ? i * TILE : 0)));
+  } else {
+    // sem desenho próprio para esta direção: gira a faixa horizontal em 90°
+    g.save();
+    if (facing === 'left') {
+      g.translate(0, top + names.length * TILE);
+      g.rotate(-Math.PI / 2);
+    } else {
+      g.translate(TILE, top);
+      g.rotate(Math.PI / 2);
+    }
+    names.forEach((n, i) => g.drawImage(tileImgs.get(n)!, i * TILE, 0));
+    g.restore();
+  }
+  return c;
+}
+
 /** Desenho do móvel já girado com o pacote, ou null se o pacote não cobre este móvel. */
 export function packFurniture(a: AssetDef, rot: number, fw: number, fh: number): HTMLCanvasElement | null {
+  const tiled = tileFurniture(a, rot, fw, fh);
+  if (tiled) return tiled;
   const recipe = RECIPE[a.id];
   if (!recipe || !recipe.every((n) => props.has(n))) return null;
   const facing = rotateDir('down', rot) as Facing;
@@ -88,3 +137,7 @@ export function packFurniture(a: AssetDef, rot: number, fw: number, fh: number):
 
 /** Pisos do pacote (madeira, carpete cinza, vinil cinza) lado a lado, ou null. */
 export const packFloors = () => floors;
+
+/** Número de ladrilhos de parede do pacote (8 colunas × 4 linhas, 25 usados), anexados ao fim do tileset. */
+export const PACK_WALL_TILES = 25;
+export const packWalls = () => walls;

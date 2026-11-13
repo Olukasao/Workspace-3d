@@ -539,6 +539,9 @@ function Disposer() {
 }
 
 // ---------- cena ----------
+/** Modo leve (?leve): sem sombras, sem antialias e dpr 1. Só para testes em renderização por software, onde a cena completa roda a ~1 quadro/s. */
+const LEVE = typeof location !== 'undefined' && new URLSearchParams(location.search).has('leve');
+
 export function Scene3D(props: Scene3DProps) {
   const controls = useRef<OrbitControlsImpl>(null);
   const bounds = useMemo(() => {
@@ -556,13 +559,13 @@ export function Scene3D(props: Scene3DProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(props.doc.objects.filter((o) => o.kind === 'room').map((o) => [o.t.x, o.t.z, o.room?.w, o.room?.d]))]);
   return (
-    <Canvas shadows dpr={[1, 2]} gl={{ antialias: true, powerPreference: 'high-performance' }} onPointerMissed={() => props.onMissed?.()} style={{ background: '#eef1f5' }}>
+    <Canvas shadows={!LEVE} dpr={LEVE ? 1 : [1, 2]} gl={{ antialias: !LEVE, powerPreference: 'high-performance' }} onPointerMissed={() => props.onMissed?.()} style={{ background: '#eef1f5' }}>
       {props.view === 'plan' ? <OrthographicCamera makeDefault near={0.1} far={400} position={[0, 60, 0.001]} zoom={30} /> : <PerspectiveCamera makeDefault fov={32} near={0.5} far={300} position={[18, 20, 22]} />}
       <OrbitControls ref={controls} makeDefault enableDamping dampingFactor={0.12} enableRotate={props.view !== 'plan' && !props.drawing} maxPolarAngle={Math.PI / 2.15} minDistance={3} maxDistance={80} screenSpacePanning={props.view === 'plan'} />
       <CameraRig view={props.view} bounds={bounds} focus={props.focus} controls={controls} />
       <ambientLight intensity={0.55} />
       <hemisphereLight args={['#ffffff', '#d5dae2', 0.8]} />
-      <directionalLight position={[bounds.cx + 12, 22, bounds.cz + 8]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-18} shadow-camera-right={18} shadow-camera-top={18} shadow-camera-bottom={-18} shadow-bias={-0.0004} target-position={[bounds.cx, 0, bounds.cz]} />
+      <directionalLight position={[bounds.cx + 12, 22, bounds.cz + 8]} intensity={1.6} castShadow={!LEVE} shadow-mapSize={[2048, 2048]} shadow-camera-left={-18} shadow-camera-right={18} shadow-camera-top={18} shadow-camera-bottom={-18} shadow-bias={-0.0004} target-position={[bounds.cx, 0, bounds.cz]} />
       <Environment resolution={64}>
         <Lightformer form="rect" intensity={2} position={[0, 6, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[12, 12, 1]} />
         <Lightformer form="rect" intensity={0.8} color="#dbe6ff" position={[-8, 3, 4]} scale={[6, 4, 1]} />

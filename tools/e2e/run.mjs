@@ -50,7 +50,10 @@ async function session(role, { route } = {}) {
   const page = await ctx.newPage();
   lastPage = page;
   page.on('pageerror', (e) => errors.push(`[${role}] ${e.message}`));
-  await page.goto(`${BASE}/`);
+  // modo leve (sem sombras nem antialias) e tempo limite folgado: por software a cena roda a ~1-4 quadros/s, e com 3 sessões abertas um clique leva segundos
+  const qs = ['leve', process.env.E2E_SEM_AVATARES ? 'semAvatares' : ''].filter(Boolean).join('&');
+  page.setDefaultTimeout(60000);
+  await page.goto(`${BASE}/?${qs}`);
   await page.click(`[data-account="${role}"]`);
   await page.waitForSelector('.topbar');
   return { ctx, page };

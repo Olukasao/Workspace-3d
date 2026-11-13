@@ -7,7 +7,7 @@ Executadas em 12/11/2026 no ambiente descrito no fim deste documento. Os relató
 | Tipagem (estrita) | `npm run typecheck` | ✅ sem erros |
 | Lint | `npm run lint` | ✅ sem erros |
 | Testes de cena, editor, desenho, API e presença | `npm test` | ✅ **70/70** (cena 8 · operações do editor 12 · desenho livre 6 · API 32 · presença e avatares 12) |
-| Aceite no navegador real | `npm run e2e` | ⚠️ **instável**: passou 20/20 antes dos avatares e **18/20 nas duas rodadas depois deles**, com falhas diferentes em cada uma (ver [continuar.md](continuar.md#pendências-em-ordem)). 0 erros de página |
+| Aceite no navegador real | `npm run e2e` | ✅ **20/20** com `?leve` e tempo limite de 60 s (275 s, 0 erros de página). Antes dessa correção oscilava entre 17 e 18 de 20 por lentidão da renderização por software, e não por defeito do produto (ver [continuar.md](continuar.md#instabilidade-do-e2e-investigada-em-13112026)). **Uma rodada só depois da correção**: falta repetir para confirmar a estabilidade |
 | glTF Validator (Khronos) | `npm run assets:validate` | ✅ 52 modelos, **0 erros**, 4 avisos (espaço tangente gerado) |
 | Construir a estrutura do zero | `npm run e2e:draw` | ✅ **7/7** (plano vazio → piso arrastado → 4 paredes ponto a ponto → janela e porta → esticar parede → publicar) |
 | Build de produção | `npm run build` | ✅ (blocos: app 231 KB, r3f 387 KB, three 684 KB; gzip 71 + 125 + 176 KB) |

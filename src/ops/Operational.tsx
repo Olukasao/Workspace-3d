@@ -209,7 +209,7 @@ export function Operational({ officeId, user, onEdit }: { officeId: string; user
             seatMarkers={sel?.seatPosition ? [{ ...sel.seatPosition, label: sel.seat?.employee ? `Assento de ${sel.seat.employee.name}` : `Assento da ${sel.seatPosition.deskName} (vaga)` }] : undefined}
             instancing={!new URLSearchParams(location.search).has('semInstancias')}
           >
-            {presenceVisible && <OfficeAvatars people={people} seats={seats} />}
+            {presenceVisible && !new URLSearchParams(location.search).has('semAvatares') && <OfficeAvatars people={people} seats={seats} />}
           </Scene3D>
         ) : (
           <div className="loading"><div className="notice info">O administrador ainda não publicou o mapa deste andar.</div></div>

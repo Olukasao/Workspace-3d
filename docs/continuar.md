@@ -31,7 +31,7 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 | Testes automáticos (`npm test`) | 70/70, typecheck e lint limpos |
 | `npm run e2e:avatars` | 9/9 na última rodada isolada |
 | `npm run e2e:draw` | 7/7 |
-| `npm run e2e` | **18/20, instável** (ver "Pendências") |
+| `npm run e2e` | 20/20 com o modo leve e tempo limite de 60 s (uma rodada; antes oscilava entre 17 e 18 de 20). Ver "Instabilidade do e2e" |
 | Desempenho com 25 avatares | medido: 37 FPS (câmera próxima) e 49 (afastada) numa GPU integrada |
 | Documentação | `README.md`, `docs/avatars.md`, `docs/integrations.md`, `docs/verification.md`, `docs/production-gaps.md` |
 
@@ -45,11 +45,28 @@ Atualizado em 12/11/2026. Este arquivo substitui a conversa: quem continuar (voc
 
 ## Pendências (em ordem)
 
-1. **`npm run e2e` falhou 2 de 20 na última rodada, e as falhas mudam de uma rodada para outra.** Última rodada: "visualizador vê dados profissionais, sem ações" (não conseguiu clicar em "Posto 01") e "conflito entre dois editores" (tempo esgotado). Na rodada anterior, falhou o "upload de arquivo que não é GLB" (não achou a aba "Catálogo"). Antes dos avatares, o mesmo roteiro já tinha falhado em passos parecidos e depois passou 20/20 duas vezes, sem mudança de código. **A causa não foi identificada.** A suspeita é carga de CPU: o roteiro mantém até 3 sessões renderizando por software (SwiftShader), e agora cada sessão desenha avatares. O que investigar: se são esperas curtas demais (30 s) por causa dos avatares pesando na renderização por software, ou se o foco do diálogo (`Dialog` em `src/ui.tsx`) atrapalha algum passo. Rodar o roteiro com os avatares desligados para comparar ajuda a separar as hipóteses. Os relatórios ficam em `test-results/e2e-report.json` e as capturas de falha em `test-results/`.
+1. **Confirmar a estabilidade do `npm run e2e`**: rodar mais 2 ou 3 vezes seguidas. Passou 20/20 uma vez depois da correção abaixo.
 2. **Descobrir o app Electron** do usuário (ver acima) e conferir como ele carrega `public/assets/avatars` e se a política de segurança (CSP) dele permite `.glb` e `.webp`.
 3. **Fontes reais dos sinais de presença** (só quando houver acesso): digitação e presença do Workscape, ciclo de chamada e atividade de voz da telefonia (`CALL_PROVIDER`), barramento compartilhado para mais de um processo de servidor. Detalhes em `docs/integrations.md`.
 4. **MariaDB nunca foi executado** (não havia nenhum na máquina do trabalho). O código e o SQL estão prontos.
 5. Itens de produção em `docs/production-gaps.md`.
+
+## Instabilidade do e2e (investigada em 13/11/2026)
+
+**Sintoma:** `npm run e2e` falhava 2 ou 3 de 20, sempre com "tempo esgotado" ao clicar (Posto 01, aba Editor, aba Catálogo), em passos diferentes a cada rodada.
+
+**Hipótese descartada:** os avatares. Sem avatares, o roteiro também falhou (17 de 20).
+
+**Causa medida** (`node tools/e2e/probe-load.mjs [sessões] [--leve] [--sem-avatares]`): na renderização por software (SwiftShader) a cena completa roda a **1 a 4 quadros por segundo, mesmo com uma só sessão**. Com 3 sessões, um clique leva de 1 a 3 s, e o Playwright espera o elemento ficar "estável" (dois quadros iguais) antes de clicar. Não é defeito de lógica do produto.
+
+| Sessões (software) | Cena completa | Modo leve |
+|---|---|---|
+| 1 | 0,9 quadro/s, clique 0,9 s | 4 quadros/s, clique 0,5 s |
+| 3 | 0,7 a 2,2 quadros/s, clique 1,4 a 2,8 s | 1,7 a 3 quadros/s, clique 0,5 a 1,4 s |
+
+**Correção:** o roteiro abre as páginas com `?leve` (sem sombras, sem antialias, dpr 1, definido em `src/three/Scene3D.tsx`) e usa tempo limite de 60 s. Resultado: **20/20 em 275 s**. Interruptores de teste: `?leve`, `?semAvatares` (também `E2E_SEM_AVATARES=1` no roteiro) e `?semInstancias`. O produto normal não muda.
+
+**Não vale como medida de desempenho:** o FPS por software. As medidas de FPS usam GPU (`npm run perf`, `npm run perf:avatars`, `npm run e2e:avatars`).
 
 ## Como rodar em outro computador
 

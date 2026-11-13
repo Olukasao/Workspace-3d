@@ -72,8 +72,12 @@ try {
   await A.waitForTimeout(1200);
   await A.keyboard.up('d');
   await O.waitForTimeout(800);
+  // espera todos chegarem às mesas (o servidor leva cada um andando até a estação)
+  for (let i = 0; i < 80; i++) { const seated = await O.evaluate(() => fetch('/api/office2d/off_sede_1/join', { method: 'POST', headers: { 'X-Requested-With': 'office3d' } }).then((r) => r.json()).then((j) => j.positions.filter((p) => p.seat).length)); if (seated >= 8) break; await O.waitForTimeout(500); }
+  await O.waitForTimeout(500);
   await O.screenshot({ path: path.join(ROOT, 'test-results/ws-operador.png') });
-  for (let i = 0; i < 4; i++) await O.click('[aria-label="Afastar"]'); await O.waitForTimeout(800); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-escritorio.png') });
+  for (let i = 0; i < 3; i++) await O.click('[aria-label="Aproximar"]'); await O.waitForTimeout(600); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-sentado-zoom.png'), clip: { x: 420, y: 250, width: 360, height: 300 } });
+  for (let i = 0; i < 7; i++) await O.click('[aria-label="Afastar"]'); await O.waitForTimeout(800); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-escritorio.png') });
 
   // 5) avatar 2D: operador edita o cabelo e salva
   await O.click('[data-testid="my-avatar"]');

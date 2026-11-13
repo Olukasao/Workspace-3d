@@ -12,6 +12,8 @@ import { acquireAvatar, frameName, releaseAvatar } from './textures2d';
 
 export const STATUS_BG: Record<LiveStatus, string> = { online: '#1f9d55', typing: '#2f6fed', in_call: '#c05621', away: '#b7791f', offline: '#6b7280' };
 const SEAT_DROP = 10;
+/** De costas para a câmera (olhando a mesa), a pessoa senta mais fundo, no assento. */
+const SEAT_DROP_BACK = 17;
 
 export interface AnimChoice { name: AnimName; fps: number }
 /** Qual animação mostrar: andando; sentado na estação (trabalhando, digitando, atendendo); em pé (parado ou atendendo). */
@@ -109,7 +111,8 @@ export class PersonView {
       this.frame = f;
       this.sprite.setFrame(f);
     }
-    const ry = this.y + (this.seated ? SEAT_DROP : 0);
+    const backToCamera = this.seated && this.dir === 'up';
+    const ry = this.y + (this.seated ? (backToCamera ? SEAT_DROP_BACK : SEAT_DROP) : 0);
     this.sprite.setPosition(Math.round(this.x), Math.round(ry));
     this.sprite.setDepth(this.seated ? (Math.floor(this.y / TILE) + 1) * TILE + 1 : this.y);
     this.sprite.setAlpha(this.status === 'away' ? 0.6 : 1);

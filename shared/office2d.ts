@@ -75,6 +75,8 @@ export const ASSETS: readonly AssetDef[] = [
   { id: 'cabinet', name: 'Armário', category: 'Armários', w: 1, h: 1, tall: 1, blocks: true, rotatable: false },
   { id: 'filing', name: 'Arquivo', category: 'Armários', w: 1, h: 1, tall: 0, blocks: true, rotatable: false },
 ];
+/** Móveis que se penduram na parede (podem ficar sobre uma célula de parede). */
+export const WALL_MOUNT: ReadonlySet<string> = new Set(['painting', 'tv', 'whiteboard']);
 export const ASSET_BY_ID = new Map(ASSETS.map((a) => [a.id, a]));
 export const ASSET_CATEGORIES: readonly AssetCategory[] = ['Mesas', 'Cadeiras', 'Tecnologia', 'Reunião', 'Recepção', 'Descanso', 'Armários', 'Decoração'];
 
@@ -319,7 +321,7 @@ export function validateLayout(raw: unknown): LayoutCheck {
       }
       const i = idx(layout, c.x, c.y);
       if (layout.floor[i] === 0 && !a.flat) errors.push(`${a.name} (${o.id}) está fora do prédio.`);
-      else if (layout.walls[i] === 1 && !a.flat && a.id !== 'painting') errors.push(`${a.name} (${o.id}) está sobre uma parede.`);
+      else if (layout.walls[i] === 1 && !a.flat && !WALL_MOUNT.has(a.id)) errors.push(`${a.name} (${o.id}) está sobre uma parede.`);
       if (a.blocks) {
         const other = occupied.get(i);
         if (other) errors.push(`${a.name} (${o.id}) se sobrepõe a ${other}.`);

@@ -54,14 +54,14 @@ export function defaultLayout2D(): Layout2D {
   put('plant', 40, 3);
   put('printer', 40, 15);
   put('cabinet', 38, 15);
-  put('whiteboard', 30, 3);
+  put('whiteboard', 30, 2); // na parede
 
   // reunião
   put('meeting_table', 6, 6);
   for (const x of [6, 7, 8, 9]) put('chair', x, 5, 0);
   for (const x of [6, 7, 8, 9]) put('chair', x, 8, 2);
-  put('whiteboard', 10, 3);
-  put('tv', 4, 3);
+  put('whiteboard', 10, 2);
+  put('tv', 4, 2); // TV na parede da sala de reunião
   put('plant', 14, 4);
 
   // recepção

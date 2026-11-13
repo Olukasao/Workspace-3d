@@ -19,6 +19,19 @@ const CHAIR_BACK_FROM = 28;
  * Parede com o sul aberto mostra a frente (6, 7, 10 ou 17 na ponta de uma divisória); com parede ao sul mostra o topo
  * (2 horizontal, 1/5 cantos, 12 vertical).
  */
+/**
+ * Faixa de cima da parede (tira de 32 px acima da frente): paredes externas ficam com 2 ladrilhos de altura, como no pacote,
+ * e sobra parede para pendurar TV e quadros. Só onde a célula de cima é vazio (fora do prédio), para ninguém andar por cima dela.
+ */
+function packCapGid(l: Layout2D, x: number, y: number): number {
+  const w = (xx: number, yy: number) => xx >= 0 && yy >= 0 && xx < l.cols && yy < l.rows && l.walls[yy * l.cols + xx] === 1;
+  const face = (xx: number) => xx >= 0 && xx < l.cols && y + 1 < l.rows && !w(xx, y) && l.floor[y * l.cols + xx] === 0 && w(xx, y + 1) && !w(xx, y + 2);
+  if (!face(x)) return 0;
+  const left = !face(x - 1);
+  const right = !face(x + 1);
+  return TILESET_TILES + (left && !right ? 1 : right && !left ? 5 : 2) + 1;
+}
+
 function packWallGid(l: Layout2D, x: number, y: number): number {
   const w = (xx: number, yy: number) => xx >= 0 && yy >= 0 && xx < l.cols && yy < l.rows && l.walls[yy * l.cols + xx] === 1;
   const n = w(x, y - 1);
@@ -74,7 +87,7 @@ export class LayoutView {
     const pack = packWalls() ? this.map.addTilesetImage('packwalls', 'packwalls', TILE, TILE, 0, 0, TILESET_TILES + 1) : null;
     this.floor = this.map.createLayer('piso', ts, 0, 0)!.setDepth(0);
     this.walls = this.map.createLayer('paredes', pack ? [ts, pack] : ts, 0, 0)!.setDepth(1);
-    if (packWalls()) for (let y = 0; y < this.layout.rows; y++) for (let x = 0; x < this.layout.cols; x++) if (this.layout.walls[y * this.layout.cols + x]) this.walls.putTileAt(this.wallTile(x, y), x, y);
+    if (packWalls()) for (let y = 0; y < this.layout.rows; y++) for (let x = 0; x < this.layout.cols; x++) { const t = this.wallTile(x, y); if (t) this.walls.putTileAt(t, x, y); }
     this.buildObjects();
     if (this.showLabels) this.buildLabels();
   }
@@ -128,7 +141,7 @@ export class LayoutView {
   // --- pintura (editor): altera o layout e só os ladrilhos afetados ---
   wallTile(x: number, y: number) {
     const l = this.layout;
-    if (!l.walls[y * l.cols + x]) return 0;
+    if (!l.walls[y * l.cols + x]) return packWalls() ? packCapGid(l, x, y) : 0;
     if (packWalls()) return packWallGid(l, x, y);
     return y + 1 < l.rows && l.walls[(y + 1) * l.cols + x] ? TILE_WALL_TOP : TILE_WALL_FRONT;
   }

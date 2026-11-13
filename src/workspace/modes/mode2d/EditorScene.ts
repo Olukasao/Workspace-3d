@@ -4,7 +4,7 @@
  * de ferramentas e salva. Arrastar com o botão direito (ou com a ferramenta "Mover vista") move a câmera.
  */
 import Phaser from 'phaser';
-import { ASSET_BY_ID, FLOORS, TILE, footprintCells, footprintSize, inBounds, seatOfObject, type Layout2D, type Obj2D } from '../../../../shared/office2d';
+import { ASSET_BY_ID, FLOORS, TILE, footprintCells, footprintSize, inBounds, seatOfObject, WALL_MOUNT, type Layout2D, type Obj2D } from '../../../../shared/office2d';
 import { LayoutView, objectDepth } from './layoutView';
 import { furnitureKey } from './textures2d';
 
@@ -137,7 +137,8 @@ export class EditorScene extends Phaser.Scene {
   private canPlace(o: Pick<Obj2D, 'asset' | 'x' | 'y' | 'rot'>, ignore?: string) {
     const a = ASSET_BY_ID.get(o.asset)!;
     const cells = footprintCells(a, o);
-    if (!cells.every((c) => inBounds(this.layout, c.x, c.y) && !this.layout.walls[c.y * this.layout.cols + c.x] && this.layout.floor[c.y * this.layout.cols + c.x] !== 0)) return false;
+    const hang = WALL_MOUNT.has(a.id); // TV, quadro branco e quadro podem ficar na parede
+    if (!cells.every((c) => inBounds(this.layout, c.x, c.y) && (hang ? this.layout.walls[c.y * this.layout.cols + c.x] === 1 || this.layout.floor[c.y * this.layout.cols + c.x] !== 0 : !this.layout.walls[c.y * this.layout.cols + c.x] && this.layout.floor[c.y * this.layout.cols + c.x] !== 0))) return false;
     if (a.flat || !a.blocks) return true;
     const mine = new Set(cells.map((c) => `${c.x},${c.y}`));
     return !this.layout.objects.some((q) => {

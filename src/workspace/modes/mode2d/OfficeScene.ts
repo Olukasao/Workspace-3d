@@ -6,7 +6,7 @@
  *  - posições de todos vêm do servidor (interpoladas); a própria posição é proposta ao servidor, que valida.
  */
 import Phaser from 'phaser';
-import { FOOT, TILE, findPath, seatOfObject, walkable, type Dir, type Layout2D } from '../../../../shared/office2d';
+import { FOOT, TILE, findPath, looseSeats, seatPointOf, walkable, type Dir, type Layout2D } from '../../../../shared/office2d';
 import { isSprite2D } from '../../../../shared/avatar2d';
 import { useLive } from '../../../live';
 import { LayoutView } from './layoutView';
@@ -80,7 +80,14 @@ export class OfficeScene extends Phaser.Scene {
       this.net.on('corrected', (r) => this.snapTo(r as { x: number; y: number; dir: Dir; seat: string | null })),
     ];
     // diagnóstico: aparência em uso por pessoa (window.__office2d.looks())
-    (window as unknown as { __office2d?: unknown }).__office2d = { looks: () => Object.fromEntries([...this.people].map(([id, pv]) => [id, pv.look])) };
+    (window as unknown as { __office2d?: unknown }).__office2d = {
+      looks: () => Object.fromEntries([...this.people].map(([id, pv]) => [id, pv.look])),
+      looseSeats: () => looseSeats(this.layout).map((s) => ({ id: s.id, dir: s.dir })),
+      goSit: (seatId: string) => {
+        const sp = this.seatPoint(seatId);
+        if (sp && this.routeTo(sp.cx, sp.cy)) this.pendingSit = seatId;
+      },
+    };
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       delete (window as unknown as { __office2d?: unknown }).__office2d;
       offs.forEach((off) => off());
@@ -142,8 +149,15 @@ export class OfficeScene extends Phaser.Scene {
       const obj = this.layout.objects.find((o) => o.id === st.objectId);
       const img = obj && this.view.objects.get(obj.id);
       if (!obj || !img || !img.getBounds().contains(w.x, w.y)) continue;
-      const seat = seatOfObject(obj);
+      const seat = seatPointOf(this.layout, st.id);
       if (seat && this.routeTo(seat.cx, seat.cy)) this.pendingSit = st.id;
+      return;
+    }
+    // 2b) cadeira solta (reunião, copa) → andar até ela e sentar virado para o lado dela
+    for (const s of looseSeats(this.layout)) {
+      const img = this.view.objects.get(s.id.slice('chair:'.length));
+      if (!img || !img.getBounds().contains(w.x, w.y)) continue;
+      if (this.routeTo(s.cx, s.cy)) this.pendingSit = s.id;
       return;
     }
     // 3) chão → andar até a célula
@@ -163,17 +177,15 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   // ---------- sentar e levantar ----------
-  private seatPoint(stationId: string) {
-    const st = this.layout.stations.find((s) => s.id === stationId);
-    const obj = st && this.layout.objects.find((o) => o.id === st.objectId);
-    return obj ? seatOfObject(obj) : null;
+  private seatPoint(seatId: string) {
+    return seatPointOf(this.layout, seatId);
   }
   private owner(stationId: string) {
     return this.net.data?.seats.find((s) => s.stationId === stationId);
   }
   private nearestStation(maxDist: number) {
     let best: { id: string; d: number } | null = null;
-    for (const st of this.layout.stations) {
+    for (const st of [...this.layout.stations, ...looseSeats(this.layout)]) {
       const sp = this.seatPoint(st.id);
       if (!sp) continue;
       const d = Math.hypot(sp.x - this.me.x, sp.y - this.me.y);

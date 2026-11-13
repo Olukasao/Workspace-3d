@@ -28,7 +28,7 @@ O Workspace tem **dois ambientes para a mesma empresa: 3D e 2D**. O **administra
 - Phaser 3 + React: o Phaser cuida do mapa e dos personagens; o React só desenha os painéis (lista de pessoas, seu estado, cartão da pessoa). Não há re-render do React a cada passo.
 - Mapa em formato **Tiled** (JSON). O layout é guardado como `Layout2D` (grade de 32 px: piso, paredes, móveis, salas, entradas, estações) e pode ser exportado como `.tmj` (`GET /api/admin/office2d/:id/tiled`).
 - Visão de cima em 3/4. Pixel art original pintada por código (26 móveis, personagens em camadas) e, onde o tamanho bate, o pacote Office Pixel Art (ver Decisões). Nada do Habbo ou do Gather.
-- Controles: WASD/setas, clique no chão (caminho A*), **E** ou clique na mesa para sentar/levantar, clique numa pessoa para o cartão e **Conversar**, roda do mouse ou +/− para zoom. Colisão com paredes e móveis; profundidade por linha (quem está atrás aparece atrás).
+- Controles: WASD/setas, clique no chão (caminho A*), **E** ou clique na mesa ou numa cadeira solta (reunião, copa) para sentar/levantar: em cadeira solta a pessoa fica virada para o lado da cadeira, e qualquer um pode usá-la, clique numa pessoa para o cartão e **Conversar**, roda do mouse ou +/− para zoom. Colisão com paredes e móveis; profundidade por linha (quem está atrás aparece atrás).
 - Pinça no celular **não foi implementada** (use os botões +/−).
 
 ### Estados, só a partir de eventos reais

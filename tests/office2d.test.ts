@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ASSET_BY_ID, ASSETS, FLOORS, TILE, blockedGrid, findPath, footprintCells, gridOf, layoutToTiled, nearestFree, seatOfObject, validateLayout, walkable, type Layout2D, type Obj2D } from '../shared/office2d';
+import { ASSET_BY_ID, ASSETS, FLOORS, TILE, blockedGrid, findPath, footprintCells, gridOf, layoutToTiled, looseSeats, nearestFree, seatOfObject, seatPointOf, validateLayout, walkable, type Layout2D, type Obj2D } from '../shared/office2d';
 import { defaultLayout2D } from '../shared/office2dDefault';
 import { PALETTE2D, defaultAvatar2D, validateAvatar2D, type Avatar2DConfig } from '../shared/avatar2d';
 
@@ -139,6 +139,20 @@ describe('exportação para o Tiled', () => {
     expect(walls.data).toHaveLength(l.cols * l.rows);
     expect(Math.max(...walls.data)).toBeLessThanOrEqual(t.tilesets[0].tilecount);
     expect((t.layers[3] as { objects: unknown[] }).objects).toHaveLength(l.objects.length);
+  });
+});
+
+describe('lugares para sentar', () => {
+  it('cadeiras soltas são lugares, as das mesas de trabalho não, e olham para o lado em que foram giradas', () => {
+    const l = defaultLayout2D();
+    const loose = looseSeats(l);
+    expect(loose.length).toBeGreaterThanOrEqual(8);
+    const deskCells = new Set(l.stations.map((s) => { const sp = seatOfObject(l.objects.find((o) => o.id === s.objectId)!)!; return sp.cy * l.cols + sp.cx; }));
+    expect(loose.every((s) => !deskCells.has(s.cy * l.cols + s.cx))).toBe(true);
+    expect(new Set(loose.map((s) => s.dir)).size).toBeGreaterThanOrEqual(2); // nem todo mundo senta virado para o mesmo lado
+    expect(seatPointOf(l, loose[0].id)).toMatchObject({ x: loose[0].x, y: loose[0].y, dir: loose[0].dir });
+    expect(seatPointOf(l, 'chair:nao-existe')).toBeNull();
+    expect(seatPointOf(l, l.stations[0].id)).not.toBeNull();
   });
 });
 

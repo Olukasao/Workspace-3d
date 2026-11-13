@@ -44,7 +44,7 @@ export function defaultLayout2D(): Layout2D {
     for (let k = 0; k < 6; k++) {
       const x = 19 + k * 4;
       const desk = put('desk_pc', x, y);
-      put('chair', x, y + 1, 3);
+      put('chair', x, y + 1, 2);
       const sid = `st${stationList.length + 1}`;
       stations.push({ id: sid, objectId: desk });
       stationList.push(sid);
@@ -59,7 +59,7 @@ export function defaultLayout2D(): Layout2D {
   // reunião
   put('meeting_table', 6, 6);
   for (const x of [6, 7, 8, 9]) put('chair', x, 5, 0);
-  for (const x of [6, 7, 8, 9]) put('chair', x, 8, 3);
+  for (const x of [6, 7, 8, 9]) put('chair', x, 8, 2);
   put('whiteboard', 10, 3);
   put('tv', 4, 3);
   put('plant', 14, 4);
@@ -79,9 +79,9 @@ export function defaultLayout2D(): Layout2D {
   put('cooler', 21, 19);
   put('round_table', 24, 21);
   put('round_table', 29, 21);
-  put('chair', 23, 21, 2);
+  put('chair', 23, 21, 3);
   put('chair', 26, 21, 1);
-  put('chair', 28, 21, 2);
+  put('chair', 28, 21, 3);
   put('chair', 31, 21, 1);
   put('rug', 33, 22);
   put('sofa', 34, 19, 0);

@@ -7,7 +7,7 @@
  *  - o layout publicado e os vínculos mesa-pessoa ficam no banco; nada disso é tocado pelo editor 3D.
  */
 import type { SessionUser } from '../shared/types';
-import { DIRS, TILE, findPath, gridOf, nearestFree, seatOfObject, walkable, type Dir, type Grid, type Layout2D } from '../shared/office2d';
+import { DIRS, TILE, findPath, gridOf, nearestFree, seatPointOf, walkable, type Dir, type Grid, type Layout2D } from '../shared/office2d';
 import { defaultLayout2D } from '../shared/office2dDefault';
 import { one, type Db } from './db/driver';
 import { HttpError } from './http';
@@ -91,10 +91,8 @@ export class Office2D {
   }
 
   // ---------- entrada e movimento ----------
-  private seatPoint(layout: Layout2D, stationId: string) {
-    const st = layout.stations.find((s) => s.id === stationId);
-    const obj = st && layout.objects.find((o) => o.id === st.objectId);
-    return obj ? seatOfObject(obj) : null;
+  private seatPoint(layout: Layout2D, seatId: string) {
+    return seatPointOf(layout, seatId);
   }
 
   /** Põe a pessoa no escritório (se ainda não estiver): numa entrada livre; quem tem mesa designada é levado até ela e senta. */

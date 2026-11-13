@@ -142,6 +142,29 @@ export function seatOfObject(o: Obj2D): { cx: number; cy: number; x: number; y: 
   const cy = o.y + dy;
   return { cx, cy, x: cx * TILE + TILE / 2, y: cy * TILE + TILE / 2, dir: rotateDir(a.seat.dir, rot) };
 }
+export interface SeatPoint { cx: number; cy: number; x: number; y: number; dir: Dir }
+/**
+ * Cadeiras soltas (as que não são a cadeira de uma mesa de trabalho) também são lugares para sentar: id `chair:<objeto>`,
+ * a pessoa fica virada para o lado para o qual a cadeira foi girada. Não têm dono.
+ */
+export function looseSeats(l: Layout2D): Array<SeatPoint & { id: string }> {
+  const at = new Set<number>();
+  for (const s of l.stations) {
+    const o = l.objects.find((q) => q.id === s.objectId);
+    const sp = o && seatOfObject(o);
+    if (sp) at.add(sp.cy * l.cols + sp.cx);
+  }
+  return l.objects
+    .filter((o) => o.asset === 'chair' && !at.has(o.y * l.cols + o.x))
+    .map((o) => ({ id: `chair:${o.id}`, cx: o.x, cy: o.y, x: o.x * TILE + TILE / 2, y: o.y * TILE + TILE / 2, dir: rotateDir('down', o.rot) }));
+}
+/** Ponto de sentar de uma estação (mesa designável) ou de uma cadeira solta. */
+export function seatPointOf(l: Layout2D, seatId: string): SeatPoint | null {
+  if (seatId.startsWith('chair:')) return looseSeats(l).find((s) => s.id === seatId) ?? null;
+  const st = l.stations.find((s) => s.id === seatId);
+  const obj = st && l.objects.find((o) => o.id === st.objectId);
+  return obj ? seatOfObject(obj) : null;
+}
 function rotVec(x: number, y: number, rot: number) {
   let [vx, vy] = [x, y];
   for (let i = 0; i < ((rot % 4) + 4) % 4; i++) [vx, vy] = [-vy, vx];

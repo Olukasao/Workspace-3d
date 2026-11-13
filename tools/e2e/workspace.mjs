@@ -109,6 +109,17 @@ try {
   await O.screenshot({ path: path.join(ROOT, 'test-results/ws-depois-salvar.png') });
   ok(await seen(A, 'emp_otavio'), 'avatar salvo aparece para o colega na operação');
 
+  // sentar numa cadeira solta (reunião ou copa): vai até ela e fica virado para o lado dela
+  await O.keyboard.press('KeyE'); // levanta da mesa
+  const loose = await O.evaluate(() => window.__office2d.looseSeats());
+  const target = loose.find((s) => s.dir === 'left' || s.dir === 'right') ?? loose.find((s) => s.dir === 'down') ?? loose[0];
+  ok(loose.length >= 8 && new Set(loose.map((s) => s.dir)).size >= 2, `cadeiras soltas são lugares (${loose.length}, direções ${[...new Set(loose.map((s) => s.dir))].join('/')})`);
+  await O.evaluate((id) => window.__office2d.goSit(id), target.id);
+  let seatedAt = null;
+  for (let i = 0; i < 80 && !seatedAt?.startsWith('chair:'); i++) { await O.waitForTimeout(500); seatedAt = await O.evaluate(() => fetch('/api/office2d/off_sede_1/join', { method: 'POST', headers: { 'X-Requested-With': 'office3d' } }).then((r) => r.json()).then((j) => j.me.seat)); }
+  ok(seatedAt === target.id, `sentou na cadeira solta ${target.id} (${target.dir})`);
+  await O.waitForTimeout(800); await O.screenshot({ path: path.join(ROOT, 'test-results/ws-cadeira-solta.png') });
+
   // 6) editor 2D: administrador coloca um tapete e publica; o operador recebe o layout novo ao vivo
   await A.locator('nav.tabs button', { hasText: 'Editor' }).click();
   await A.waitForSelector('[data-testid="editor2d"]', { timeout: 60000 });

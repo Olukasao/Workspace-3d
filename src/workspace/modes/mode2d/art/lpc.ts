@@ -13,10 +13,10 @@ const LPC_ROW: Record<Dir, number> = { up: 0, left: 1, down: 2, right: 3 };
 export const lpcRow = (d: Dir) => LPC_ROW[d];
 
 interface PartLayer { z: number; male: string; female: string }
-interface Part { id: string; name: string; layers: PartLayer[]; recolor: string | null; variant: string | null }
+export interface Part { id: string; name: string; layers: PartLayer[]; recolor: string | null; variants: string[] | null }
 interface Manifest {
   bodies: Record<'male' | 'female', { body: string; head: string }>;
-  parts: Record<'hair' | 'torso' | 'legs' | 'shoes' | 'beard' | 'glasses', Part[]>;
+  parts: Record<string, Part[]>;
   palettes: Record<string, { base: string; colors: Record<string, string[]> }>;
 }
 let manifest: Manifest | null = null;
@@ -54,27 +54,40 @@ function loadImg(src: string): Promise<HTMLImageElement | null> {
 
 interface Spec { z: number; dir: string; variant: string | null; recolors: Array<[string, string]> }
 
+/** Camadas de uma peça do catálogo. `color` é a cor escolhida (cor de paleta ou, nas peças que vêm em arquivos por cor, o nome da variante). */
+function partSpecs(cfg: Avatar2DConfig, cat: string, id: string, color?: string): Spec[] {
+  const m = manifest;
+  const p = m?.parts[cat]?.find((x) => x.id === id);
+  if (!m || !p) return [];
+  const b = (cfg.bodyType === 'female' ? 'female' : 'male') as 'male' | 'female';
+  const variant = p.variants ? (color && p.variants.includes(color) ? color : p.variants.includes('black') ? 'black' : p.variants[0]) : null;
+  const rc: Array<[string, string]> = [];
+  if (p.recolor === 'hair') rc.push(['hair', color && !p.variants ? color : cfg.hairColor]);
+  else if (p.recolor === 'body') rc.push(['body', cfg.skin]);
+  else if (p.recolor === 'cloth') rc.push(['cloth', color ?? 'white']);
+  else if (p.recolor === 'metal') rc.push(['metal', color ?? 'steel']);
+  if (cat === 'head') rc.push(['eye', cfg.eyeColor ?? 'blue']);
+  return p.layers.map((l) => ({ z: l.z, dir: l[b], variant, recolors: rc }));
+}
+
+const defaultHead = (cfg: Avatar2DConfig) => cfg.head ?? (cfg.bodyType === 'female' ? 'heads_human_female' : 'heads_human_male');
+
 /** Camadas da aparência, de trás para frente. */
 function specsOf(cfg: Avatar2DConfig, withGlasses = true): Spec[] | null {
   const m = manifest;
   if (!m) return null;
   const b = (cfg.bodyType === 'female' ? 'female' : 'male') as 'male' | 'female';
-  const out: Spec[] = [
-    { z: 10, dir: m.bodies[b].body, variant: null, recolors: [['body', cfg.skin]] },
-    { z: 100, dir: m.bodies[b].head, variant: null, recolors: [['body', cfg.skin], ['eye', cfg.eyeColor ?? 'blue']] },
-  ];
-  const add = (cat: keyof Manifest['parts'], id: string, color: string) => {
-    const p = m.parts[cat].find((x) => x.id === id);
-    if (!p) return;
-    for (const l of p.layers) out.push({ z: l.z, dir: l[b], variant: p.variant, recolors: p.recolor ? [[p.recolor === 'hair' ? 'hair' : 'cloth', color]] : [] });
-  };
-  add('torso', cfg.shirt, cfg.shirtColor);
-  add('legs', cfg.pants, cfg.pantsColor);
-  add('shoes', cfg.shoes, cfg.shoesColor);
-  add('hair', cfg.hair, cfg.hairColor);
-  if (cfg.facial !== 'none') add('beard', cfg.facial, cfg.hairColor);
-  if (cfg.glasses && withGlasses) add('glasses', 'facial_glasses', 'black');
-  return out.sort((a, c) => a.z - c.z);
+  const out: Spec[] = [{ z: 10, dir: m.bodies[b].body, variant: null, recolors: [['body', cfg.skin]] }];
+  const head = partSpecs(cfg, 'head', defaultHead(cfg));
+  out.push(...(head.length ? head : [{ z: 100, dir: m.bodies[b].head, variant: null, recolors: [['body', cfg.skin], ['eye', cfg.eyeColor ?? 'blue']] as Array<[string, string]> }]));
+  out.push(...partSpecs(cfg, 'torso', cfg.shirt, cfg.shirtColor));
+  out.push(...partSpecs(cfg, 'legs', cfg.pants, cfg.pantsColor));
+  out.push(...partSpecs(cfg, 'shoes', cfg.shoes, cfg.shoesColor));
+  out.push(...partSpecs(cfg, 'hair', cfg.hair, cfg.hairColor));
+  if (cfg.facial !== 'none') out.push(...partSpecs(cfg, 'beard', cfg.facial, cfg.hairColor));
+  if (cfg.glasses && withGlasses) out.push(...partSpecs(cfg, 'glasses', 'facial_glasses', 'black'));
+  for (const [cat, v] of Object.entries(cfg.extras ?? {})) out.push(...partSpecs(cfg, cat, v.id, v.color));
+  return out.sort((x, y) => x.z - y.z);
 }
 const urlOf = (s: Spec, a: LpcAnim) => `${BASE}/spritesheets/${s.dir}${s.variant ? `${a}/${s.variant}` : a}.png`;
 
@@ -189,13 +202,60 @@ export async function preloadCatalog(body: 'male' | 'female'): Promise<void> {
     loadImg(`${BASE}/spritesheets/${m.bodies[body].body}idle.png`),
     loadImg(`${BASE}/spritesheets/${m.bodies[body].head}idle.png`),
   ];
-  for (const cat of Object.keys(m.parts) as Array<keyof Manifest['parts']>)
-    for (const p of m.parts[cat]) for (const l of p.layers) jobs.push(loadImg(`${BASE}/spritesheets/${l[body]}${p.variant ? `idle/${p.variant}` : 'idle'}.png`));
+  for (const cat of Object.keys(m.parts))
+    for (const p of m.parts[cat]) for (const l of p.layers) jobs.push(loadImg(`${BASE}/spritesheets/${l[body]}${p.variants ? `idle/${p.variants.includes('black') ? 'black' : p.variants[0]}` : 'idle'}.png`));
   await Promise.all(jobs);
 }
 
 /** Cor de amostra (tom médio da rampa) de uma cor de paleta, para os botões de cor. */
-export function swatch(material: 'body' | 'hair' | 'cloth' | 'eye', name: string): string {
+export function swatch(material: 'body' | 'hair' | 'cloth' | 'eye' | 'metal', name: string): string {
   const colors = manifest?.palettes[material]?.colors[name];
   return colors ? colors[Math.min(colors.length - 1, Math.floor(colors.length / 2))] : '#888888';
 }
+
+const HEADY = new Set(['head', 'hair', 'beard', 'hat', 'expression', 'eyebrows', 'nose', 'glasses']);
+
+/** Miniatura de uma peça: só ela (com a cabeça por baixo nas peças do rosto e do cabelo), recortada. */
+export function drawPartThumb(c: HTMLCanvasElement, cfg: Avatar2DConfig, cat: string, id: string, color?: string): boolean {
+  const g = c.getContext('2d')!;
+  g.imageSmoothingEnabled = false;
+  g.clearRect(0, 0, c.width, c.height);
+  const specs = partSpecs(cfg, cat, id, color);
+  if (!specs.length) return false;
+  const base = HEADY.has(cat) && cat !== 'head' ? partSpecs(cfg, 'head', defaultHead(cfg)) : [];
+  const layers = [...base, ...specs].sort((a, b) => a.z - b.z);
+  const tmp = document.createElement('canvas');
+  tmp.width = LPC_FRAME;
+  tmp.height = LPC_FRAME;
+  const tg = tmp.getContext('2d', { willReadFrequently: true })!;
+  for (const s of layers) {
+    const url = urlOf(s, 'idle');
+    const img = imgOk.get(url);
+    if (!img) return false;
+    tg.drawImage(recolored(img, url, s.recolors), 0, lpcRow('down') * LPC_FRAME, LPC_FRAME, LPC_FRAME, 0, 0, LPC_FRAME, LPC_FRAME);
+  }
+  let sx: number;
+  let sy: number;
+  let sz: number;
+  if (HEADY.has(cat)) [sx, sy, sz] = [16, 8, 32];
+  else {
+    // recorte justo em volta da peça (quadrado)
+    const px = tg.getImageData(0, 0, LPC_FRAME, LPC_FRAME).data;
+    let x0 = LPC_FRAME, y0 = LPC_FRAME, x1 = 0, y1 = 0;
+    for (let y = 0; y < LPC_FRAME; y++) for (let x = 0; x < LPC_FRAME; x++) if (px[(y * LPC_FRAME + x) * 4 + 3] > 0) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    if (x1 < x0) return false;
+    sz = Math.max(x1 - x0 + 1, y1 - y0 + 1, 12) + 2;
+    sx = Math.round((x0 + x1) / 2 - sz / 2);
+    sy = Math.round((y0 + y1) / 2 - sz / 2);
+  }
+  g.drawImage(tmp, sx, sy, sz, sz, 0, 0, c.width, c.height);
+  return true;
+}
+
+/** Carrega as imagens de "parado" de uma peça para a miniatura. */
+export async function preloadPart(cfg: Avatar2DConfig, cat: string, id: string, color?: string): Promise<void> {
+  await loadLpcManifest();
+  const head = HEADY.has(cat) && cat !== 'head' ? partSpecs(cfg, 'head', defaultHead(cfg)) : [];
+  await Promise.all([...head, ...partSpecs(cfg, cat, id, color)].map((s) => loadImg(urlOf(s, 'idle'))));
+}
+export const lpcPartsOf = (cat: string): Part[] => manifest?.parts[cat] ?? [];

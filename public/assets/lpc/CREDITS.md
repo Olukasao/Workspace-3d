@@ -41,9 +41,10 @@ Arquivos: public/assets/lpc/spritesheets (apenas andar, parado e sentado). As co
 
 ## bluecarrot16
 - Licenças oferecidas: CC0
-- Peças: beards_winter, hair_afro, hair_dreadlocks_long, hair_lob, hair_twists_fade, hair_twists_straight
+- Peças: beards_winter, hair_afro, hair_dreadlocks_long, hair_lob, hair_twists_fade, hair_twists_straight, neck_necklace_beaded_large
 - Fonte: https://opengameart.org/content/lpc-hair
 - Fonte: https://opengameart.org/content/lpc-santa
+- Fonte: https://opengameart.org/content/lpc-jewelry
 
 ## ElizaWy, bluecarrot16
 - Licenças oferecidas: CC0
@@ -54,11 +55,15 @@ Arquivos: public/assets/lpc/spritesheets (apenas andar, parado e sentado). As co
 
 ## ElizaWy
 - Licenças oferecidas: OGA-BY 3.0
-- Peças: beards_chevron, beards_handlebar, beards_horseshoe, beards_lampshade, beards_medium, beards_trimmed, beards_walrus, facial_glasses, facial_glasses_halfmoon, hair_balding, hair_buzzcut, hair_curly_long, hair_curly_short, hair_curly_short2, hair_half_up, hair_parted3
+- Peças: beards_chevron, beards_handlebar, beards_horseshoe, beards_lampshade, beards_medium, beards_trimmed, beards_walrus, eyebrows_thick, eyebrows_thin, facial_glasses, facial_glasses_halfmoon, hair_balding, hair_buzzcut, hair_curly_long, hair_curly_short, hair_curly_short2, hair_half_up, hair_parted3, head_nose_elderly, head_nose_large, neck_bowtie2
 - Fonte: https://opengameart.org/content/lpc-hair
 - Fonte: https://opengameart.org/content/lpc-expanded-sit-run-jump-more
 - Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Hair
 - Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Head%20Accessories
+- Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Head/Head%20Overlay%2001%20-%20Large%20Nose
+- Fonte: https://opengameart.org/content/lpc-revised-elders
+- Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing/Feminine%2C%20Thin/Accessories
+- Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing/Masculine%2C%20Thin/Accessories/Neckwear%2001%20-%20Bowtie
 
 ## thecilekli, bluecarrot16, ElizaWy
 - Licenças oferecidas: CC0
@@ -291,7 +296,7 @@ Arquivos: public/assets/lpc/spritesheets (apenas andar, parado e sentado). As co
 
 ## JaidynReiman, ElizaWy, Bluecarrot16, Stephen Challener (Redshrike), Johannes Sjölund (wulax)
 - Licenças oferecidas: OGA-BY 3.0, GPL 3.0
-- Peças: feet_boots_revised, feet_shoes_revised
+- Peças: feet_boots_revised, feet_shoes_revised, feet_socks_ankle, feet_socks_high
 - Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing
 - Fonte: https://opengameart.org/content/lpc-expanded-socks-shoes
 
@@ -311,7 +316,7 @@ Arquivos: public/assets/lpc/spritesheets (apenas andar, parado e sentado). As co
 
 ## ElizaWy, JaidynReiman
 - Licenças oferecidas: OGA-BY 3.0
-- Peças: feet_shoes_revised
+- Peças: feet_shoes_revised, feet_socks_ankle, feet_socks_high, torso_aprons_suspenders
 - Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Clothing
 - Fonte: https://opengameart.org/content/lpc-expanded-sit-run-jump-more
 - Fonte: https://opengameart.org/content/lpc-expanded-socks-shoes
@@ -329,3 +334,129 @@ Arquivos: public/assets/lpc/spritesheets (apenas andar, parado e sentado). As co
 - Fonte: http://opengameart.org/content/sara-wizard
 - Fonte: https://opengameart.org/content/lpc-sara
 - Fonte: https://opengameart.org/content/lpc-expanded-socks-shoes
+
+## Benjamin K. Smith (BenCreating), Eliza Wyatt (ElizaWy), Stephen Challener (Redshrike)
+- Licenças oferecidas: OGA-BY 3.0, CC-BY 3.0
+- Peças: heads_human_female_elderly, heads_human_male_elderly
+- Fonte: https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles
+- Fonte: https://opengameart.org/content/lpc-revised-elders
+- Fonte: https://opengameart.org/content/lpc-character-bases
+
+## ElizaWy, Stephen Challener (Redshrike)
+- Licenças oferecidas: OGA-BY 3.0, CC-BY
+- Peças: heads_human_female_small, heads_human_male_small
+
+## Stephen Challener (Redshrike), bluecarrot16
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: heads_human_male_gaunt
+- Fonte: https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles
+- Fonte: https://opengameart.org/content/lpc-folk
+
+## bluecarrot16, JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0
+- Peças: hat_cap_bonnie, hat_cap_bonnie_tilt, hat_cap_cavalier, wrists_cuffs, wrists_cuffs_lace
+- Fonte: https://opengameart.org/content/lpc-pirates
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## Johannes Sjölund (wulax), Matthew Krohn (Makrohn), JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: hat_cap_leather
+- Fonte: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## bluecarrot16, JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, GPL 3.0
+- Peças: hat_holiday_christmas
+- Fonte: https://opengameart.org/content/lpc-santa
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## Johannes Sjölund (wulax), JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: hat_hood_cloth
+- Fonte: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## thecilekli
+- Licenças oferecidas: CC0
+- Peças: hat_hood_hijab
+- Fonte: https://opengameart.org/content/lpc-hijab
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## Nila122, JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: hat_hood_sack_cloth
+- Fonte: https://opengameart.org/content/lpc-lizard-headgear
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## Matthew Krohn (makrohn), JaidynReiman, Marcel van de Steeg (MadMarcel), JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0
+- Peças: hat_bandana
+- Fonte: https://opengameart.org/content/lpc-female-orcogregoblintroll-base-walkcycle
+- Fonte: https://github.com/makrohn/Universal-LPC-spritesheet/commit/f50007cb47c235d8896cafae7a613f0b6a9a09a8?short_path=02b86d4#diff-02b86d45789a3e3e8e79519c7d17d15c9e6ecc9b4ddecb1bcd8dfbbaef430b75
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## Napsio (Vitruvian Studio), JaidynReiman, Michael Whitlock (bigbeargames), Matthew Krohn (makrohn), Marcel van de Steeg (MadMarcel)
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0
+- Peças: hat_bandana2
+- Fonte: https://opengameart.org/content/lpc-female-orcogregoblintroll-base-walkcycle
+- Fonte: https://github.com/makrohn/Universal-LPC-spritesheet/commit/f50007cb47c235d8896cafae7a613f0b6a9a09a8?short_path=02b86d4#diff-02b86d45789a3e3e8e79519c7d17d15c9e6ecc9b4ddecb1bcd8dfbbaef430b75
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## bluecarrot16, JaidynReiman, Nila122
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 2.0, GPL 3.0
+- Peças: hat_headband_kerchief
+- Fonte: https://opengameart.org/content/more-lpc-clothes-and-hair
+- Fonte: https://opengameart.org/content/lpc-pirates
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## Nila122
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: hat_headband_tied
+- Fonte: https://opengameart.org/content/lpc-lizard-headgear
+- Fonte: https://opengameart.org/content/lpc-expanded-hats-facial-helmets
+
+## JaidynReiman, ElizaWy, Stephen Challener (Redshrike)
+- Licenças oferecidas: OGA-BY 3.0
+- Peças: face_angry, face_blush, face_closed, face_closing, face_eyeroll, face_happy, face_look_l, face_look_r, face_neutral, face_sad, face_shame, face_shock
+- Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Head
+- Fonte: https://opengameart.org/content/ulpc-expanded-expressions
+
+## JaidynReiman, ElizaWy, Stephen Challener (Redshrike)
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: face_neutral
+- Fonte: https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles
+- Fonte: https://github.com/ElizaWy/LPC/tree/main/Characters/Head
+- Fonte: https://opengameart.org/content/ulpc-expanded-expressions
+
+## JaidynReiman, Stephen Challener (Redshrike)
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: face_neutral
+- Fonte: https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles
+- Fonte: https://opengameart.org/content/ulpc-expanded-expressions
+
+## bluecarrot16
+- Licenças oferecidas: OGA-BY 3.0, GPL 3.0
+- Peças: neck_cravat, neck_jabot
+- Fonte: https://opengameart.org/content/lpc-pirates
+
+## bluecarrot16, JaidynReiman
+- Licenças oferecidas: CC0
+- Peças: neck_necklace_beaded_small
+- Fonte: https://opengameart.org/content/lpc-jewelry
+
+## Michael Whitlock (bigbeargames), Matthew Krohn (makrohn), Johannes Sjölund (wulax), bluecarrot16, JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: arms_gloves
+- Fonte: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+- Fonte: http://opengameart.org/content/lpc-clothing-updates
+
+## Matthew Krohn (makrohn), Johannes Sjölund (wulax), JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, CC-BY-SA 3.0, GPL 3.0
+- Peças: arms_bracers
+- Fonte: https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+
+## ElizaWy, bluecarrot16, JaidynReiman
+- Licenças oferecidas: OGA-BY 3.0, GPL 3.0
+- Peças: torso_aprons_overalls
+- Fonte: https://opengameart.org/content/lpc-revised-character-basics
+- Fonte: http://opengameart.org/content/lpc-clothing-updates

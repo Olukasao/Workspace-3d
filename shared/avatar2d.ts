@@ -5,7 +5,7 @@
  * A configuração é guardada por colaborador (avatar_choices, estilo "sprite2d") e sincronizada em tempo real.
  * As cores de roupa e calçado não são usadas por este pacote (as peças já têm cor), mas os campos continuam por compatibilidade.
  */
-import { LPC_BODIES, LPC_CLOTH_COLORS, LPC_EYE_COLORS, LPC_HAIR_COLORS, LPC_PARTS, LPC_SKINS } from './avatarLpc.generated';
+import { LPC_BODIES, LPC_CLOTH_COLORS, LPC_EXTRAS, LPC_EXTRA_CATS, LPC_EYE_COLORS, LPC_HAIR_COLORS, LPC_METAL_COLORS, LPC_PARTS, LPC_SKINS } from './avatarLpc.generated';
 
 export interface Opt2D { id: string; name: string }
 export type Look2D = 'lpc' | 'chibi';
@@ -49,11 +49,16 @@ export interface Avatar2DConfig {
   /** Só no estilo LPC. */
   bodyType?: 'male' | 'female';
   eyeColor?: string;
+  /** Cabeça (id de LPC_EXTRAS.head); sem o campo vale a cabeça padrão do tipo de corpo. */
+  head?: string;
+  /** Peças opcionais por categoria (chapéu, expressão, sobrancelhas, nariz, pescoço, luvas e pulseiras, meias, macacão); a cor só vale para peças que têm cor própria. */
+  extras?: Record<string, { id: string; color?: string }>;
 }
+export const LPC_EXTRA_LIST = LPC_EXTRA_CATS.filter((c) => c !== 'head');
 export const isSprite2D = (c: unknown): c is Avatar2DConfig => !!c && typeof c === 'object' && (c as { style?: unknown }).style === 'sprite2d';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
-const KEYS = ['v', 'style', 'skin', 'hair', 'hairColor', 'shirt', 'shirtColor', 'pants', 'pantsColor', 'shoes', 'shoesColor', 'facial', 'glasses', 'headsetAlways', 'look', 'bodyType', 'eyeColor'];
+const KEYS = ['v', 'style', 'skin', 'hair', 'hairColor', 'shirt', 'shirtColor', 'pants', 'pantsColor', 'shoes', 'shoesColor', 'facial', 'glasses', 'headsetAlways', 'look', 'bodyType', 'eyeColor', 'head', 'extras'];
 
 const ids = (cat: keyof typeof LPC_PARTS, none?: string) => [...(none ? [none] : []), ...LPC_PARTS[cat].map((p) => p.id)];
 export const LPC_HAIR_IDS = ids('hair', 'none');
@@ -85,6 +90,22 @@ export function validateAvatar2D(input: unknown): string[] {
     inList('shoesColor', LPC_CLOTH_COLORS, 'Cor do calçado');
     inList('facial', LPC_BEARD_IDS, 'Barba');
     inList('eyeColor', LPC_EYE_COLORS, 'Cor dos olhos');
+    if (c.head !== undefined) inList('head', LPC_EXTRAS.head.map((p) => p.id), 'Cabeça');
+    if (c.extras !== undefined) {
+      const ex = c.extras as Record<string, { id?: unknown; color?: unknown }>;
+      if (!ex || typeof ex !== 'object' || Array.isArray(ex)) e.push('extras inválido.');
+      else
+        for (const [cat, v] of Object.entries(ex)) {
+          const list = (LPC_EXTRA_LIST as readonly string[]).includes(cat) ? LPC_EXTRAS[cat as keyof typeof LPC_EXTRAS] : null;
+          const part = list?.find((p) => p.id === v?.id);
+          if (!list) e.push(`Categoria desconhecida: ${cat}.`);
+          else if (!part) e.push(`Peça de ${cat} fora da lista.`);
+          else if (v.color !== undefined) {
+            const ok = part.variants ? part.variants.includes(v.color as string) : part.recolor === 'metal' ? (LPC_METAL_COLORS as readonly string[]).includes(v.color as string) : part.recolor === 'cloth' ? (LPC_CLOTH_COLORS as readonly string[]).includes(v.color as string) : false;
+            if (!ok) e.push(`Cor de ${cat} fora da lista.`);
+          }
+        }
+    }
     for (const k of ['glasses', 'headsetAlways']) if (typeof c[k] !== 'boolean') e.push(`${k} deve ser verdadeiro ou falso.`);
     const extra = Object.keys(c).filter((k) => !KEYS.includes(k));
     if (extra.length) e.push(`Campos desconhecidos: ${extra.join(', ')}.`);

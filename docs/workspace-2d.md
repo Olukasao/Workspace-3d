@@ -51,11 +51,21 @@ Vínculo de pessoas às estações 2D fica em tabela própria (`seat2d_assignmen
 
 ## Avatar 2D (Universal LPC, padrão)
 
-"Meu avatar" no modo 2D monta o personagem com o **Universal LPC Spritesheet Character Generator** (quadros de 64×64): tipo de corpo (masculino ou feminino), 7 tons de pele, 8 cores de olhos, **44 cabelos**, **8 barbas e bigodes**, **21 roupas de cima**, **10 calças, bermudas e saias**, **6 calçados**, 26 cores de cabelo, 24 cores para roupa e calçado, óculos e headset. Animações: andar (8 passos), parado, sentado, digitando, falando (em pé e sentado) e com headset. A cor é aplicada por paleta em tempo de execução (cor da rampa do pacote → cor escolhida), sem alterar os desenhos.
+"Meu avatar" no modo 2D funciona como o gerador do **Universal LPC Spritesheet Character Generator** (quadros de 64×64): prévia animada (andar, parado, sentado, digitando, falando) nas quatro direções e categorias com as peças em miniatura e as cores:
+
+- **Corpo:** masculino ou feminino; 7 tons de pele.
+- **Cabeça e rosto:** 7 cabeças (adulto, idoso, pequena, magra), 8 cores de olhos, 12 expressões, sobrancelhas, nariz.
+- **Cabelo e barba:** 44 cabelos, 8 barbas e bigodes, 26 cores de cabelo.
+- **Roupa:** 21 partes de cima, macacão e suspensório, 5 peças de pescoço (gravata, laço, colares), 4 de luvas e pulseiras; 24 cores.
+- **Pernas e pés:** 10 calças, bermudas e saias, 6 calçados, 2 meias; 24 cores.
+- **Chapéus:** 12 (bonés, capuz, hijab, lenços, tiaras) com cores.
+- **Acessórios:** óculos e headset.
+
+Animações no escritório: andar (8 passos), parado, sentado, digitando, falando (em pé e sentado) e com headset. A cor é aplicada por paleta em tempo de execução (cor da rampa do pacote → cor escolhida), sem alterar os desenhos.
 
 - A configuração é guardada por colaborador (estilo `sprite2d`, campo `look: 'lpc'`) e fica **separada da aparência 3D**. Cada colaborador só edita o próprio avatar. O servidor valida todos os campos contra o catálogo gerado (`shared/avatarLpc.generated.ts`).
 - Aparências antigas (sem `look`, do personagem pequeno 32×32) continuam válidas e aparecem como antes; ao abrir o editor viram a aparência LPC padrão.
-- As imagens das peças só são baixadas quando alguém as usa (≈2 MB no total em `public/assets/lpc`); sem elas o 2D mostra o personagem pequeno.
+- As imagens das peças só são baixadas quando alguém as usa (≈5 MB no total em `public/assets/lpc`); sem elas o 2D mostra o personagem pequeno.
 - **Licença:** só entram peças que oferecem OGA-BY 3.0, CC-BY 3.0/4.0 ou CC0 (atribuição). Nada de CC-BY-SA ou GPL. Autores na tela Créditos e em `public/assets/lpc/CREDITS.md`.
 - **Acrescentar ou trocar peças:** `git clone --depth 1 https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator.git <pasta>`, editar a lista `CURATED` em `tools/lpc/build.mjs` e rodar `LPC_REPO=<pasta> node tools/lpc/build.mjs`: baixa só o que usamos, confere a licença e regera o catálogo, os créditos e o arquivo compartilhado.
 

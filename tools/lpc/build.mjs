@@ -25,8 +25,19 @@ const CURATED = {
   shoes: ['feet_boots_basic', 'feet_boots_revised', 'feet_shoes_basic', 'feet_shoes_revised', 'feet_sandals', 'feet_shoes_sara'],
   beard: ['beards_medium', 'beards_trimmed', 'beards_winter', 'beards_chevron', 'beards_handlebar', 'beards_horseshoe', 'beards_lampshade', 'beards_walrus'],
   glasses: ['facial_glasses', 'facial_glasses_halfmoon'],
+  head: ['heads_human_male', 'heads_human_female', 'heads_human_male_elderly', 'heads_human_female_elderly', 'heads_human_male_small', 'heads_human_female_small', 'heads_human_male_gaunt'],
+  hat: ['hat_cap_bonnie', 'hat_cap_bonnie_tilt', 'hat_cap_leather', 'hat_cap_cavalier', 'hat_holiday_christmas', 'hat_hood_cloth', 'hat_hood_hijab', 'hat_hood_sack_cloth', 'hat_bandana', 'hat_bandana2', 'hat_headband_kerchief', 'hat_headband_tied'],
+  expression: ['face_neutral', 'face_happy', 'face_sad', 'face_angry', 'face_blush', 'face_shock', 'face_shame', 'face_closed', 'face_closing', 'face_eyeroll', 'face_look_l', 'face_look_r'],
+  eyebrows: ['eyebrows_thick', 'eyebrows_thin'],
+  nose: ['head_nose_large', 'head_nose_elderly'],
+  neck: ['neck_bowtie2', 'neck_cravat', 'neck_jabot', 'neck_necklace_beaded_small', 'neck_necklace_beaded_large'],
+  wrists: ['arms_gloves', 'arms_bracers', 'wrists_cuffs', 'wrists_cuffs_lace'],
+  socks: ['feet_socks_ankle', 'feet_socks_high'],
+  overalls: ['torso_aprons_overalls', 'torso_aprons_suspenders'],
 };
-const RECOLOR_FALLBACK = { hair: 'hair', beard: 'hair', torso: 'cloth', legs: 'cloth', shoes: 'cloth', glasses: null };
+// cores de peças que vêm em arquivos por cor (chapéus, macacão, óculos): subconjunto comum
+const VCOLORS = ['black', 'white', 'gray', 'charcoal', 'brown', 'tan', 'red', 'maroon', 'blue', 'navy', 'green', 'forest', 'yellow', 'orange', 'purple', 'pink'];
+const RECOLOR_FALLBACK = { hair: 'hair', beard: 'hair', torso: 'cloth', legs: 'cloth', shoes: 'cloth', glasses: null, head: 'body' };
 
 const defs = new Map();
 const walk = (d) => {
@@ -96,18 +107,20 @@ for (const [cat, ids] of Object.entries(CURATED)) {
     if (!ANIMS.every((a) => (def.animations ?? []).includes(a))) { console.warn('sem as animações usadas:', id); skipped++; continue; }
     const ls = layersOf(def);
     if (!ls.every((l) => BODIES.every((b) => typeof l[b] === 'string'))) { console.warn('sem os dois tipos de corpo:', id); skipped++; continue; }
-    const variant = Array.isArray(def.variants) ? (cat === 'glasses' ? 'black' : def.variants[0]) : null;
+    const vlist = Array.isArray(def.variants) ? VCOLORS.filter((c) => def.variants.includes(c)) : null;
+    if (vlist && !vlist.length) { console.warn('sem cores comuns, fora:', id); skipped++; continue; }
     const recolor = def.recolors ? (def.recolors.material ?? def.recolors.color_1?.material ?? null) : RECOLOR_FALLBACK[cat];
-    const layers = ls.map((l) => ({ z: l.zPos, male: l.male, female: l.female }));
-    const lines = layers.flatMap((l) => BODIES.flatMap((b) => fileList(l[b], variant)));
-    manifest.parts[cat].push({ id, name: def.name, layers, recolor: variant ? null : recolor, variant });
+    // expressões usam o rosto da família da cabeça (${head}): masculino ou feminino
+    const layers = ls.map((l) => ({ z: l.zPos, male: l.male.replace('${head}', 'male'), female: l.female.replace('${head}', 'female') }));
+    const lines = layers.flatMap((l) => BODIES.flatMap((b) => (vlist ? vlist.flatMap((v) => fileList(l[b], v)) : fileList(l[b]))));
+    manifest.parts[cat].push({ id, name: def.name, layers, recolor: vlist ? null : recolor, variants: vlist });
     for (const f of lines) files.add(f);
     for (const c of credits_) addCredit(c, id);
   }
 }
 
 // paletas usadas (corpo, cabelo, tecido, olhos) e a cor de origem de cada uma
-const BASE = { body: 'light', hair: 'orange', cloth: 'white', eye: 'blue' };
+const BASE = { body: 'light', hair: 'orange', cloth: 'white', eye: 'blue', metal: 'steel' };
 for (const [mat, base] of Object.entries(BASE)) {
   const j = JSON.parse(fs.readFileSync(path.join(REPO, 'palette_definitions', mat, `${mat}_ulpc.json`), 'utf8'));
   manifest.palettes[mat] = { base, colors: j };
@@ -143,7 +156,7 @@ await Promise.all(Array.from({ length: 8 }, worker));
 const miss = new Set(missing);
 for (const cat of Object.keys(manifest.parts)) {
   manifest.parts[cat] = manifest.parts[cat].filter((p) => {
-    const lines = p.layers.flatMap((l) => BODIES.flatMap((b) => fileList(l[b], p.variant)));
+    const lines = p.layers.flatMap((l) => BODIES.flatMap((b) => (p.variants ? p.variants.flatMap((v) => fileList(l[b], v)) : fileList(l[b]))));
     const ok = lines.every((f) => !miss.has(f));
     if (!ok) console.warn('arquivo faltando, peça removida:', p.id);
     return ok;
@@ -169,15 +182,34 @@ console.log(`Pronto: ${files.size} imagens (${bad} faltando), ${Object.values(ma
 
 // catálogo para o servidor validar o avatar (shared/avatarLpc.generated.ts)
 const q = (a) => JSON.stringify(a);
-const parts = Object.fromEntries(Object.entries(manifest.parts).map(([c, a]) => [c, a.map((p) => ({ id: p.id, name: p.name }))]));
+const CORE = ['hair', 'torso', 'legs', 'shoes', 'beard', 'glasses'];
+const EXTRA_CATS = Object.keys(manifest.parts).filter((c) => !CORE.includes(c));
+const mk = (c) => manifest.parts[c].map((p) => ({ id: p.id, name: p.name, ...(p.variants ? { variants: p.variants } : {}), ...(p.recolor ? { recolor: p.recolor } : {}) }));
+const parts = Object.fromEntries(CORE.map((c) => [c, manifest.parts[c].map((p) => ({ id: p.id, name: p.name }))]));
+const extras = Object.fromEntries(EXTRA_CATS.map((c) => [c, mk(c)]));
 const SKINS = ['light', 'amber', 'olive', 'taupe', 'bronze', 'brown', 'black'];
 fs.writeFileSync(
   path.resolve('shared/avatarLpc.generated.ts'),
-  `// GERADO por tools/lpc/build.mjs (não edite): catálogo do Universal LPC usado pelo avatar 2D.\n` +
-    `export const LPC_BODIES = ${q(BODIES)} as const;\n` +
-    `export const LPC_SKINS = ${q(SKINS)} as const;\n` +
-    `export const LPC_HAIR_COLORS = ${q(Object.keys(manifest.palettes.hair.colors))} as const;\n` +
-    `export const LPC_CLOTH_COLORS = ${q(Object.keys(manifest.palettes.cloth.colors))} as const;\n` +
-    `export const LPC_EYE_COLORS = ${q(Object.keys(manifest.palettes.eye.colors))} as const;\n` +
-    `export const LPC_PARTS: Record<'hair' | 'torso' | 'legs' | 'shoes' | 'beard' | 'glasses', ReadonlyArray<{ id: string; name: string }>> = ${q(parts)};\n`,
+  `// GERADO por tools/lpc/build.mjs (não edite): catálogo do Universal LPC usado pelo avatar 2D.
+` +
+    `export const LPC_BODIES = ${q(BODIES)} as const;
+` +
+    `export const LPC_SKINS = ${q(SKINS)} as const;
+` +
+    `export const LPC_HAIR_COLORS = ${q(Object.keys(manifest.palettes.hair.colors))} as const;
+` +
+    `export const LPC_CLOTH_COLORS = ${q(Object.keys(manifest.palettes.cloth.colors))} as const;
+` +
+    `export const LPC_METAL_COLORS = ${q(Object.keys(manifest.palettes.metal.colors))} as const;
+` +
+    `export const LPC_EYE_COLORS = ${q(Object.keys(manifest.palettes.eye.colors))} as const;
+` +
+    `export const LPC_PARTS: Record<'hair' | 'torso' | 'legs' | 'shoes' | 'beard' | 'glasses', ReadonlyArray<{ id: string; name: string }>> = ${q(parts)};
+` +
+    `export interface LpcExtra { id: string; name: string; variants?: string[]; recolor?: string }
+` +
+    `export const LPC_EXTRA_CATS = ${q(EXTRA_CATS)} as const;
+` +
+    `export const LPC_EXTRAS: Record<(typeof LPC_EXTRA_CATS)[number], ReadonlyArray<LpcExtra>> = ${q(extras)};
+`,
 );

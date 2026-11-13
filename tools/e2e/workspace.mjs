@@ -76,11 +76,18 @@ try {
   // 5) avatar 2D: operador edita o cabelo e salva
   await O.click('[data-testid="my-avatar"]');
   await O.waitForSelector('[data-testid="avatar-editor-2d"]');
-  await O.waitForTimeout(3500); await O.evaluate(() => document.querySelector('[data-testid="shirt-torso_clothes_tshirt"]')?.scrollIntoView()); await O.waitForTimeout(500); await O.screenshot({ path: 'test-results/ws-avatar2d.png' });
+  await O.click('[data-testid="tab-roupa"]'); await O.waitForTimeout(3500); await O.screenshot({ path: 'test-results/ws-avatar2d.png' });
+  await O.click('[data-testid="tab-chapeus"]'); await O.waitForTimeout(2500); await O.screenshot({ path: 'test-results/ws-avatar2d-chapeus.png' });
+  await O.click('[data-testid="tab-cabelo"]');
   await O.evaluate(() => { const b = [...document.querySelectorAll('[data-testid^="hair-"]')].find((x) => x.getAttribute('aria-pressed') !== 'true' && x.dataset.testid !== 'hair-none'); b.click(); });
-  await O.click('[data-testid="shirtcolor-red"]');
-  await O.click('[data-testid="pantscolor-navy"]');
   await O.click('[data-testid="haircolor-blonde"]');
+  await O.click('[data-testid="tab-roupa"]');
+  await O.click('[data-testid="shirtcolor-red"]');
+  await O.click('[data-testid="tab-pernas"]');
+  await O.click('[data-testid="pantscolor-navy"]');
+  await O.click('[data-testid="tab-chapeus"]');
+  await O.click('[data-testid="hat-hat_cap_leather"]');
+  await O.click('[data-testid="tab-acessorios"]');
   await O.check('[data-testid="glasses"]');
   await O.check('[data-testid="headset"]');
   await O.click('[data-testid="avatar2d-save"]');

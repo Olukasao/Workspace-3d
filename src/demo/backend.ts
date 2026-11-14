@@ -475,6 +475,17 @@ export function installStaticBackend() {
       },
       { capture: true, passive: false },
     );
+    // avisa a página quando o mapa já está desenhando (a página mostra uma tela de carregamento até lá)
+    let tries = 0;
+    const ready = setInterval(() => {
+      const w = window as unknown as { __office3d?: { fps?: number }; __office2d?: unknown };
+      const three = w.__office3d?.fps !== undefined;
+      const two = !!w.__office2d && !!document.querySelector('.office2d-canvas canvas');
+      if (three || two || ++tries > 200) {
+        clearInterval(ready);
+        setTimeout(() => window.parent?.postMessage({ o3dReady: true }, location.origin), 600);
+      }
+    }, 200);
   }
   // ?auto=2d|3d: entra direto como administradora no modo pedido (usado pelas páginas que embutem a demonstração)
   const auto = new URLSearchParams(location.search).get('auto');

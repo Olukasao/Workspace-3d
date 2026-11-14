@@ -6,3 +6,4 @@ assets-src/originals/
 test-results/
 *.log
 .build-tools/
+dist-static/

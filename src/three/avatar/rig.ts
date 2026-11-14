@@ -11,12 +11,14 @@
 import { MathUtils, Quaternion, Vector3, type Bone, type Object3D } from 'three';
 import { setMorph, type BuiltAvatar } from './assets';
 
-export type AvatarActivity = 'idle' | 'typing' | 'call';
+export type AvatarActivity = 'idle' | 'typing' | 'call' | 'talk' | 'drink' | 'tool';
 export interface PoseState {
   mode: 'stand' | 'sit';
   activity: AvatarActivity;
   /** true/false = indicador autorizado de fala; null = sem indicador (animação ilustrativa durante a chamada) */
   speaking: boolean | null;
+  /** velocidade de caminhada em m/s (0 ou ausente = parado); só vale em pé */
+  speed?: number;
 }
 
 /** Medidas da estação (metros, espaço do avatar, chão = 0). */
@@ -61,7 +63,8 @@ interface Chain {
 
 export class AvatarRig {
   private rest = new Map<Bone, { q: Quaternion; p: Vector3 }>();
-  private w = { sit: 0, typing: 0, call: 0, talk: 0 };
+  private w = { sit: 0, typing: 0, call: 0, talk: 0, walk: 0, chat: 0, drink: 0, tool: 0 };
+  private phase = 0;
   private chains: { armL?: Chain; armR?: Chain; legL?: Chain; legR?: Chain } = {};
   private restLocal: Record<string, Vector3> = {};
   private seed: number;
@@ -177,13 +180,20 @@ export class AvatarRig {
     const av = this.av;
     const B = av.bones;
     const k = 1 - Math.exp(-dt * 5);
-    const talkingNow = state.activity === 'call' && (state.speaking === true || (state.speaking === null && Math.sin(t * 0.9 + this.seed) > -0.2));
+    const talkingNow = (state.activity === 'call' || state.activity === 'talk') && (state.speaking === true || (state.speaking === null && Math.sin(t * 0.9 + this.seed) > -0.2));
     this.w.sit += ((state.mode === 'sit' ? 1 : 0) - this.w.sit) * k;
     this.w.typing += ((state.activity === 'typing' ? 1 : 0) - this.w.typing) * k;
     this.w.call += ((state.activity === 'call' ? 1 : 0) - this.w.call) * k;
     this.w.talk += ((talkingNow ? 1 : 0) - this.w.talk) * (1 - Math.exp(-dt * 10));
-    const { sit, typing, call, talk } = this.w;
+    const speed = state.mode === 'stand' ? state.speed ?? 0 : 0;
+    this.w.walk += ((speed > 0.05 ? 1 : 0) - this.w.walk) * (1 - Math.exp(-dt * 8));
+    this.w.chat += ((state.activity === 'talk' && speed <= 0.05 ? 1 : 0) - this.w.chat) * k;
+    this.w.drink += ((state.activity === 'drink' && speed <= 0.05 ? 1 : 0) - this.w.drink) * k;
+    this.w.tool += ((state.activity === 'tool' && speed <= 0.05 ? 1 : 0) - this.w.tool) * k;
+    this.phase += dt * 6.3 * (speed / 1.1) * (speed > 0.05 ? 1 : 0);
+    const { sit, typing, call, talk, walk, chat, drink, tool } = this.w;
     const idle = Math.max(0, 1 - typing - call);
+    const ph = this.phase;
 
     // 1) pose de repouso
     for (const [bone, r] of this.rest) {
@@ -197,7 +207,8 @@ export class AvatarRig {
     // 2) quadril: desce até o assento e recua um pouco (sentado)
     const pelvis = B.pelvis;
     if (pelvis && R.pelvis && pelvis.parent) {
-      const target = _tmp.set(R.pelvis.x, MathUtils.lerp(R.pelvis.y, STATION.seatHeight + 0.09, sit), MathUtils.lerp(R.pelvis.z, -0.05, sit));
+      const bob = walk * (1 - sit) * (-0.018 + 0.026 * Math.abs(Math.sin(ph)));
+      const target = _tmp.set(R.pelvis.x, MathUtils.lerp(R.pelvis.y + bob, STATION.seatHeight + 0.09, sit), MathUtils.lerp(R.pelvis.z, -0.05, sit));
       const world = this.local(target, v());
       pelvis.parent.updateMatrixWorld(true);
       pelvis.position.copy(pelvis.parent.worldToLocal(world));
@@ -209,9 +220,12 @@ export class AvatarRig {
       if (!ch) continue;
       const foot = R[`foot_${s}`];
       if (!foot) continue;
-      const ankle = this.local(_tmp.set(MathUtils.lerp(foot.x, ch.side * 0.12, sit), foot.y, MathUtils.lerp(foot.z, 0.42, sit)), v());
+      const lp = ph + (ch.side > 0 ? 0 : Math.PI);
+      const stride = walk * 0.2 * Math.sin(lp);
+      const lift = walk * Math.max(0, Math.cos(lp)) * 0.1;
+      const ankle = this.local(_tmp.set(MathUtils.lerp(foot.x, ch.side * 0.12, sit), foot.y + lift * (1 - sit), MathUtils.lerp(foot.z + stride, 0.42, sit)), v());
       const pole = this.local(_tmp.set(ch.side * 0.08, 0.6, 2.0), v());
-      if (sit > 0.02) this.solve(ch, ankle, pole);
+      if (sit > 0.02 || walk > 0.02) this.solve(ch, ankle, pole);
       // pé plano, apontando para a frente (mesma relação tornozelo→ponta do repouso)
       const ball = B[`ball_${s}`];
       const footBone = B[`foot_${s}`];
@@ -220,13 +234,14 @@ export class AvatarRig {
         const rel = _tmp.copy(R[`ball_${s}`]).sub(foot);
         const want = this.dir(rel.x, rel.y, rel.z, v()).add(_a);
         ball.getWorldPosition(_b);
-        aim(footBone, _b.clone(), want, sit);
+        aim(footBone, _b.clone(), want, Math.max(sit, walk));
       }
     }
 
     // 4) tronco: respiração, inclinação conforme a atividade
     const breathe = Math.sin(t * 1.7 + this.seed) * 0.012;
-    const lean = sit * (0.06 * idle + 0.12 * typing - 0.05 * call);
+    const typ = Math.min(1, typing + call); // em atendimento a pessoa continua digitando (com o headset)
+    const lean = sit * (0.06 * idle + 0.12 * typ);
     if (B.spine_01) rotateWorld(B.spine_01, right, lean * 0.5);
     if (B.spine_02) rotateWorld(B.spine_02, right, lean * 0.3 + breathe);
     if (B.spine_03) rotateWorld(B.spine_03, right, lean * 0.2);
@@ -251,19 +266,25 @@ export class AvatarRig {
     for (const [ch, s] of [[this.chains.armL, 'l'], [this.chains.armR, 'r']] as const) {
       if (!ch) continue;
       const hip = R[`thigh_${s}`] ?? R.pelvis;
-      const standPos = _a.set(ch.side * 0.2, (hip?.y ?? 0.9) - 0.12, 0.03);
+      const hipY = (hip?.y ?? 0.9) - 0.12;
+      const armPh = ph + (ch.side > 0 ? 0 : Math.PI) + Math.PI;
+      const standPos = _a.set(ch.side * 0.2, hipY + walk * 0.02, 0.03 + walk * 0.17 * Math.sin(armPh));
+      // atividades em pé: gesto de conversa (braço esquerdo), beber (braço direito à boca), mexer na máquina (as duas mãos à frente)
+      if (chat > 0.01 && s === 'l') standPos.lerp(_tmp.set(ch.side * 0.24, hipY + 0.3 + Math.sin(t * 2.3 + this.seed) * 0.06, 0.3), chat);
+      if (chat > 0.01 && s === 'r') standPos.lerp(_tmp.set(ch.side * 0.22, hipY + 0.12 + Math.max(0, Math.sin(t * 1.4 + this.seed)) * 0.1, 0.18), chat * 0.7);
+      if (drink > 0.01 && s === 'r') standPos.lerp(_tmp.set(ch.side * 0.05, (R.head?.y ?? 1.6) - 0.12, 0.2), drink);
+      if (tool > 0.01) standPos.lerp(_tmp.set(ch.side * 0.14, hipY + 0.16, 0.38), tool);
       // sentado: esquerda no teclado, direita no mouse (online); ambas no teclado (digitando)
       const idleSit = s === 'l' ? _b.set(ch.side * 0.13, desk, STATION.keyboardZ) : _b.set(ch.side * 0.27 + mouseDrift * 0.4, desk, STATION.keyboardZ + 0.02 + mouseDrift * 0.3);
       const typeSit = _c.set(ch.side * 0.12, desk + typePulse(s === 'l' ? 0 : 1.7), STATION.keyboardZ + 0.01);
-      const gesture = s === 'l' ? _d.set(ch.side * 0.22, desk + 0.16 + talk * Math.sin(t * 2.3) * 0.05, STATION.keyboardZ - 0.08) : _d.copy(idleSit);
-      const sitPos = _e.copy(idleSit).multiplyScalar(idle).addScaledVector(typeSit, typing).addScaledVector(gesture, call);
+      const sitPos = _e.copy(idleSit).multiplyScalar(idle).addScaledVector(typeSit, typ);
       const target = this.local(_t.copy(standPos).lerp(sitPos, sit), v());
       const pole = this.local(_p.set(ch.side * 0.7, 0.3 + sit * 0.4, -0.6), v());
       this.solve(ch, target, pole);
-      if (sit > 0.05) this.orientHand(s, 0.12 + 0.1 * typing);
+      if (sit > 0.05) this.orientHand(s, 0.12 + 0.1 * typ);
       if (detail === 0) {
         const base = 0.22 * sit + 0.08;
-        const a = typing > 0.05 ? [0, 1, 2, 3].map((i) => base + typing * 0.28 * Math.max(0, Math.sin(t * 14 + i * 1.3 + (s === 'l' ? 0 : 2)))) : [base, base + 0.04, base + 0.08, base + 0.12];
+        const a = typ > 0.05 ? [0, 1, 2, 3].map((i) => base + typ * 0.28 * Math.max(0, Math.sin(t * 14 + i * 1.3 + (s === 'l' ? 0 : 2)))) : [base, base + 0.04, base + 0.08, base + 0.12];
         this.curl(s, a);
       }
     }

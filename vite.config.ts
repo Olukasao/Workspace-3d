@@ -18,6 +18,8 @@ function manualChunks(id: string): string | undefined {
 
 export default defineConfig({
   plugins: [react()],
+  // versão estática (demonstração embutida em outro site): VITE_BASE=/apps/workspace-3d/
+  base: process.env.VITE_BASE ?? '/',
   // 127.0.0.1 explícito: no Windows o padrão pode escutar só em ::1 (IPv6), e o navegador que resolve localhost para IPv4 não conecta
   server: { host: '127.0.0.1', port: Number(process.env.WEB_PORT ?? 5173), strictPort: true, proxy: { '/api': { target: API, changeOrigin: false } } },
   build: { assetsDir: 'static', chunkSizeWarningLimit: 900, rollupOptions: { output: { manualChunks } } },

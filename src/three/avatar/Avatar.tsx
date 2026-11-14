@@ -13,6 +13,7 @@ import type { AvatarConfig } from '../../../shared/avatarCatalog';
 import { useLive, type LivePerson } from '../../live';
 import { buildAraAvatar } from './ara';
 import { buildAvatar, type BuiltAvatar } from './assets';
+import { lifePoses } from './lifeStore';
 import { AvatarRig, type PoseState } from './rig';
 
 export interface Seat {
@@ -71,6 +72,13 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
   useFrame(({ camera, clock }, dt) => {
     const g = group.current;
     if (!g || !built) return;
+    // vida autônoma (quando há simulação): posição e pose vêm dela
+    const life = person ? lifePoses.get(person.employeeId) : undefined;
+    if (life) {
+      g.position.set(life.x, 0, life.z);
+      g.rotation.y = life.rotY;
+      poseRef.current = { mode: life.mode, activity: life.activity, speaking: life.speaking, speed: life.speed };
+    }
     // fora da câmera: não desenha nem anima
     _m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _f.setFromProjectionMatrix(_m);
@@ -98,7 +106,8 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
     built.rig.update(p, t, Math.min(0.1, dt * step), lod);
     if (balloon.current) {
       const talking = p.speaking === true || (p.speaking === null && Math.sin(t * 0.9 + seed) > -0.2);
-      balloon.current.textContent = talking ? '•••' : 'Em atendimento';
+      balloon.current.textContent = talking || p.activity === 'talk' ? '•••' : 'Em atendimento';
+      if (life) balloon.current.style.display = p.activity === 'call' || p.activity === 'talk' ? '' : 'none';
     }
   });
 
@@ -107,7 +116,7 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
     <group ref={group} position={[seat.x, 0, seat.z]} rotation={[0, seat.rotY, 0]} name={person ? `avatar:${person.employeeId}` : 'avatar'}>
       {built && <primitive object={built.av.root} />}
       {failed && <FallbackAvatar label={label ?? person?.name ?? ''} reason={failed} />}
-      {pose.activity === 'call' && (built || failed) && (
+      {(pose.activity === 'call' || (person && lifePoses.has(person.employeeId))) && (built || failed) && (
         <Html position={[0, headY, 0.05]} center zIndexRange={[12, 0]} style={{ pointerEvents: 'none' }}>
           <span ref={balloon} className="speech-balloon">Em atendimento</span>
         </Html>

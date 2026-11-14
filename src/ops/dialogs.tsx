@@ -40,6 +40,14 @@ export function ChatDialog({ officeId, object, onClose, direct = false }: { offi
   useEffect(() => {
     log.current?.scrollTo({ top: log.current.scrollHeight });
   }, [msgs]);
+  // respostas de quem está do outro lado chegam sem recarregar
+  useEffect(() => {
+    if (!conv) return;
+    const t = setInterval(() => {
+      api.get<{ messages: Msg[] }>(`/api/chat/conversations/${conv.conversationId}/messages`).then((m) => setMsgs((cur) => (m.messages.length !== cur.length ? m.messages : cur)), () => undefined);
+    }, 2500);
+    return () => clearInterval(t);
+  }, [conv]);
   useEffect(() => () => typingSignal.stop(), []);
   const send = async () => {
     if (!conv || !text.trim() || sending) return;

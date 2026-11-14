@@ -461,6 +461,21 @@ function printJob(u: URL, _body: Json): Res {
 
 // ---------- instalação ----------
 export function installStaticBackend() {
+  // ?embed: a demonstração está num quadro dentro de uma página. A roda do mouse sobre o mapa NÃO dá zoom (atrapalharia rolar a
+  // página): o movimento é repassado à página que embute. Listas e painéis do app continuam rolando normalmente.
+  if (new URLSearchParams(location.search).has('embed')) {
+    window.addEventListener(
+      'wheel',
+      (e) => {
+        const t = e.target as HTMLElement | null;
+        if (!t || (t.tagName !== 'CANVAS' && !t.closest?.('[data-engine], .office2d-canvas'))) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        window.parent?.postMessage({ o3dWheel: e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY }, location.origin);
+      },
+      { capture: true, passive: false },
+    );
+  }
   // ?auto=2d|3d: entra direto como administradora no modo pedido (usado pelas páginas que embutem a demonstração)
   const auto = new URLSearchParams(location.search).get('auto');
   if (auto === '2d' || auto === '3d') {

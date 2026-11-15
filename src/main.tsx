@@ -5,7 +5,13 @@ import './styles.css';
 
 async function boot() {
   // versão estática (demonstração no navegador): a API e a vida do escritório rodam aqui dentro, sem servidor
-  if (import.meta.env.VITE_STATIC_DEMO) (await import('./demo/backend')).installStaticBackend();
+  if (import.meta.env.VITE_STATIC_DEMO) {
+    if (new URLSearchParams(location.search).has('compact')) {
+      document.documentElement.classList.add('compact'); // só o mapa, com toque (celular ou quadro embutido)
+      await import('./demo/compact.css');
+    }
+    (await import('./demo/backend')).installStaticBackend();
+  }
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <App />

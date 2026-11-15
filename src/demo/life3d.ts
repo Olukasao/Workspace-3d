@@ -96,7 +96,7 @@ export function buildLife3D(doc: SceneDoc, assetList: AssetDefinition[], people:
     pois.push({ id: 'sofa1', kind: 'sofa', at: { x: t.x, y: t.z }, face: faceOfRotY(t.rotY), sit: true });
   }
   const entry = grid.snap({ x: 7, y: 6 }) ?? { x: 7, y: 6 };
-  return new Life({ agents, pois, nav: { path: (a, b) => grid.path(a, b), snap: (p) => grid.snap(p), speed: SPEED_3D }, spawns: [entry], chatGap: 0.95, seed: opts.seed, callDepts: ['Atendimento'] });
+  return new Life({ agents, pois, nav: { path: (a, b) => grid.path(a, b), snap: (p) => grid.snap(p), isFree: (p) => grid.isFree(p), speed: SPEED_3D }, spawns: [entry], chatGap: 0.95, seed: opts.seed, callDepts: ['Atendimento'] });
 }
 
 const ACT = { work: 'idle', type: 'typing', call: 'call', talk: 'talk', drink: 'drink', tool: 'tool', rest: 'idle', look: 'idle' } as const;

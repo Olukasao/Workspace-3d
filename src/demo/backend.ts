@@ -504,7 +504,8 @@ export function installStaticBackend() {
       const t = setInterval(() => {
         const btn = document.querySelector<HTMLButtonElement>('[aria-label="Afastar"]');
         if (btn) {
-          for (let i = 0; i < 4; i++) btn.click();
+          const n = document.documentElement.classList.contains('compact') ? 6 : 4;
+          for (let i = 0; i < n; i++) btn.click();
           clearInterval(t);
         } else if (++tries > 60) clearInterval(t);
       }, 300);

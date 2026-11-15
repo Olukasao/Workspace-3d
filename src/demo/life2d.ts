@@ -53,6 +53,6 @@ export function buildLife2D(layout: Layout2D, people: Person2D[], opts: { seed?:
     pois.push({ id: s.id, kind, at: { x: s.x, y: s.y }, face: angleOfDir(s.dir), sit: true });
   }
   const spawns = layout.spawns.map((s) => ({ x: (s.x + 0.5) * TILE, y: (s.y + 0.5) * TILE }));
-  const life = new Life({ agents, pois, nav: { path: (a, b) => grid.path(a, b), snap: (p) => grid.snap(p), speed: SPEED_2D }, spawns, chatGap: TILE * 1.3, seed: opts.seed, callDepts: ['Atendimento'] });
+  const life = new Life({ agents, pois, nav: { path: (a, b) => grid.path(a, b), snap: (p) => grid.snap(p), isFree: (p) => grid.isFree(p), speed: SPEED_2D }, spawns, chatGap: TILE * 1.3, seed: opts.seed, callDepts: ['Atendimento'] });
   return { life, grid };
 }

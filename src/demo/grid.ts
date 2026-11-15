@@ -44,6 +44,10 @@ export class NavGrid {
         for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dy)) === r && this.free(cx + dx, cy + dy)) return { x: cx + dx, y: cy + dy };
     return null;
   }
+  isFree(p: Pt) {
+    const c = this.cellOf(p);
+    return this.free(c.x, c.y);
+  }
   snap(p: Pt): Pt | null {
     const c = this.cellOf(p);
     const f = this.free(c.x, c.y) ? c : this.nearestFree(c.x, c.y);

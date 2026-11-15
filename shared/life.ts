@@ -35,6 +35,8 @@ export interface LifeNav {
   path(a: Pt, b: Pt): Pt[] | null;
   /** ponto andável mais próximo de `p` */
   snap(p: Pt): Pt | null;
+  /** o ponto está livre (andável)? usado para o desvio entre pessoas */
+  isFree?(p: Pt): boolean;
   /** unidades do mapa por segundo */
   speed: number;
 }
@@ -416,6 +418,7 @@ export class Life {
       move -= step;
       if (step >= dist - 1e-6) i.path.shift();
     }
+    this.separate(i, dt);
     if (i.walkClock > 90) {
       // travou: nunca fica preso no mapa
       this.freePoi(i.a.id);
@@ -453,6 +456,30 @@ export class Life {
         i.seatId = `poi:${p.poi.id}`;
       }
     }
+  }
+
+  /** Desvio simples: quem passa perto de alguém em pé ou andando é empurrado para o lado (com uma folga para a direita, que desfaz o empate de frente a frente). */
+  private separate(i: Inner, dt: number) {
+    const R = this.o.nav.speed * 0.42;
+    let fx = 0;
+    let fy = 0;
+    for (const o of this.s.values()) {
+      if (o === i || o.sit) continue;
+      const dx = i.pos.x - o.pos.x;
+      const dy = i.pos.y - o.pos.y;
+      const d = Math.hypot(dx, dy);
+      if (d >= R || d < 1e-6) continue;
+      const w = (R - d) / R;
+      fx += (dx / d) * w;
+      fy += (dy / d) * w;
+      // folga lateral (à direita de quem anda): evita dois ficarem presos de frente um para o outro
+      fx += -Math.sin(i.face) * w * 0.7;
+      fy += Math.cos(i.face) * w * 0.7;
+    }
+    if (!fx && !fy) return;
+    const k = this.o.nav.speed * dt * 1.1;
+    const next = { x: i.pos.x + fx * k, y: i.pos.y + fy * k };
+    if (!this.o.nav.isFree || this.o.nav.isFree(next)) i.pos = next;
   }
 
   private dwellStep(i: Inner, dt: number) {

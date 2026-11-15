@@ -13,6 +13,8 @@ export const rotYOfFace = (f: number) => Math.atan2(Math.cos(f), Math.sin(f));
 
 /** a cadeira de cada colaborador (a da própria mesa) e o rumo dela parada, para a cadeira girar junto com quem senta */
 const chairOf = new Map<string, { chairId: string; deskId: string; seatRotY: number }>();
+/** cadeiras da sala de reunião, pelo id do assento (`poi:meetK`) */
+const meetChairs = new Map<string, { chairId: string; seatRotY: number }>();
 const turn = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
 
 export interface Person3D {
@@ -96,6 +98,7 @@ export function buildLife3D(doc: SceneDoc, assetList: AssetDefinition[], people:
     if (!byId.has(id)) continue;
     const t = wt(id);
     pois.push({ id: `meet${k}`, kind: 'meeting', at: { x: t.x, y: t.z }, face: faceOfRotY(t.rotY), sit: true });
+    meetChairs.set(`poi:meet${k}`, { chairId: id, seatRotY: t.rotY });
   }
   if (byId.has('rec_sofa')) {
     const t = wt('rec_sofa');
@@ -110,6 +113,9 @@ export function poseOf(v: { id: string; x: number; y: number; face: number; movi
   const rotY = rotYOfFace(v.face);
   const c = chairOf.get(v.id);
   // a cadeira gira junto com quem está sentado nela (e volta ao lugar quando a pessoa sai)
-  const swivel = c && v.sit && v.seatId === c.deskId ? turn(rotY - c.seatRotY) : 0;
-  return { x: v.x, z: v.y, rotY, mode: v.sit ? 'sit' : 'stand', activity: ACT[v.activity] ?? 'idle', speed: v.moving ? SPEED_3D : 0, speaking: v.speaking, chairId: c?.chairId, swivel };
+  const m = v.sit && v.seatId ? meetChairs.get(v.seatId) : undefined;
+  const own = c && v.sit && v.seatId === c.deskId ? c : undefined;
+  const chair = own ?? m;
+  const swivel = chair ? turn(rotY - chair.seatRotY) : 0;
+  return { x: v.x, z: v.y, rotY, mode: v.sit ? 'sit' : 'stand', activity: ACT[v.activity] ?? 'idle', speed: v.moving ? SPEED_3D : 0, speaking: v.speaking, chairId: chair?.chairId ?? c?.chairId, swivel };
 }

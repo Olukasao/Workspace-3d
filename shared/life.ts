@@ -94,6 +94,9 @@ interface Inner {
   speakT: number;
   /** quanto falta para a próxima mudança de atividade na mesa */
   deskT: number;
+  /** reunião: para quem olho agora e por quanto tempo */
+  lookAt?: string | null;
+  lookT?: number;
 }
 
 const TAU = Math.PI * 2;
@@ -487,6 +490,17 @@ export class Life {
     if (i.plan?.peer) {
       const peer = this.s.get(i.plan.peer);
       if (peer) i.face += angDiff(i.face, Math.atan2(peer.pos.y - i.pos.y, peer.pos.x - i.pos.x)) * Math.min(1, dt * 4);
+    } else if (i.plan?.need === 'meet' && i.sit) {
+      // reunião: de tempos em tempos cada um se vira para um colega da mesa (a cadeira gira junto)
+      i.lookT = (i.lookT ?? 0) - dt;
+      if (i.lookT <= 0) {
+        const mates = [...this.s.values()].filter((q) => q !== i && q.sit && q.plan?.need === 'meet' && q.mode === 'dwell');
+        i.lookAt = mates.length && this.rnd() < 0.85 ? mates[Math.floor(this.rnd() * mates.length)].a.id : null;
+        i.lookT = 2.5 + this.rnd() * 4;
+      }
+      const t = i.lookAt ? this.s.get(i.lookAt) : null;
+      const want = t ? Math.atan2(t.pos.y - i.pos.y, t.pos.x - i.pos.x) : i.plan.poi?.face ?? i.face;
+      i.face += angDiff(i.face, want) * Math.min(1, dt * 3);
     }
     if (i.t > 0) return;
     const plan = i.plan;

@@ -47,6 +47,7 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
   const group = useRef<Group>(null);
   const balloon = useRef<HTMLSpanElement>(null);
   const frame = useRef(0);
+  const touched = useRef(new Set<string>());
   const seed = useMemo(() => Math.random() * 100, []);
 
   useEffect(() => {
@@ -79,18 +80,27 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
       g.rotation.y = life.rotY;
       poseRef.current = { mode: life.mode, activity: life.activity, speaking: life.speaking, speed: life.speed };
       // cadeira giratória: acompanha o giro de quem está sentado (cadeiras instanciadas leem `chairSwivel`)
-      if (life.chairId) {
-        const cur = chairSwivel.get(life.chairId) ?? 0;
-        const want = life.swivel ?? 0;
+      const ease = (id: string, want: number) => {
+        const cur = chairSwivel.get(id) ?? 0;
         const next = cur + Math.atan2(Math.sin(want - cur), Math.cos(want - cur)) * Math.min(1, dt * 7);
-        chairSwivel.set(life.chairId, Math.abs(next) < 0.002 && want === 0 ? 0 : next);
-        const ch = scene.getObjectByName(life.chairId);
+        chairSwivel.set(id, Math.abs(next) < 0.002 && want === 0 ? 0 : next);
+        const ch = scene.getObjectByName(id);
         if (ch) {
           const u = ch.userData as { baseRotY?: number };
           u.baseRotY ??= ch.rotation.y;
-          ch.rotation.y = u.baseRotY + (chairSwivel.get(life.chairId) ?? 0);
+          ch.rotation.y = u.baseRotY + (chairSwivel.get(id) ?? 0);
         }
+      };
+      if (life.chairId) {
+        touched.current.add(life.chairId);
+        ease(life.chairId, life.swivel ?? 0);
       }
+      // cadeiras que a pessoa deixou (ex.: a da reunião) voltam ao lugar
+      for (const id of touched.current)
+        if (id !== life.chairId) {
+          ease(id, 0);
+          if (!chairSwivel.get(id)) touched.current.delete(id);
+        }
     }
     // fora da câmera: não desenha nem anima
     _m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);

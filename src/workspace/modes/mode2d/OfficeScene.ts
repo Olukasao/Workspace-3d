@@ -438,8 +438,9 @@ Painel`;
     const want = new Map<string, Dir>();
     for (const [id, pv] of this.people) {
       const seat = id === myId ? this.me.seat : this.net.positions.get(id)?.seat;
-      if (!seat || seat.startsWith('chair:')) continue;
-      const cid = this.chairFor(seat);
+      if (!seat) continue;
+      // cadeira solta (reunião, copa): o id do assento já é `chair:<objeto>`
+      const cid = seat.startsWith('chair:') ? seat.slice(6) : this.chairFor(seat);
       if (cid && pv.dir !== this.view.baseDir(cid)) want.set(cid, pv.dir);
     }
     for (const [cid, d] of want)

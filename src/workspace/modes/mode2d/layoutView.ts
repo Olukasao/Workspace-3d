@@ -3,7 +3,7 @@
  * Usada pelo escritório (jogar) e pelo editor. O Phaser desenha tudo; o React não participa do loop visual.
  */
 import Phaser from 'phaser';
-import { ASSET_BY_ID, TILE, rotateDir, TILE_WALL_FRONT, TILE_WALL_TOP, footprintSize, gridOf, layoutToTiled, type Grid, type Layout2D, type Obj2D } from '../../../../shared/office2d';
+import { ASSET_BY_ID, TILE, rotateDir, type Dir, TILE_WALL_FRONT, TILE_WALL_TOP, footprintSize, gridOf, layoutToTiled, type Grid, type Layout2D, type Obj2D } from '../../../../shared/office2d';
 import { furnitureKey, registerArt } from './textures2d';
 import { packWalls } from './art/pack';
 import { TILESET_TILES } from '../../../../shared/office2d';
@@ -54,6 +54,8 @@ export class LayoutView {
   walls!: Phaser.Tilemaps.TilemapLayer;
   grid: Grid;
   readonly objects = new Map<string, Phaser.GameObjects.Image>();
+  /** encostos de cadeira desenhados por cima de quem senta (cadeira vista de costas), por id do objeto */
+  private backs = new Map<string, Phaser.GameObjects.Image>();
   private labels: Phaser.GameObjects.Text[] = [];
   private mapKey = '';
 
@@ -102,11 +104,40 @@ export class LayoutView {
     const img = this.scene.add.image(o.x * TILE, (o.y + h) * TILE, furnitureKey(a.id, a.rotatable ? o.rot : 0)).setOrigin(0, 1).setDepth(objectDepth(o));
     this.objects.set(o.id, img);
     // cadeira vista de costas: o encosto (parte de cima da imagem) é desenhado por cima de quem está sentado; o assento e as rodinhas ficam atrás dele
-    if (this.layered && a.id === 'chair' && rotateDir('down', o.rot) === 'up') {
-      const back = this.scene.add.image(img.x, img.y, img.texture.key).setOrigin(0, 1).setDepth(objectDepth(o) + 2).setCrop(0, CHAIR_BACK_FROM, TILE, CHAIR_BACK_ROWS - CHAIR_BACK_FROM);
-      img.once(Phaser.GameObjects.Events.DESTROY, () => back.destroy());
-    }
+    if (this.layered && a.id === 'chair' && rotateDir('down', o.rot) === 'up') this.addBack(o, img);
     return img;
+  }
+
+  private addBack(o: Obj2D, img: Phaser.GameObjects.Image) {
+    const back = this.scene.add.image(img.x, img.y, img.texture.key).setOrigin(0, 1).setDepth(objectDepth(o) + 2).setCrop(0, CHAIR_BACK_FROM, TILE, CHAIR_BACK_ROWS - CHAIR_BACK_FROM);
+    this.backs.set(o.id, back);
+    img.once(Phaser.GameObjects.Events.DESTROY, () => {
+      back.destroy();
+      if (this.backs.get(o.id) === back) this.backs.delete(o.id);
+    });
+  }
+
+  /** Rumo da cadeira no layout (o que o administrador desenhou). */
+  baseDir(id: string): Dir | null {
+    const o = this.layout.objects.find((q) => q.id === id);
+    return o ? rotateDir('down', o.rot) : null;
+  }
+
+  /** Cadeira giratória: vira para `dir` (quem está sentado se virou para conversar) e volta ao rumo do layout com `resetChair`. */
+  setChairDir(id: string, dir: Dir) {
+    const o = this.layout.objects.find((q) => q.id === id);
+    const img = this.objects.get(id);
+    if (!o || !img || o.asset !== 'chair') return;
+    const rot = [0, 1, 2, 3].find((r) => rotateDir('down', r) === dir) ?? o.rot;
+    const key = furnitureKey('chair', rot);
+    if (img.texture.key !== key) img.setTexture(key);
+    this.backs.get(id)?.destroy();
+    this.backs.delete(id);
+    if (this.layered && dir === 'up') this.addBack(o, img);
+  }
+  resetChair(id: string) {
+    const d = this.baseDir(id);
+    if (d) this.setChairDir(id, d);
   }
 
   private buildLabels() {
@@ -123,6 +154,7 @@ export class LayoutView {
   rebuildObjects() {
     for (const img of this.objects.values()) img.destroy();
     this.objects.clear();
+    this.backs.clear();
     for (const t of this.labels) t.destroy();
     this.labels = [];
     this.buildObjects();

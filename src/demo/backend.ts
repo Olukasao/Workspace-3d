@@ -537,6 +537,7 @@ export function installStaticBackend() {
     return new Response(JSON.stringify(r.body), { status: r.status, headers: { 'content-type': 'application/json' } });
   };
   (window as unknown as { EventSource: unknown }).EventSource = MockEventSource;
+  (window as unknown as { __lifeViews?: () => AgentView[] }).__lifeViews = () => activeLife().views(); // diagnóstico
   startLoop();
   void TILE;
   void SPEED_2D;

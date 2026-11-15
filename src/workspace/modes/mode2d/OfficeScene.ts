@@ -90,6 +90,7 @@ export class OfficeScene extends Phaser.Scene {
     (window as unknown as { __office2d?: unknown }).__office2d = {
       looks: () => Object.fromEntries([...this.people].map(([id, pv]) => [id, pv.look])),
       looseSeats: () => looseSeats(this.layout).map((s) => ({ id: s.id, dir: s.dir })),
+      chairDirs: () => Object.fromEntries(this.swiveled),
       // testes: leva a câmera até uma TV e devolve o ponto dela na tela (para clicar de verdade)
       focusTv: (id: string) => {
         const b = this.view.objects.get(id)?.getBounds();
@@ -419,6 +420,38 @@ Painel`;
         this.people.delete(id);
       }
     for (const pv of this.people.values()) pv.update(dt, t, pv.isMe);
+    this.syncChairs();
+  }
+
+  /** Cadeiras giratórias: quem está sentado numa mesa e se vira (para conversar) leva a cadeira junto; ao voltar ou sair, ela volta ao rumo do layout. */
+  private swiveled = new Map<string, Dir>();
+  private chairBySeat = new Map<string, string | null>();
+  private chairFor(seatId: string): string | null {
+    if (this.chairBySeat.has(seatId)) return this.chairBySeat.get(seatId)!;
+    const sp = seatPointOf(this.layout, seatId);
+    const o = sp && this.layout.objects.find((q) => q.asset === 'chair' && q.x === sp.cx && q.y === sp.cy);
+    this.chairBySeat.set(seatId, o?.id ?? null);
+    return o?.id ?? null;
+  }
+  private syncChairs() {
+    const myId = this.bridge.employeeId;
+    const want = new Map<string, Dir>();
+    for (const [id, pv] of this.people) {
+      const seat = id === myId ? this.me.seat : this.net.positions.get(id)?.seat;
+      if (!seat || seat.startsWith('chair:')) continue;
+      const cid = this.chairFor(seat);
+      if (cid && pv.dir !== this.view.baseDir(cid)) want.set(cid, pv.dir);
+    }
+    for (const [cid, d] of want)
+      if (this.swiveled.get(cid) !== d) {
+        this.view.setChairDir(cid, d);
+        this.swiveled.set(cid, d);
+      }
+    for (const cid of [...this.swiveled.keys()])
+      if (!want.has(cid)) {
+        this.view.resetChair(cid);
+        this.swiveled.delete(cid);
+      }
   }
 
   private updateHint() {

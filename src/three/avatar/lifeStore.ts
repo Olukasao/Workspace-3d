@@ -14,6 +14,12 @@ export interface LifePose {
   /** m/s; > 0 = caminhando */
   speed: number;
   speaking: boolean | null;
+  /** cadeira da própria mesa e quanto ela gira (rad) para acompanhar quem está sentado (conversa com um colega) */
+  chairId?: string;
+  swivel?: number;
 }
 
 export const lifePoses = new Map<string, LifePose>();
+
+/** Giro atual (rad) de cada cadeira que acompanha quem está sentado, por id do objeto. A cena aplica nas instâncias. */
+export const chairSwivel = new Map<string, number>();

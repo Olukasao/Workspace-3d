@@ -6,6 +6,7 @@
  */
 import { Edges, Environment, Html, Lightformer, OrbitControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { chairSwivel } from './avatar/lifeStore';
 import { memo, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Box3, DoubleSide, InstancedMesh, MathUtils, Matrix4, Object3D, RepeatWrapping, SRGBColorSpace, TextureLoader, Vector3, type Group, type Texture } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -348,6 +349,30 @@ function InstancedAsset({ asset, items, onClick }: { asset: AssetDefinition; ite
       mesh.computeBoundingSphere();
     });
   }, [parts, items]);
+  // cadeiras giratórias (vida autônoma): só reescreve a matriz das instâncias cujo giro mudou
+  const applied = useRef(new Map<string, number>());
+  useFrame(() => {
+    if (!chairSwivel.size) return;
+    const m = new Matrix4();
+    const obj = new Object3D();
+    let touched = false;
+    items.forEach((it, i) => {
+      const sw = chairSwivel.get(it.id);
+      if (sw === undefined || (applied.current.get(it.id) ?? 0) === sw) return;
+      applied.current.set(it.id, sw);
+      touched = true;
+      obj.position.set(it.wt.x, it.wt.y, it.wt.z);
+      obj.rotation.set(0, it.wt.rotY + sw, 0);
+      obj.updateMatrix();
+      parts.forEach((part, pi) => {
+        const mesh = refs.current[pi];
+        if (!mesh) return;
+        m.multiplyMatrices(obj.matrix, part.matrix);
+        mesh.setMatrixAt(i, m);
+      });
+    });
+    if (touched) for (const mesh of refs.current) if (mesh) mesh.instanceMatrix.needsUpdate = true;
+  });
   if (load.state !== 'ready') return null;
   return (
     <>
@@ -492,6 +517,8 @@ function DiagnosticHooks() {
         v.project(camera);
         return { x: ((v.x + 1) / 2) * size.width, y: ((1 - v.y) / 2) * size.height };
       },
+      /** diagnóstico: giro (rad) do objeto no eixo Y */
+      rotYOf: (id: string) => chairSwivel.get(id) ?? null,
       worldToScreen: (x: number, y: number, z: number) => {
         v.set(x, y, z).project(camera);
         return { x: ((v.x + 1) / 2) * size.width, y: ((1 - v.y) / 2) * size.height };

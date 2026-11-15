@@ -1,6 +1,6 @@
 /** Vida autônoma no 3D: monta a grade de navegação a partir da cena (paredes, vãos, móveis) e os pontos de interesse. */
 import { Life, type LifeAgent, type Poi } from '../../shared/life';
-import { indexObjects, seatWorld, worldFootprint, worldTransform, type AssetIndex } from '../../shared/scene';
+import { indexObjects, seatAnchorOf, seatWorld, worldFootprint, worldTransform, type AssetIndex } from '../../shared/scene';
 import type { AssetDefinition, SceneDoc } from '../../shared/types';
 import type { LifePose } from '../three/avatar/lifeStore';
 import { NavGrid } from './grid';
@@ -10,6 +10,10 @@ const CELL = 0.2;
 // plano do motor: x = x do mundo, y = z do mundo; face = atan2(z, x) do vetor "para onde olha"
 export const faceOfRotY = (r: number) => Math.atan2(Math.cos(r), Math.sin(r));
 export const rotYOfFace = (f: number) => Math.atan2(Math.cos(f), Math.sin(f));
+
+/** a cadeira de cada colaborador (a da própria mesa) e o rumo dela parada, para a cadeira girar junto com quem senta */
+const chairOf = new Map<string, { chairId: string; deskId: string; seatRotY: number }>();
+const turn = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
 
 export interface Person3D {
   id: string;
@@ -60,6 +64,8 @@ export function buildLife3D(doc: SceneDoc, assetList: AssetDefinition[], people:
     if (desk) {
       const w = seatWorld(byId, desk, assets as never);
       d = { at: { x: w.x, y: w.z }, face: faceOfRotY(w.rotY), seatId: desk.id };
+      const chairId = seatAnchorOf(byId, desk, assets as never).chairId;
+      if (chairId) chairOf.set(p.id, { chairId, deskId: desk.id, seatRotY: w.rotY });
     }
     return { id: p.id, name: p.name, dept: p.dept, desk: d };
   });
@@ -100,6 +106,10 @@ export function buildLife3D(doc: SceneDoc, assetList: AssetDefinition[], people:
 }
 
 const ACT = { work: 'idle', type: 'typing', call: 'call', talk: 'talk', drink: 'drink', tool: 'tool', rest: 'idle', look: 'idle' } as const;
-export function poseOf(v: { x: number; y: number; face: number; moving: boolean; sit: boolean; activity: keyof typeof ACT; speaking: boolean | null }): LifePose {
-  return { x: v.x, z: v.y, rotY: rotYOfFace(v.face), mode: v.sit ? 'sit' : 'stand', activity: ACT[v.activity] ?? 'idle', speed: v.moving ? SPEED_3D : 0, speaking: v.speaking };
+export function poseOf(v: { id: string; x: number; y: number; face: number; moving: boolean; sit: boolean; seatId: string | null; activity: keyof typeof ACT; speaking: boolean | null }): LifePose {
+  const rotY = rotYOfFace(v.face);
+  const c = chairOf.get(v.id);
+  // a cadeira gira junto com quem está sentado nela (e volta ao lugar quando a pessoa sai)
+  const swivel = c && v.sit && v.seatId === c.deskId ? turn(rotY - c.seatRotY) : 0;
+  return { x: v.x, z: v.y, rotY, mode: v.sit ? 'sit' : 'stand', activity: ACT[v.activity] ?? 'idle', speed: v.moving ? SPEED_3D : 0, speaking: v.speaking, chairId: c?.chairId, swivel };
 }

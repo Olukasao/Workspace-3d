@@ -13,7 +13,7 @@ import type { AvatarConfig } from '../../../shared/avatarCatalog';
 import { useLive, type LivePerson } from '../../live';
 import { buildAraAvatar } from './ara';
 import { buildAvatar, type BuiltAvatar } from './assets';
-import { lifePoses } from './lifeStore';
+import { chairSwivel, lifePoses } from './lifeStore';
 import { AvatarRig, type PoseState } from './rig';
 
 export interface Seat {
@@ -69,7 +69,7 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
   }, [key, lod]);
   useEffect(() => () => setBuilt((prev) => (prev?.av.dispose(), null)), []);
 
-  useFrame(({ camera, clock }, dt) => {
+  useFrame(({ camera, clock, scene }, dt) => {
     const g = group.current;
     if (!g || !built) return;
     // vida autônoma (quando há simulação): posição e pose vêm dela
@@ -78,6 +78,19 @@ export const Avatar = memo(function Avatar({ person, seat, config: forced, pose:
       g.position.set(life.x, 0, life.z);
       g.rotation.y = life.rotY;
       poseRef.current = { mode: life.mode, activity: life.activity, speaking: life.speaking, speed: life.speed };
+      // cadeira giratória: acompanha o giro de quem está sentado (cadeiras instanciadas leem `chairSwivel`)
+      if (life.chairId) {
+        const cur = chairSwivel.get(life.chairId) ?? 0;
+        const want = life.swivel ?? 0;
+        const next = cur + Math.atan2(Math.sin(want - cur), Math.cos(want - cur)) * Math.min(1, dt * 7);
+        chairSwivel.set(life.chairId, Math.abs(next) < 0.002 && want === 0 ? 0 : next);
+        const ch = scene.getObjectByName(life.chairId);
+        if (ch) {
+          const u = ch.userData as { baseRotY?: number };
+          u.baseRotY ??= ch.rotation.y;
+          ch.rotation.y = u.baseRotY + (chairSwivel.get(life.chairId) ?? 0);
+        }
+      }
     }
     // fora da câmera: não desenha nem anima
     _m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
